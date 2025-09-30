@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Validex - Test Case Management Platform{% endblock %}
+
+{% block content %}
+<style>
+  .hero-section {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+  }
+  
+  .logo {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #fff, #e3f2fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+  
+  .tagline {
+    font-size: 1.5rem;
+    font-weight: 300;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+  }
+  
+  .proceed-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+  }
+  
+  .proceed-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+    opacity: 0.8;
+  }
+  
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+  }
+  
+  .floating-icon {
+    position: absolute;
+    opacity: 0.1;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .floating-icon:nth-child(1) {
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+  
+  .floating-icon:nth-child(2) {
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+  }
+  
+  .floating-icon:nth-child(3) {
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .features-preview {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+  
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+  
+  .feature-list li::before {
+    content: '✓';
+    color: #4ecdc4;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+</style>
+
+<div class="hero-section">
+  <!-- Floating Background Icons -->
+  <div class="floating-icon">
+    <i class="fas fa-clipboard-check" style="font-size: 4rem;"></i>
+  </div>
+  <div class="floating-icon">
+    <i class="fas fa-chart-line" style="font-size: 3rem;"></i>
+  </div>
+  <div class="floating-icon">
+    <i class="fas fa-cogs" style="font-size: 3.5rem;"></i>
+  </div>
+  
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <div class="hero-content">
+          <h1 class="logo">Validex</h1>
+          <p class="tagline">Professional Test Case Management Platform</p>
+          <p class="lead mb-4" style="font-size: 1.1rem; opacity: 0.8;">
+            Streamline your testing workflow with our powerful BDD-style test case management system. 
+            Upload Excel files, execute tests, and generate comprehensive reports.
+          </p>
+          
+          <a href="{{ url_for('role_selection') }}" class="proceed-btn">
+            <i class="fas fa-arrow-right me-2"></i>
+            Get Started
+          </a>
+          
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-number">{{ total_cases }}</span>
+              <span class="stat-label">Test Cases</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">2</span>
+              <span class="stat-label">User Roles</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">BDD Compatible</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">∞</span>
+              <span class="stat-label">Scalability</span>
+            </div>
+          </div>
+          
+          <!-- Features Preview -->
+          <div class="features-preview">
+            <h4 class="mb-3">Key Features</h4>
+            <ul class="feature-list">
+              <li>BDD Test Case Management</li>
+              <li>Role-Based Access Control</li>
+              <li>Real-time Execution Tracking</li>
+              <li>Comprehensive Reporting</li>
+              <li>Advanced Filtering & Search</li>
+              <li>Test Case Analytics</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Info Section -->
+<div class="py-5 bg-light">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <div class="p-4">
+          <i class="fas fa-tasks fa-3x text-primary mb-3"></i>
+          <h5>Test Case Management</h5>
+          <p class="text-muted">Create, organize, and manage thousands of test cases effortlessly</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="p-4">
+          <i class="fas fa-users fa-3x text-success mb-3"></i>
+          <h5>Role-Based Access</h5>
+          <p class="text-muted">Administrator and Tester roles with tailored interfaces</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="p-4">
+          <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+          <h5>Analytics & Reports</h5>
+          <p class="text-muted">Generate detailed reports and track execution metrics</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

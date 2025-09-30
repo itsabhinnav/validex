@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Execute Test - Validex{% endblock %}
+
+{% block content %}
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .page-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+  
+  .content-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  }
+</style>
+
+<div class="page-hero p-4 mb-5 position-relative">
+    <div class="position-relative">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="fas fa-play me-3"></i>Execute Test Case
+                </h1>
+                <p class="lead mb-0 opacity-90">Execute and record test results</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-light text-dark px-3 py-2 fs-6">
+                    <i class="fas fa-user me-2"></i>{{ role.title() }} View
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card content-card">
+            <div class="card-header" style="border-radius: 15px 15px 0 0;">
+                <h5>Test Case Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Test Case ID:</strong> TC-{{ test_case.get('Test Case ID', 'N/A') }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Priority:</strong> {{ test_case.get('Priority', 'N/A') }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <strong>Title:</strong> {{ test_case.get('Test Case Title', 'Untitled') }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <strong>Feature:</strong> {{ test_case.get('Feature', 'N/A') }}
+                    </div>
+                </div>
+                
+                {% if test_case.get('Preconditions') %}
+                <div class="mb-3">
+                    <strong>Preconditions:</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case.Preconditions }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if test_case.get('Given') %}
+                <div class="mb-3">
+                    <strong>Given (Setup):</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case.Given }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if test_case.get('When') %}
+                <div class="mb-3">
+                    <strong>When (Action):</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case.When }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if test_case.get('Then') %}
+                <div class="mb-3">
+                    <strong>Then (Verification):</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case.Then }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if test_case.get('Expected Behavior') %}
+                <div class="mb-3">
+                    <strong>Expected Behavior:</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case['Expected Behavior'] }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if test_case.get('Remarks') %}
+                <div class="mb-3">
+                    <strong>Remarks:</strong>
+                    <div class="border rounded p-3 bg-light">
+                        {{ test_case.Remarks }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <strong>Source File:</strong> {{ source_file }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card content-card">
+            <div class="card-header" style="border-radius: 15px 15px 0 0;">
+                <h5>Test Execution</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_test_result') }}">
+                    <input type="hidden" name="test_id" value="{{ test_case.get('Test Case ID', '') }}">
+                    
+                    <div class="mb-3">
+                        <label for="result" class="form-label">Test Result</label>
+                        <select class="form-select" name="result" id="result" required>
+                            <option value="">Select Result</option>
+                            <option value="passed">✅ Passed</option>
+                            <option value="failed">❌ Failed</option>
+                            <option value="blocked">🚫 Blocked</option>
+                            <option value="skipped">⏭️ Skipped</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="execution_time" class="form-label">Execution Time (minutes)</label>
+                        <input type="number" class="form-control" name="execution_time" id="execution_time" 
+                               min="0" step="0.1" placeholder="e.g., 5.5">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">Comments</label>
+                        <textarea class="form-control" name="comments" id="comments" rows="4" 
+                                  placeholder="Add any comments about the test execution..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Submit Result
+                        </button>
+                        <a href="{{ url_for('test_cases') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Test Cases
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card content-card mt-3">
+            <div class="card-header" style="border-radius: 15px 15px 0 0;">
+                <h6>Execution History</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">No previous executions found.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus on result selection
+    document.getElementById('result').focus();
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'p':
+                    e.preventDefault();
+                    document.querySelector('option[value="passed"]').selected = true;
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    document.querySelector('option[value="failed"]').selected = true;
+                    break;
+                case 's':
+                    e.preventDefault();
+                    document.getElementById('comments').focus();
+                    break;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
