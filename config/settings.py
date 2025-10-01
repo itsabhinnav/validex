@@ -6,13 +6,13 @@ class Config:
     """Configuration management for Validex application"""
     
     def __init__(self):
-        self.config_file = Path("validex_config.json")
+        self.config_file = Path("config/validex_config.json")
         self.default_config = {
             "jfrog": {
                 "base_url": "https://trialdablg5.jfrog.io/artifactory",
                 "repository": "testccs-test",
                 "root_path": "test",
-                "access_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "access_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                 "enabled": True
             },
             "app": {
@@ -115,6 +115,31 @@ class Config:
             return f"{base_url}/{repository}/{root_path}/{filename}"
         else:
             return f"{base_url}/{repository}/{filename}"
+
+# Flask Configuration Classes
+class DevelopmentConfig:
+    """Development configuration"""
+    DEBUG = True
+    SECRET_KEY = 'dev-secret-key'
+    DATABASE_URL = 'sqlite:///data/test_cases.db'
+    UPLOAD_FOLDER = 'data/excel_files'
+    REPORTS_FOLDER = 'data/reports'
+
+class ProductionConfig:
+    """Production configuration"""
+    DEBUG = False
+    SECRET_KEY = 'prod-secret-key'
+    DATABASE_URL = 'sqlite:///data/test_cases.db'
+    UPLOAD_FOLDER = 'data/excel_files'
+    REPORTS_FOLDER = 'data/reports'
+
+class TestingConfig:
+    """Testing configuration"""
+    TESTING = True
+    SECRET_KEY = 'test-secret-key'
+    DATABASE_URL = 'sqlite:///:memory:'
+    UPLOAD_FOLDER = 'data/excel_files'
+    REPORTS_FOLDER = 'data/reports'
 
 # Global config instance
 config = Config()

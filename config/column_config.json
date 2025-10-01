@@ -1,0 +1,169 @@
+{
+  "primary_key": "TC ID",
+  "required_columns": [
+    "TC ID",
+    "Summary"
+  ],
+  "column_definitions": {
+    "TC ID": {
+      "display_name": "Test Case ID",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Unique identifier for the test case"
+    },
+    "Req ID": {
+      "display_name": "Requirement ID",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Associated requirement identifier"
+    },
+    "Req Def": {
+      "display_name": "Requirement Definition",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Detailed requirement definition"
+    },
+    "Summary": {
+      "display_name": "Test Summary",
+      "type": "text",
+      "required": true,
+      "unique": false,
+      "description": "Brief summary of the test case"
+    },
+    "Screen ID": {
+      "display_name": "Screen ID",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Associated screen or page identifier"
+    },
+    "Feature": {
+      "display_name": "HMI Feature",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Feature or module being tested"
+    },
+    "Preconditions": {
+      "display_name": "Precondition",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Prerequisites for test execution"
+    },
+    "Procedure": {
+      "display_name": "Procedure",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Step-by-step test procedure"
+    },
+    "Expected Behavior": {
+      "display_name": "Expected Behavior",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Expected outcome of the test"
+    },
+    "type": {
+      "display_name": "Test Type",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Type of test (functional, integration, etc.)"
+    },
+    "Priority": {
+      "display_name": "Priority",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Test priority level",
+      "allowed_values": ["High", "Medium", "Low", "Critical"]
+    },
+    "Status": {
+      "display_name": "Status",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Current test status",
+      "allowed_values": ["Pending", "Passed", "Failed", "Running", "Blocked", "Skipped"]
+    },
+    "Given": {
+      "display_name": "Given",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Initial context or setup (BDD format)"
+    },
+    "When": {
+      "display_name": "When",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Action to be performed (BDD format)"
+    },
+    "Then": {
+      "display_name": "Then",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Expected outcome (BDD format)"
+    },
+    "Remarks": {
+      "display_name": "Remarks",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "description": "Additional notes or comments"
+    },
+    "Test Case Title": {
+      "display_name": "Test Case Title",
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "description": "Descriptive title of the test case"
+    }
+  },
+  "column_mapping": {
+    "legacy_mappings": {
+      "Test Case ID": "TC ID",
+      "Test Case Title": "Summary",
+      "HMI Feature": "Feature",
+      "Preconditions": "Preconditions",
+      "Given": "Given",
+      "When": "When",
+      "Then": "Then",
+      "Expected Behavior": "Expected Behavior",
+      "Remarks": "Remarks",
+      "Priority": "Priority",
+      "Status": "Status"
+    }
+  },
+  "display_settings": {
+    "default_columns": [
+      "TC ID",
+      "Summary",
+      "Feature",
+      "Priority",
+      "Status"
+    ],
+    "filterable_columns": [
+      "Feature",
+      "Priority",
+      "Status",
+      "type",
+      "Screen ID",
+      "_directory_structure"
+    ],
+    "searchable_columns": [
+      "TC ID",
+      "Summary",
+      "Feature",
+      "Expected Behavior",
+      "Procedure"
+    ]
+  }
+}

@@ -3,50 +3,22 @@
 {% block title %}Execute Test - Validex{% endblock %}
 
 {% block content %}
-<style>
-  .page-hero {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: white;
-    border-radius: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .page-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-    opacity: 0.3;
-  }
-  
-  .content-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-  }
-</style>
-
-<div class="page-hero p-4 mb-5 position-relative">
-    <div class="position-relative">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-5 fw-bold mb-3">
-                    <i class="fas fa-play me-3"></i>Execute Test Case
-                </h1>
-                <p class="lead mb-0 opacity-90">Execute and record test results</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <span class="badge bg-light text-dark px-3 py-2 fs-6">
-                    <i class="fas fa-user me-2"></i>{{ role.title() }} View
-                </span>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1"><i class="fas fa-play me-2"></i>Execute Test Case</h3>
+                    <p class="text-muted mb-0">Execute and record test results</p>
+                </div>
+                <div>
+                    <span class="badge bg-primary px-3 py-2">
+                        <i class="fas fa-user me-2"></i>{{ current_role.title() if current_role else 'Guest' }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 <div class="row">
     <div class="col-md-8">
@@ -57,22 +29,61 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>Test Case ID:</strong> TC-{{ test_case.get('Test Case ID', 'N/A') }}
+                        <strong>Test Case ID:</strong> 
+                        {% set test_id = test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) %}
+                        {% if test_id == 'N/A' %}
+                            <span class="badge bg-warning">Auto-Generated</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ test_id }}</span>
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <strong>Priority:</strong> {{ test_case.get('Priority', 'N/A') }}
+                        <strong>Priority:</strong> 
+                        {% set priority = test_case.get('Priority', 'N/A') %}
+                        {% if priority == 'N/A' %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ priority }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>App:</strong> 
+                        {% set app = test_case.get('App', 'N/A') %}
+                        {% if app == 'N/A' %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% else %}
+                            <span class="badge bg-primary">{{ app }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Test Type:</strong> 
+                        {% set test_type = test_case.get('Test Type', 'N/A') %}
+                        {% if test_type == 'N/A' %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ test_type }}</span>
+                        {% endif %}
                     </div>
                 </div>
                 
                 <div class="row mb-3">
                     <div class="col-12">
-                        <strong>Title:</strong> {{ test_case.get('Test Case Title', 'Untitled') }}
+                        <strong>Summary:</strong> {{ test_case.get('Summary', 'N/A') }}
                     </div>
                 </div>
                 
                 <div class="row mb-3">
                     <div class="col-12">
-                        <strong>Feature:</strong> {{ test_case.get('Feature', 'N/A') }}
+                        <strong>Feature:</strong> 
+                        {% set feature = test_case.get('Feature', 'N/A') %}
+                        {% if feature == 'N/A' %}
+                            <span class="text-muted">N/A</span>
+                        {% else %}
+                            <span class="badge bg-info">{{ feature }}</span>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -143,8 +154,9 @@
                 <h5>Test Execution</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('submit_test_result') }}">
-                    <input type="hidden" name="test_id" value="{{ test_case.get('Test Case ID', '') }}">
+                <form method="POST" action="{{ url_for('main.execute_test') }}">
+                    <input type="hidden" name="test_id" value="{{ test_case.get('Test Case ID', test_case.get('TC ID', '')) }}">
+                    <input type="hidden" name="source_file" value="{{ test_case.get('source_file', '') }}">
                     
                     <div class="mb-3">
                         <label for="result" class="form-label">Test Result</label>
@@ -164,6 +176,15 @@
                     </div>
                     
                     <div class="mb-3">
+                        <label for="environment" class="form-label">Test Environment</label>
+                        <select class="form-select" name="environment" id="environment">
+                            <option value="dev">Development</option>
+                            <option value="staging">Staging</option>
+                            <option value="production">Production</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label for="comments" class="form-label">Comments</label>
                         <textarea class="form-control" name="comments" id="comments" rows="4" 
                                   placeholder="Add any comments about the test execution..."></textarea>
@@ -173,7 +194,7 @@
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save"></i> Submit Result
                         </button>
-                        <a href="{{ url_for('test_cases') }}" class="btn btn-secondary">
+                        <a href="{{ url_for('main.test_cases') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Test Cases
                         </a>
                     </div>

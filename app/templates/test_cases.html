@@ -1,0 +1,834 @@
+{% extends "base.html" %}
+
+{% block title %}Test Cases - Validex{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    <!-- Filters Section -->
+    <div class="card content-card mb-3">
+        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filters & Search</h6>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="toggleFilters()">
+                        <i class="fas fa-chevron-up" id="filterToggle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" id="filterContent">
+            <form method="GET" action="{{ url_for('main.test_cases') }}" id="filterForm">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label small">Search</label>
+                        <input type="text" class="form-control form-control-sm" name="search" id="search" 
+                               placeholder="Search test cases..." value="{{ current_search }}">
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="app" class="form-label small">App</label>
+                        <select class="form-select form-select-sm" name="app" id="app">
+                            <option value="">All Apps</option>
+                            {% for app in apps %}
+                            <option value="{{ app }}" {% if current_app_filter == app %}selected{% endif %}>
+                                {{ app }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="test_type" class="form-label small">Test Type</label>
+                        <select class="form-select form-select-sm" name="test_type" id="test_type">
+                            <option value="">All Types</option>
+                            {% for test_type in test_types %}
+                            <option value="{{ test_type }}" {% if current_test_type_filter == test_type %}selected{% endif %}>
+                                {{ test_type }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="status" class="form-label small">Status</label>
+                        <select class="form-select form-select-sm" name="status" id="status">
+                            <option value="">All Status</option>
+                            {% for status in statuses %}
+                            <option value="{{ status }}" {% if current_status_filter == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="priority" class="form-label small">Priority</label>
+                        <select class="form-select form-select-sm" name="priority" id="priority">
+                            <option value="">All Priority</option>
+                            {% for priority in priorities %}
+                            <option value="{{ priority }}" {% if current_priority_filter == priority %}selected{% endif %}>
+                                {{ priority }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row g-2 mt-2">
+                    <div class="col-md-2">
+                        <label for="sort" class="form-label small">Sort By</label>
+                        <select class="form-select form-select-sm" name="sort" id="sort">
+                            <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
+                            <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
+                            <option value="App" {% if current_sort == 'App' %}selected{% endif %}>App</option>
+                            <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
+                            <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
+                            <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
+                            <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="order" class="form-label small">Order</label>
+                        <select class="form-select form-select-sm" name="order" id="order">
+                            <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                            <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4 d-flex align-items-end">
+                        <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary btn-sm me-2">
+                            <i class="fas fa-times"></i> Clear All
+                        </a>
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('main.export_test_cases', **request.args) }}" class="btn btn-outline-info btn-sm" id="exportBtn">
+                                <i class="fas fa-download"></i> Export
+                            </a>
+                            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('main.export_test_cases', **request.args) }}"><i class="fas fa-file-excel me-2"></i>Export to Excel</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportSelected()"><i class="fas fa-check-square me-2"></i>Export Selected Only</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dynamic Filter Section -->
+    <div class="card content-card mb-3">
+        <div class="card-header bg-light">
+            <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Advanced Filters</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label for="filterColumn" class="form-label small">Add Filter Column</label>
+                    <select class="form-select form-select-sm" id="filterColumn" onchange="addDynamicFilter()">
+                        <option value="">Select column to filter...</option>
+                        <option value="App">App</option>
+                        <option value="Test Type">Test Type</option>
+                        <option value="Feature">Feature</option>
+                        <option value="Status">Status</option>
+                        <option value="Priority">Priority</option>
+                        <option value="Summary">Summary</option>
+                        <option value="Test Case ID">Test Case ID</option>
+                    </select>
+                </div>
+                <div class="col-md-9" id="dynamicFilterContainer">
+                    <!-- Dynamic filters will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    {% if request.args.get('message') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ request.args.get('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <!-- Results Section -->
+    <div class="card content-card">
+        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Test Cases</h5>
+                    <small class="text-muted">Visualize, filter, and execute your test cases</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">{{ test_cases|length }} of {{ total_cases }} results</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" id="viewGrid" title="Grid View">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary active" id="viewTable" title="Table View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if test_cases %}
+            <!-- Table View -->
+            <div id="tableView" class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th>Test Case ID</th>
+                            <th>Summary</th>
+                            <th>App</th>
+                            <th>Test Type</th>
+                            <th>Feature</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Source File</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test_case in test_cases %}
+                        <tr class="test-case-row" data-id="{{ loop.index }}">
+                            <td>
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </td>
+                            <td>
+                                {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                                {% if test_id == 'N/A' %}
+                                    <span class="badge bg-warning">Auto-Generated</span>
+                                {% else %}
+                                    <strong class="text-primary">{{ test_id }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="compact-text" style="max-width: 200px;" title="{{ test_case.get('Summary', 'N/A') }}">
+                                    {{ test_case.get('Summary', 'N/A') }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ test_case.get('App', 'N/A') }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ test_case.get('Test Type', 'N/A') }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
+                            </td>
+                            <td>
+                                {% set status = test_case.get('Status', 'N/A').lower() %}
+                                {% if status == 'passed' %}
+                                    <span class="badge badge-status badge-passed">Passed</span>
+                                {% elif status == 'failed' %}
+                                    <span class="badge badge-status badge-failed">Failed</span>
+                                {% elif status == 'running' %}
+                                    <span class="badge badge-status badge-running">Running</span>
+                                {% else %}
+                                    <span class="badge badge-status badge-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge badge-priority-high">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge badge-priority-low">Low</span>
+                                {% else %}
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-primary execute-btn" data-id="{{ loop.index }}">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info view-btn" data-id="{{ loop.index }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-id="{{ loop.index }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid View -->
+            <div id="gridView" class="row" style="display: none;">
+                {% for test_case in test_cases %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card test-case-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                            {% if test_id == 'N/A' %}
+                                <span class="badge bg-warning">Auto-Generated</span>
+                            {% else %}
+                                <strong class="text-primary">{{ test_id }}</strong>
+                            {% endif %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title compact-text">{{ test_case.get('Summary', 'N/A') }}</h6>
+                            <div class="mb-2">
+                                <span class="badge bg-info me-1">{{ test_case.get('App', 'N/A') }}</span>
+                                <span class="badge bg-secondary me-1">{{ test_case.get('Test Type', 'N/A') }}</span>
+                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
+                            </div>
+                            <div class="mb-2">
+                                {% set status = test_case.get('Status', 'N/A').lower() %}
+                                {% if status == 'passed' %}
+                                    <span class="badge badge-status badge-passed">Passed</span>
+                                {% elif status == 'failed' %}
+                                    <span class="badge badge-status badge-failed">Failed</span>
+                                {% elif status == 'running' %}
+                                    <span class="badge badge-status badge-running">Running</span>
+                                {% else %}
+                                    <span class="badge badge-status badge-pending">Pending</span>
+                                {% endif %}
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge badge-priority-high">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge badge-priority-low">Low</span>
+                                {% else %}
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-sm btn-primary execute-btn" data-id="{{ loop.index }}">
+                                    <i class="fas fa-play"></i> Execute
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info view-btn" data-id="{{ loop.index }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary edit-btn" data-id="{{ loop.index }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="bulk-actions mt-3" style="display: none;">
+                <div class="alert alert-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-info-circle me-2"></i><span id="selectedCount">0</span> test cases selected</span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary" id="bulkExecute">
+                                <i class="fas fa-play"></i> Execute Selected
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSelection">
+                                <i class="fas fa-times"></i> Clear Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <nav aria-label="Test cases pagination" class="mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="pagination-info">
+                        <span class="text-muted">
+                            Showing {{ ((page - 1) * per_page) + 1 }} to {{ min(page * per_page, total_cases) }} of {{ total_cases }} results
+                        </span>
+                    </div>
+                    
+                    <ul class="pagination mb-0">
+                        {% if has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page-1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ p }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page+1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="pagination-controls">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                {{ per_page }} per page
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=10{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">10 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=25{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">25 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=50{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">50 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=100{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">100 per page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No test cases found</h5>
+                <p class="text-muted">Try adjusting your filters or search criteria.</p>
+                <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-refresh"></i> Show All
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Test Case Details Modal -->
+<div class="modal fade" id="testCaseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Case Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="testCaseDetails">
+                <!-- Test case details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="executeFromModal">
+                    <i class="fas fa-play"></i> Execute Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Execute Test Modal -->
+<div class="modal fade" id="executeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execute Test Case</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="executeForm">
+                    <div class="mb-3">
+                        <label for="testEnvironment" class="form-label">Test Environment</label>
+                        <select class="form-select" id="testEnvironment" required>
+                            <option value="">Select Environment</option>
+                            <option value="dev">Development</option>
+                            <option value="staging">Staging</option>
+                            <option value="production">Production</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="testData" class="form-label">Test Data</label>
+                        <textarea class="form-control" id="testData" rows="3" placeholder="Enter test data (optional)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="runInBackground">
+                            <label class="form-check-label" for="runInBackground">
+                                Run in background
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmExecute">
+                    <i class="fas fa-play"></i> Execute
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Toggle filters visibility
+function toggleFilters() {
+    const content = document.getElementById('filterContent');
+    const toggle = document.getElementById('filterToggle');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.className = 'fas fa-chevron-up';
+    } else {
+        content.style.display = 'none';
+        toggle.className = 'fas fa-chevron-down';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // View switching functionality
+    const viewGridBtn = document.getElementById('viewGrid');
+    const viewTableBtn = document.getElementById('viewTable');
+    const tableView = document.getElementById('tableView');
+    const gridView = document.getElementById('gridView');
+    
+    viewGridBtn.addEventListener('click', function() {
+        tableView.style.display = 'none';
+        gridView.style.display = 'block';
+        viewGridBtn.classList.add('active');
+        viewTableBtn.classList.remove('active');
+    });
+    
+    viewTableBtn.addEventListener('click', function() {
+        gridView.style.display = 'none';
+        tableView.style.display = 'block';
+        viewTableBtn.classList.add('active');
+        viewGridBtn.classList.remove('active');
+    });
+    
+    // Bulk selection functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const testCaseCheckboxes = document.querySelectorAll('.test-case-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        testCaseCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    
+    testCaseCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkActions();
+            updateSelectAllState();
+        });
+    });
+    
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = checkedBoxes.length;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+    
+    function updateSelectAllState() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        const totalBoxes = testCaseCheckboxes.length;
+        
+        if (checkedBoxes.length === 0) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = false;
+        } else if (checkedBoxes.length === totalBoxes) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+    
+    // Clear selection
+    document.getElementById('clearSelection').addEventListener('click', function() {
+        testCaseCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        updateBulkActions();
+    });
+    
+    // Bulk execute
+    document.getElementById('bulkExecute').addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            if (confirm(`Execute ${checkedBoxes.length} test cases?`)) {
+                // Implement bulk execution logic here
+                console.log('Bulk execute:', Array.from(checkedBoxes).map(cb => cb.value));
+                alert('Bulk execution started!');
+            }
+        }
+    });
+    
+    // Individual test case actions
+    document.querySelectorAll('.execute-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            showExecuteModal(testId);
+        });
+    });
+    
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            showTestCaseDetails(testId);
+        });
+    });
+    
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            // Implement edit functionality
+            console.log('Edit test case:', testId);
+            alert('Edit functionality coming soon!');
+        });
+    });
+    
+        function showExecuteModal(testId) {
+            // Get the test case data
+            const testRow = document.querySelector(`tr[data-id="${testId}"]`);
+            if (testRow) {
+                const testCaseId = testRow.querySelector('td:nth-child(2) strong').textContent.trim();
+                const sourceFile = testRow.querySelector('td:nth-child(9) small').textContent.trim() + '.xlsx';
+                
+                // Redirect to execute test page with parameters
+                window.location.href = `{{ url_for('main.execute_test') }}?test_id=${encodeURIComponent(testCaseId)}&source_file=${encodeURIComponent(sourceFile)}`;
+            } else {
+                // Fallback to modal if row not found
+                const executeModal = new bootstrap.Modal(document.getElementById('executeModal'));
+                executeModal.show();
+                document.getElementById('confirmExecute').setAttribute('data-test-id', testId);
+            }
+        }
+    
+    function showTestCaseDetails(testId) {
+        // This would typically fetch test case details from the server
+        // For now, we'll show a placeholder
+        const modalBody = document.getElementById('testCaseDetails');
+        modalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Test Case Information</h6>
+                    <p><strong>ID:</strong> TC-${testId}</p>
+                    <p><strong>Summary:</strong> Sample test case description</p>
+                    <p><strong>App:</strong> Sample App</p>
+                    <p><strong>Type:</strong> Functional</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Test Details</h6>
+                    <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
+                    <p><strong>Priority:</strong> <span class="badge badge-priority-medium">Medium</span></p>
+                    <p><strong>Feature:</strong> User Authentication</p>
+                </div>
+            </div>
+        `;
+        
+        const testCaseModal = new bootstrap.Modal(document.getElementById('testCaseModal'));
+        testCaseModal.show();
+    }
+    
+    // Execute test functionality
+    document.getElementById('confirmExecute').addEventListener('click', function() {
+        const testId = this.getAttribute('data-test-id');
+        const environment = document.getElementById('testEnvironment').value;
+        const testData = document.getElementById('testData').value;
+        const runInBackground = document.getElementById('runInBackground').checked;
+        
+        if (!environment) {
+            alert('Please select a test environment');
+            return;
+        }
+        
+        // Implement actual execution logic here
+        console.log('Executing test:', {
+            testId: testId,
+            environment: environment,
+            testData: testData,
+            runInBackground: runInBackground
+        });
+        
+        alert(`Test case ${testId} execution started in ${environment} environment!`);
+        
+        // Close modal
+        const executeModal = bootstrap.Modal.getInstance(document.getElementById('executeModal'));
+        executeModal.hide();
+    });
+    
+        // Execute from details modal
+        document.getElementById('executeFromModal').addEventListener('click', function() {
+            const testCaseModal = bootstrap.Modal.getInstance(document.getElementById('testCaseModal'));
+            testCaseModal.hide();
+
+            // Show execute modal
+            setTimeout(() => {
+                showExecuteModal('1'); // This should be dynamic based on the test case
+            }, 300);
+        });
+
+        // Export button functionality
+        document.getElementById('exportBtn').addEventListener('click', function(e) {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            button.disabled = true;
+            
+            // Reset after a delay (in case of error)
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 5000);
+        });
+    });
+
+    // Export functions
+    function exportToCSV() {
+        window.location.href = "{{ url_for('main.export_test_cases_csv', **request.args) }}";
+    }
+
+    function exportSelected() {
+        const selectedCheckboxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select test cases to export');
+            return;
+        }
+        
+        // Get selected test case IDs
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+        
+        // Add selected IDs to the export URL
+        const currentUrl = new URL(window.location.href);
+        const exportUrl = "{{ url_for('main.export_test_cases') }}" + 
+                         "?" + currentUrl.searchParams.toString() + 
+                         "&selected_ids=" + selectedIds.join(',');
+        
+        window.location.href = exportUrl;
+    }
+});
+
+// Dynamic Filter Functions
+let filterCounter = 0;
+const usedColumns = new Set();
+
+function addDynamicFilter() {
+    const columnSelect = document.getElementById('filterColumn');
+    const selectedColumn = columnSelect.value;
+    
+    if (!selectedColumn || usedColumns.has(selectedColumn)) {
+        return;
+    }
+    
+    usedColumns.add(selectedColumn);
+    filterCounter++;
+    
+    const container = document.getElementById('dynamicFilterContainer');
+    const filterDiv = document.createElement('div');
+    filterDiv.className = 'col-md-3 mb-2';
+    filterDiv.id = `filter-${filterCounter}`;
+    
+    // Get unique values for the selected column
+    const uniqueValues = getUniqueValuesForColumn(selectedColumn);
+    
+    filterDiv.innerHTML = `
+        <div class="d-flex align-items-end">
+            <div class="flex-grow-1 me-2">
+                <label class="form-label small">${selectedColumn}</label>
+                <select class="form-select form-select-sm" name="dynamic_${selectedColumn.toLowerCase().replace(' ', '_')}" id="dynamic_${filterCounter}">
+                    <option value="">All ${selectedColumn}</option>
+                    ${uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('')}
+                </select>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDynamicFilter(${filterCounter}, '${selectedColumn}')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(filterDiv);
+    
+    // Reset the column selector
+    columnSelect.value = '';
+    updateAvailableColumns();
+}
+
+function removeDynamicFilter(filterId, column) {
+    const filterElement = document.getElementById(`filter-${filterId}`);
+    if (filterElement) {
+        filterElement.remove();
+        usedColumns.delete(column);
+        updateAvailableColumns();
+    }
+}
+
+function updateAvailableColumns() {
+    const columnSelect = document.getElementById('filterColumn');
+    const options = columnSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value && usedColumns.has(option.value)) {
+            option.style.display = 'none';
+        } else {
+            option.style.display = 'block';
+        }
+    });
+}
+
+function getUniqueValuesForColumn(column) {
+    // Get values from the template data
+    const columnValues = {
+        'App': {{ apps | tojson }},
+        'Test Type': {{ test_types | tojson }},
+        'Feature': ['Login', 'Dashboard', 'Reports', 'Settings'], // This would need to be populated from server
+        'Status': {{ statuses | tojson }},
+        'Priority': {{ priorities | tojson }},
+        'Summary': ['Login Test', 'Data Validation', 'API Test', 'UI Test'], // This would need to be populated from server
+        'Test Case ID': ['TC-001', 'TC-002', 'TC-003', 'TC-004', 'Auto-Generated'] // This would need to be populated from server
+    };
+    
+    return columnValues[column] || [];
+}
+
+// Initialize available columns
+document.addEventListener('DOMContentLoaded', function() {
+    updateAvailableColumns();
+});
+</script>
+{% endblock %}

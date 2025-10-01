@@ -3,8 +3,8 @@
     "base_url": "https://trialdablg5.jfrog.io/artifactory",
     "repository": "testccs-test",
     "root_path": "test",
-    "access_token": "XXXXXXXXXXXXXXXXXXXXXX",
-    "enabled": true
+    "access_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "enabled": false
   },
   "app": {
     "excel_files_dir": "excel_files",
