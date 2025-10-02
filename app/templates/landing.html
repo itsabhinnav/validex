@@ -1,101 +1,48 @@
 {% extends "base.html" %}
 
-{% block title %}Validex - Test Case Management Platform{% endblock %}
+{% block title %}{{ get_text('landing_page.title') }}{% endblock %}
 
 {% block content %}
 
 <div class="hero-section">
-  <!-- Floating Background Icons -->
-  <div class="floating-icon">
-    <i class="fas fa-clipboard-check" style="font-size: 4rem;"></i>
-  </div>
-  <div class="floating-icon">
-    <i class="fas fa-chart-line" style="font-size: 3rem;"></i>
-  </div>
-  <div class="floating-icon">
-    <i class="fas fa-cogs" style="font-size: 3.5rem;"></i>
-  </div>
-  
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
+      <div class="col-lg-10 text-center">
         <div class="hero-content">
-          <h1 class="logo">Validex</h1>
-          <p class="tagline">Professional Test Case Management Platform</p>
-          <p class="lead mb-4" style="font-size: 1.1rem; opacity: 0.8;">
-            Streamline your testing workflow with our powerful BDD-style test case management system. 
-            Upload Excel files, execute tests, and generate comprehensive reports.
+          <h1 class="display-4 fw-bold mb-3">{{ get_text('landing_page.hero_title') }}</h1>
+          <p class="lead mb-4">{{ get_text('landing_page.hero_tagline') }}</p>
+          <p class="mb-5 text-muted" style="font-size: 1.1rem;">
+            {{ get_text('landing_page.hero_description') }}
           </p>
           
-          <a href="{{ url_for('main.role_selection') }}" class="proceed-btn">
-            <i class="fas fa-arrow-right me-2"></i>
-            Get Started
+          <a href="{{ url_for('main.role_selection') }}" class="btn btn-primary btn-lg px-4">
+            {{ get_text('landing_page.get_started') }}
           </a>
-          
-          <!-- Stats Grid -->
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-number">{{ total_cases }}</span>
-              <span class="stat-label">Test Cases</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">2</span>
-              <span class="stat-label">User Roles</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">100%</span>
-              <span class="stat-label">BDD Compatible</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">∞</span>
-              <span class="stat-label">Scalability</span>
-            </div>
-          </div>
-          
-          <!-- Features Preview -->
-          <div class="features-preview">
-            <h4 class="mb-3">Key Features</h4>
-            <ul class="feature-list">
-              <li>BDD Test Case Management</li>
-              <li>Role-Based Access Control</li>
-              <li>Real-time Execution Tracking</li>
-              <li>Comprehensive Reporting</li>
-              <li>Advanced Filtering & Search</li>
-              <li>Test Case Analytics</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Quick Info Section -->
-<div class="py-5 bg-light">
+<!-- Features Section -->
+<div class="py-5 features-section">
   <div class="container">
-    <div class="row text-center">
-      <div class="col-md-4 mb-4">
-        <div class="p-4">
-          <i class="fas fa-tasks fa-3x text-primary mb-3"></i>
-          <h5>Test Case Management</h5>
-          <p class="text-muted">Create, organize, and manage thousands of test cases effortlessly</p>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="p-4">
-          <i class="fas fa-users fa-3x text-success mb-3"></i>
-          <h5>Role-Based Access</h5>
-          <p class="text-muted">Administrator and Tester roles with tailored interfaces</p>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="p-4">
-          <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
-          <h5>Analytics & Reports</h5>
-          <p class="text-muted">Generate detailed reports and track execution metrics</p>
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center mb-5">
+        <h2 class="mb-4">{{ get_text('landing_page.features.title') }}</h2>
+        <div class="row g-4">
+          {% for feature in get_text_list('landing_page.features.items') %}
+          <div class="col-md-6">
+            <div class="d-flex align-items-center p-3 rounded" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+              <i class="fas fa-check-circle me-3" style="color: #000000;"></i>
+              <span class="text-dark fw-semibold">{{ feature }}</span>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
+    
   </div>
 </div>
 {% endblock %}

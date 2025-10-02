@@ -4,83 +4,56 @@
 
 {% block content %}
 
-<div class="dashboard-hero p-4 mb-5 position-relative">
-    <div class="position-relative">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-5 fw-bold mb-3">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-6 fw-bold mb-3">
                     <i class="fas fa-tachometer-alt me-3"></i>Dashboard
                 </h1>
-                <p class="lead mb-0 opacity-90">Welcome to your Validex workspace</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <span class="badge bg-light text-dark px-3 py-2 fs-6">
-                    <i class="fas fa-user me-2"></i>{{ current_role.title() if current_role else 'Guest' }} View
-                </span>
+                <p class="lead text-muted">Welcome to your Validex workspace</p>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>{{ test_cases_data|length }}</h4>
-                        <p class="mb-0">Features</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-layer-group fa-2x"></i>
-                    </div>
+
+    <!-- Simple Stats -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ stats.total_cases }}</h3>
+                    <p class="text-muted mb-0">Total Test Cases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ stats.apps|length if stats.apps else 0 }}</h3>
+                    <p class="text-muted mb-0">Apps with Test Cases</p>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>{{ total_cases }}</h4>
-                        <p class="mb-0">Total Test Cases</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-clipboard-list fa-2x"></i>
-                    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>0</h4>
-                        <p class="mb-0">Executed Today</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-play-circle fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4>0</h4>
-                        <p class="mb-0">Pass Rate %</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-percentage fa-2x"></i>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-list me-2"></i> Browse All Test Cases
+                        </a>
+                        
+                        <button type="button" class="btn btn-secondary btn-lg" disabled>
+                            <i class="fas fa-chart-bar me-2"></i> View Reports
+                        </button>
+                        <small class="text-muted d-block mt-2">Reports feature coming soon</small>
                     </div>
                 </div>
             </div>
@@ -88,138 +61,5 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-chart-pie"></i> Test Case Overview</h5>
-            </div>
-            <div class="card-body">
-                {% if test_cases_data %}
-                <!-- App-Based Statistics -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-mobile-alt me-2"></i>Applications</h6>
-                        <div class="text-center py-3">
-                            {% for app, count in app_stats.by_app.items() %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-layer-group me-1"></i>{{ app }}:</span>
-                                <span class="badge bg-primary">{{ count }} cases</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-cogs me-2"></i>Test Types</h6>
-                        <div class="text-center py-3">
-                            {% for test_type, count in app_stats.by_test_type.items() %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-vial me-1"></i>{{ test_type }}:</span>
-                                <span class="badge bg-success">{{ count }} tests</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6><i class="fas fa-folder-tree me-2"></i>Directory Structure</h6>
-                        <div class="text-center py-3">
-                            {% for directory, count in app_stats.by_directory.items() %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-folder me-1"></i>{{ directory }}:</span>
-                                <span class="badge bg-info">{{ count }} cases</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Features Table -->
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Feature</th>
-                                <th>Test Cases</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for filename, cases in test_cases_data.items() %}
-                            <tr>
-                                <td>
-                                    <i class="fas fa-layer-group text-primary"></i>
-                                    {{ filename.replace('.xlsx', '').replace('.xls', '') }}
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ cases|length }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-success">Active</span>
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('main.test_cases', file=filename) }}" 
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No features found</h5>
-                    <p class="text-muted">Test case features will appear here once loaded.</p>
-                    {% if current_role == 'admin' %}
-                    <a href="{{ url_for('main.admin') }}" class="btn btn-primary">
-                        <i class="fas fa-cog"></i> Manage Features
-                    </a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary">
-                        <i class="fas fa-list"></i> Browse All Test Cases
-                    </a>
-                    
-                    <a href="#" class="btn btn-success">
-                        <i class="fas fa-chart-bar"></i> View Reports
-                    </a>
-                    
-                    {% if current_role == 'admin' %}
-                    <a href="{{ url_for('main.admin') }}" class="btn btn-warning">
-                        <i class="fas fa-cog"></i> Admin Panel
-                    </a>
-                    {% endif %}
-                </div>
-                
-                <hr>
-                
-                <h6><i class="fas fa-info-circle"></i> System Info</h6>
-                <ul class="list-unstyled small">
-                    <li><strong>Role:</strong> {{ current_role.title() if current_role else 'Guest' }}</li>
-                    <li><strong>Features:</strong> {{ test_cases_data|length }}</li>
-                    <li><strong>Total Cases:</strong> {{ total_cases }}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Charts temporarily disabled -->
-<!-- Chart.js visualizations removed to prevent infinite loops -->
 {% endblock %}
 

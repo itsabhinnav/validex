@@ -1,5 +1,19 @@
 """
 Test Case Management System - Flask Application Factory
+
+Copyright 2025 Validex Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
 from flask import Flask
@@ -9,6 +23,7 @@ from app.services.database_service import DatabaseService
 from app.services.file_service import FileService
 from app.services.sync_service import SyncService
 from app.services.column_service import ColumnManager
+from app.utils.text_config import inject_text_config
 
 # Global service instances
 db_service = None
@@ -44,6 +59,9 @@ def create_app(config_name='development'):
     except Exception as e:
         print(f"Warning: Some services failed to initialize: {e}")
         # Continue without services for now
+    
+    # Register text configuration context processor
+    app.context_processor(inject_text_config)
     
     # Register blueprints
     from app.api.routes import main_bp

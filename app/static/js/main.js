@@ -1,10 +1,32 @@
 /**
  * Main JavaScript for Validex Test Case Management System
+ * 
+ * Copyright 2025 Validex Project
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // Global variables
 let currentFilters = {};
 let isLoading = false;
+
+// Text configuration helper
+function getText(keyPath, defaultValue = '') {
+    if (typeof window.getText === 'function') {
+        return window.getText(keyPath, defaultValue);
+    }
+    return defaultValue;
+}
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the application
  */
 function initializeApp() {
-    console.log('Validex Test Case Management System initialized');
+    console.log(getText('app.name', 'Validex') + ' Test Case Management System initialized');
     
     // Add fade-in animation to main content
     const mainContent = document.querySelector('main');
@@ -131,12 +153,12 @@ function handleTestExecution(event) {
     const testId = event.target.closest('a').href.split('/').pop();
     
     // Show confirmation dialog
-    if (confirm(`Execute test case ${testId}?`)) {
+    if (confirm(getText('javascript.execute_confirm', 'Execute test case') + ` ${testId}?`)) {
         // Add loading state to button
         const button = event.target.closest('button, a');
         if (button) {
             const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + getText('javascript.executing', 'Executing...');
             button.disabled = true;
             
             // Re-enable after 2 seconds (simulate execution)
@@ -168,7 +190,7 @@ function handleSearch(event) {
  */
 function performLiveSearch(searchTerm) {
     // This would typically make an AJAX request to the server
-    console.log('Searching for:', searchTerm);
+    console.log(getText('javascript.searching_for', 'Searching for:'), searchTerm);
     
     // For now, just highlight matching rows
     highlightSearchResults(searchTerm);
@@ -249,7 +271,7 @@ function showLoadingState() {
     const loadingSpinner = document.createElement('div');
     loadingSpinner.id = 'loading-spinner';
     loadingSpinner.className = 'position-fixed top-50 start-50 translate-middle';
-    loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+    loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">' + getText('common.loading', 'Loading...') + '</span></div>';
     document.body.appendChild(loadingSpinner);
 }
 
@@ -389,5 +411,6 @@ window.ValidexApp = {
     showLoadingState,
     hideLoadingState
 };
+
 
 

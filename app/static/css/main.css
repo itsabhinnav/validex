@@ -1,5 +1,255 @@
 /* Main CSS for Validex Test Case Management System */
 
+/* Clean Black and White Landing Page Styles */
+.hero-section {
+    background: #000000;
+    padding: 5rem 0;
+    position: relative;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.hero-content {
+    text-align: center;
+}
+
+.hero-content h1 {
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 3.5rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.hero-content .lead {
+    color: #ffffff;
+    font-weight: 400;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+}
+
+.hero-content .text-muted {
+    color: #ffffff !important;
+    font-weight: 400;
+}
+
+.enterprise-feature {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.enterprise-feature:hover {
+    border-color: #000000;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    transform: translateY(-3px);
+}
+
+
+/* Clean Black and White Feature list styling */
+.feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.feature-list li:hover {
+    color: #000000;
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-list li i {
+    color: #000000;
+    margin-right: 0.75rem;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.feature-list li:hover i {
+    color: #6c757d;
+}
+
+/* Clean Black and White Button styling */
+.btn-primary {
+    background: #ffffff;
+    border: 2px solid #ffffff;
+    color: #000000;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background: #000000;
+    color: #ffffff;
+    border-color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Clean Black and White Section backgrounds */
+.py-5 {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.features-section {
+    background: #ffffff;
+    color: #000000;
+}
+
+.features-section h2 {
+    color: #000000 !important;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+
+/* Additional vibrant styling */
+.hero-section .btn-primary {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #000000;
+    border: 2px solid rgba(255,255,255,0.3);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hero-section .btn-primary:hover {
+    background: rgba(255,255,255,0.9);
+    color: #5a6fd8;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,255,255,0.3);
+}
+
+/* Feature section styling */
+.features-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    position: relative;
+}
+
+.features-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #000000 50%, transparent 100%);
+}
+
+/* Enhanced text styling */
+.hero-content h1 {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.hero-content .lead {
+    font-size: 1.4rem;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+}
+
+/* Stats section enhancements */
+.stats-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-top: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+/* Clean Black and White - No Animations */
+
+/* Simplified Dashboard Styling */
+.dashboard-hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.list-group-item {
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #000000;
+}
+
+.card {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+}
+
+/* Disabled/Upcoming Feature Styling */
+.btn-secondary:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.card.disabled-feature {
+    opacity: 0.7;
+    border: 2px dashed #6c757d;
+}
+
+.card.disabled-feature .card-title {
+    color: #6c757d;
+}
+
+.card.disabled-feature .text-muted {
+    color: #adb5bd;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-content .lead {
+        font-size: 1.2rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
 /* Base Styles */
 .navbar-brand {
     font-weight: bold;
@@ -476,7 +726,7 @@ h6 {
 }
 
 .stats-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     color: white;
     border-radius: 15px;
     padding: 20px;
@@ -629,7 +879,7 @@ h6 {
 }
 
 .proceed-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    background: #000000;
     border: none;
     padding: 15px 40px;
     font-size: 1.2rem;
@@ -729,14 +979,14 @@ h6 {
 
 .feature-list li::before {
     content: '✓';
-    color: #4ecdc4;
+    color: #000000;
     font-weight: bold;
     font-size: 1.2rem;
 }
 
 /* Utility Classes */
 .text-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -783,7 +1033,7 @@ h6 {
 }
 
 .admin-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     color: white;
 }
 
@@ -832,7 +1082,7 @@ h6 {
 
 .role-features li::before {
     content: '✓';
-    color: #4ecdc4;
+    color: #000000;
     font-weight: bold;
     font-size: 1.2rem;
 }
