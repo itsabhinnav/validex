@@ -132,20 +132,45 @@ dmypy.json
 # Configuration files (may contain sensitive data)
 config.json
 *.config
+config/validex_config.json
+config/team_config.json
+config/production/
 
 # Excel files directory (managed by JFrog)
 excel_files/
+data/excel_files/
 *.xlsx
 *.xls
 
 # Reports directory
 reports/
+data/reports/
 *.pdf
 *.csv
 
 # Logs
 *.log
 logs/
+data/logs/
+
+# Cache directories
+data/cache/
+cache/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Security and deployment files
+security_report.json
+start_secure.bat
+*.bat
+*.sh
+
+# Team distribution packages
+team_distribution/
+portable/
 
 # Temporary files
 temp/
@@ -192,6 +217,15 @@ dev_*
 # Database files
 *.sqlite
 *.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+data/db/
+data/test_cases.db
+data/test_cases.db-journal
+data/test_cases.db-wal
+data/test_cases.db-shm
 
 # Node.js (if using any frontend tools)
 node_modules/
