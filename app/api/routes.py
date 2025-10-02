@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, jsonif
 import os
 import pandas as pd
 from datetime import datetime
+from app import get_services
 
 # Create blueprint
 main_bp = Blueprint('main', __name__)
@@ -17,6 +18,43 @@ def inject_current_role():
 
 # Global variable to store test cases data
 test_cases_data = {}
+
+def check_database_availability():
+    """Check if database is available and return status"""
+    try:
+        services = get_services()
+        db_service = services.get('db_service')
+        
+        if not db_service:
+            return {
+                'available': False,
+                'error': 'Database service not initialized',
+                'status': 'Database service not available',
+                'fallback_mode': True
+            }
+        
+        if not db_service.is_initialized():
+            return {
+                'available': False,
+                'error': 'Database not properly initialized',
+                'status': 'Database not initialized',
+                'fallback_mode': True
+            }
+        
+        return {
+            'available': True,
+            'status': 'Database is ready',
+            'connection_info': db_service.get_connection_status(),
+            'fallback_mode': False
+        }
+        
+    except Exception as e:
+        return {
+            'available': False,
+            'error': str(e),
+            'status': f'Database error: {str(e)}',
+            'fallback_mode': True
+        }
 
 def load_excel_files():
     """Load test cases from local files"""
@@ -97,12 +135,23 @@ def role_selection():
     load_excel_files()
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
-    return render_template('role_selection.html', file_count=file_count, total_cases=total_cases)
+    
+    # Check admin status
+    from config.settings import config
+    admin_enabled = config.is_admin_enabled()
+    
+    return render_template('role_selection.html', 
+                         file_count=file_count, 
+                         total_cases=total_cases,
+                         admin_enabled=admin_enabled)
 
 @main_bp.route('/dashboard')
 def dashboard():
     """Dashboard page"""
     global current_role
+    
+    # Check database availability
+    db_status = check_database_availability()
     
     # Load files to display stats on the dashboard
     load_excel_files()
@@ -154,7 +203,25 @@ def dashboard():
         'test_types': list(test_types)
     }
     
-    return render_template('dashboard.html', stats=stats, current_role=current_role, test_cases_data=test_cases_data, app_stats=app_stats)
+    # Add database statistics if available
+    db_stats = {}
+    if db_status.get('available', False):
+        try:
+            services = get_services()
+            db_service = services.get('db_service')
+            if db_service:
+                db_stats = db_service.get_safe_statistics()
+        except Exception as e:
+            print(f"Error getting database statistics: {e}")
+            db_stats = {}
+    
+    return render_template('dashboard.html', 
+                         stats=stats, 
+                         current_role=current_role, 
+                         test_cases_data=test_cases_data, 
+                         app_stats=app_stats,
+                         db_status=db_status,
+                         db_stats=db_stats)
 
 @main_bp.route('/test-cases')
 def test_cases():
@@ -164,14 +231,18 @@ def test_cases():
     # Load files
     load_excel_files()
     
-    # Get filter parameters
-    app_filter = request.args.get('app', '')
-    test_type_filter = request.args.get('test_type', '')
-    status_filter = request.args.get('status', '')
-    priority_filter = request.args.get('priority', '')
+    # Get filter parameters (handle both single values and arrays from multi-select)
+    app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
+    test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
+    priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
     search_query = request.args.get('search', '')
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
+    
+    # Remove empty strings from filter arrays
+    app_filter = [f for f in app_filter if f]
+    test_type_filter = [f for f in test_type_filter if f]
+    priority_filter = [f for f in priority_filter if f]
     
     # Get dynamic filter parameters
     dynamic_filters = {}
@@ -192,13 +263,11 @@ def test_cases():
             case['source_file'] = file_name
             
             # Apply filters
-            if app_filter and case.get('App', '') != app_filter:
+            if app_filter and case.get('App', '') not in app_filter:
                 continue
-            if test_type_filter and case.get('Test Type', '') != test_type_filter:
+            if test_type_filter and case.get('Test Type', '') not in test_type_filter:
                 continue
-            if status_filter and case.get('Status', '').lower() != status_filter.lower():
-                continue
-            if priority_filter and case.get('Priority', '').lower() != priority_filter.lower():
+            if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
                 continue
             if search_query:
                 search_text = ' '.join(str(v) for v in case.values() if v).lower()
@@ -244,7 +313,6 @@ def test_cases():
     # Get unique values for filters
     apps = set()
     test_types = set()
-    statuses = set()
     priorities = set()
     
     for file_data in test_cases_data.values():
@@ -253,21 +321,21 @@ def test_cases():
                 apps.add(case['App'])
             if 'Test Type' in case:
                 test_types.add(case['Test Type'])
-            if 'Status' in case:
-                statuses.add(case['Status'])
             if 'Priority' in case:
                 priorities.add(case['Priority'])
+    
+    # Get multiselect threshold from config
+    from config.settings import config
+    multiselect_threshold = config.get_multiselect_threshold()
     
     return render_template('test_cases.html', 
                          test_cases=paginated_cases,
                          apps=sorted(apps),
                          test_types=sorted(test_types),
-                         statuses=sorted(statuses),
                          priorities=sorted(priorities),
-                         current_app_filter=app_filter,
-                         current_test_type_filter=test_type_filter,
-                         current_status_filter=status_filter,
-                         current_priority_filter=priority_filter,
+                         current_app_filter=app_filter[0] if len(app_filter) == 1 else app_filter,
+                         current_test_type_filter=test_type_filter[0] if len(test_type_filter) == 1 else test_type_filter,
+                         current_priority_filter=priority_filter[0] if len(priority_filter) == 1 else priority_filter,
                          current_search=search_query,
                          current_sort=sort_by,
                          current_order=sort_order,
@@ -279,13 +347,19 @@ def test_cases():
                          total_cases=total_cases,
                          total_pages=total_pages,
                          has_prev=has_prev,
-                         has_next=has_next)
+                         has_next=has_next,
+                         multiselect_threshold=multiselect_threshold)
 
 @main_bp.route('/admin')
 def admin():
     """Admin page"""
     global current_role
     role = session.get('current_role', current_role)
+    
+    # Check if admin is enabled
+    from config.settings import config
+    if not config.is_admin_enabled():
+        return redirect(url_for('main.role_selection'))
     
     if role != 'admin':
         return redirect(url_for('main.role_selection'))
@@ -406,10 +480,14 @@ def export_test_cases():
     load_excel_files()
     
     # Get filter parameters (same as test_cases route)
-    app_filter = request.args.get('app', '')
-    test_type_filter = request.args.get('test_type', '')
-    status_filter = request.args.get('status', '')
-    priority_filter = request.args.get('priority', '')
+    app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
+    test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
+    priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
+    
+    # Remove empty strings from filter arrays
+    app_filter = [f for f in app_filter if f]
+    test_type_filter = [f for f in test_type_filter if f]
+    priority_filter = [f for f in priority_filter if f]
     search_query = request.args.get('search', '')
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
@@ -433,13 +511,11 @@ def export_test_cases():
             case['source_file'] = file_name
             
             # Apply filters
-            if app_filter and case.get('App', '') != app_filter:
+            if app_filter and case.get('App', '') not in app_filter:
                 continue
-            if test_type_filter and case.get('Test Type', '') != test_type_filter:
+            if test_type_filter and case.get('Test Type', '') not in test_type_filter:
                 continue
-            if status_filter and case.get('Status', '').lower() != status_filter.lower():
-                continue
-            if priority_filter and case.get('Priority', '').lower() != priority_filter.lower():
+            if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
                 continue
             if search_query:
                 search_text = ' '.join(str(v) for v in case.values() if v).lower()
@@ -531,10 +607,14 @@ def export_test_cases_csv():
     load_excel_files()
     
     # Get filter parameters (same as test_cases route)
-    app_filter = request.args.get('app', '')
-    test_type_filter = request.args.get('test_type', '')
-    status_filter = request.args.get('status', '')
-    priority_filter = request.args.get('priority', '')
+    app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
+    test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
+    priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
+    
+    # Remove empty strings from filter arrays
+    app_filter = [f for f in app_filter if f]
+    test_type_filter = [f for f in test_type_filter if f]
+    priority_filter = [f for f in priority_filter if f]
     search_query = request.args.get('search', '')
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
@@ -558,13 +638,11 @@ def export_test_cases_csv():
             case['source_file'] = file_name
             
             # Apply filters
-            if app_filter and case.get('App', '') != app_filter:
+            if app_filter and case.get('App', '') not in app_filter:
                 continue
-            if test_type_filter and case.get('Test Type', '') != test_type_filter:
+            if test_type_filter and case.get('Test Type', '') not in test_type_filter:
                 continue
-            if status_filter and case.get('Status', '').lower() != status_filter.lower():
-                continue
-            if priority_filter and case.get('Priority', '').lower() != priority_filter.lower():
+            if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
                 continue
             if search_query:
                 search_text = ' '.join(str(v) for v in case.values() if v).lower()
@@ -634,6 +712,11 @@ def jfrog_config():
     global current_role
     role = session.get('current_role', current_role)
     
+    # Check if admin is enabled
+    from config.settings import config
+    if not config.is_admin_enabled():
+        return redirect(url_for('main.role_selection'))
+    
     if role != 'admin':
         return redirect(url_for('main.role_selection'))
     
@@ -653,6 +736,13 @@ def set_role():
     """Set user role"""
     global current_role
     role = request.form.get('role')
+    
+    # Check if admin is enabled when trying to select admin role
+    if role == 'admin':
+        from config.settings import config
+        if not config.is_admin_enabled():
+            return redirect(url_for('main.role_selection'))
+    
     current_role = role
     session['current_role'] = role
     
@@ -660,6 +750,197 @@ def set_role():
         return redirect(url_for('main.admin'))
     else:
         return redirect(url_for('main.dashboard'))
+
+@main_bp.route('/prepare-test-suite')
+def prepare_test_suite():
+    """Prepare test suite page with release details"""
+    global current_role
+    role = session.get('current_role', current_role)
+    
+    if not role:
+        return redirect(url_for('main.role_selection'))
+    
+    # Load files to get available options
+    load_excel_files()
+    
+    # Get unique values for filters
+    apps = set()
+    test_types = set()
+    priorities = set()
+    
+    for file_data in test_cases_data.values():
+        for case in file_data:
+            if 'App' in case:
+                apps.add(case['App'])
+            if 'Test Type' in case:
+                test_types.add(case['Test Type'])
+            if 'Priority' in case:
+                priorities.add(case['Priority'])
+    
+    return render_template('prepare_test_suite.html', 
+                         current_role=role,
+                         apps=sorted(apps),
+                         test_types=sorted(test_types),
+                         priorities=sorted(priorities))
+
+@main_bp.route('/export-test-suite')
+def export_test_suite():
+    """Export test suite with release details"""
+    global current_role
+    role = session.get('current_role', current_role)
+    
+    if not role:
+        return redirect(url_for('main.role_selection'))
+    
+    # Get export parameters
+    export_format = request.args.get('export_format', 'excel')
+    include_release_details = request.args.get('include_release_details', 'true').lower() == 'true'
+    selected_indices = request.args.get('selected_indices', '')
+    
+    # Get release details
+    release_details = {
+        'release_version': request.args.get('releaseVersion', ''),
+        'sprint': request.args.get('sprint', ''),
+        'build_number': request.args.get('buildNumber', ''),
+        'environment': request.args.get('environment', ''),
+        'test_lead': request.args.get('testLead', ''),
+        'test_date': request.args.get('testDate', ''),
+        'test_type': request.args.get('testType', ''),
+        'description': request.args.get('description', ''),
+        'notes': request.args.get('notes', '')
+    }
+    
+    # Load test cases
+    load_excel_files()
+    
+    # Filter test cases based on request parameters
+    filtered_cases = []
+    for file_name, file_data in test_cases_data.items():
+        for case in file_data:
+            # Add source file information
+            case['source_file'] = file_name
+            
+            # Apply filters (same logic as test_cases route)
+            app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
+            test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
+            priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
+            search_query = request.args.get('search', '')
+            
+            # Remove empty strings from filter arrays
+            app_filter = [f for f in app_filter if f]
+            test_type_filter = [f for f in test_type_filter if f]
+            priority_filter = [f for f in priority_filter if f]
+            
+            if app_filter and case.get('App', '') not in app_filter:
+                continue
+            if test_type_filter and case.get('Test Type', '') not in test_type_filter:
+                continue
+            if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
+                continue
+            if search_query:
+                search_text = ' '.join(str(v) for v in case.values() if v).lower()
+                if search_query.lower() not in search_text:
+                    continue
+            
+            filtered_cases.append(case)
+    
+    # Apply selected indices filter if specified
+    if selected_indices:
+        try:
+            indices = [int(i) for i in selected_indices.split(',') if i]
+            filtered_cases = [filtered_cases[i] for i in indices if i < len(filtered_cases)]
+        except (ValueError, IndexError):
+            pass  # Use all filtered cases if indices are invalid
+    
+    if not filtered_cases:
+        return redirect(url_for('main.prepare_test_suite', message='No test cases found to export'))
+    
+    # Create DataFrame
+    df = pd.DataFrame(filtered_cases)
+    
+    # Add release details if requested
+    if include_release_details:
+        for key, value in release_details.items():
+            if value:
+                df[f'Release_{key.replace("_", " ").title()}'] = value
+    
+    # Reorder columns for better readability
+    column_order = ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Priority', 'Status', 'Expected Behavior', 'source_file']
+    existing_columns = [col for col in column_order if col in df.columns]
+    other_columns = [col for col in df.columns if col not in existing_columns]
+    df = df[existing_columns + other_columns]
+    
+    # Create filename with release version and timestamp
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    release_version = release_details['release_version'] or 'Unknown'
+    filename = f"test_suite_{release_version}_{timestamp}"
+    
+    if export_format == 'excel':
+        # Create Excel file in memory
+        from io import BytesIO
+        output = BytesIO()
+        
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, sheet_name='Test Suite', index=False)
+            
+            # Get the workbook and worksheet
+            workbook = writer.book
+            worksheet = writer.sheets['Test Suite']
+            
+            # Auto-adjust column widths
+            for column in worksheet.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                worksheet.column_dimensions[column_letter].width = adjusted_width
+        
+        output.seek(0)
+        
+        # Return Excel file
+        from flask import Response
+        return Response(
+            output.getvalue(),
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'}
+        )
+    
+    else:  # CSV format
+        # Create CSV file in memory
+        from io import StringIO
+        output = StringIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+        
+        # Return CSV file
+        from flask import Response
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={'Content-Disposition': f'attachment; filename={filename}.csv'}
+        )
+
+@main_bp.route('/sync-dashboard')
+def sync_dashboard():
+    """Sync management dashboard"""
+    global current_role
+    role = session.get('current_role', current_role)
+    
+    # Check if admin is enabled
+    from config.settings import config
+    if not config.is_admin_enabled():
+        return redirect(url_for('main.role_selection'))
+    
+    if role != 'admin':
+        return redirect(url_for('main.role_selection'))
+    
+    return render_template('sync_dashboard.html', current_role=role)
 
 @main_bp.route('/logout')
 def logout():

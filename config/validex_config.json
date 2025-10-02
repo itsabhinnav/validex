@@ -1,14 +1,32 @@
 {
   "jfrog": {
-    "base_url": "https://trialdablg5.jfrog.io/artifactory",
-    "repository": "testccs-test",
-    "root_path": "test",
-    "access_token": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "base_url": "YOUR_ARTIFACTORY_URL",
+    "repository": "YOUR_REPOSITORY_NAME",
+    "root_path": "YOUR_PROJECT_PATH",
+    "access_token": "YOUR_ACCESS_TOKEN",
     "enabled": true
   },
   "app": {
-    "excel_files_dir": "excel_files",
-    "reports_dir": "reports",
-    "auto_refresh_interval": 30
+    "excel_files_dir": "data/excel_files",
+    "reports_dir": "data/reports",
+    "auto_refresh_interval": 30,
+    "admin_enabled": false,
+    "multiselect_threshold": 5
+  },
+  "sync": {
+    "background_sync_enabled": true,
+    "sync_interval_seconds": 300,
+    "change_detection_enabled": true,
+    "file_hash_cache_enabled": true,
+    "incremental_sync_enabled": true,
+    "force_sync_on_startup": false,
+    "sync_strategy": "incremental",
+    "max_retry_attempts": 3,
+    "retry_delay_seconds": 60
+  },
+  "logging": {
+    "sync_log_level": "INFO",
+    "sync_log_file": "logs/sync.log",
+    "enable_console_logging": true
   }
 }

@@ -7,7 +7,7 @@ import hashlib
 import json
 
 class DatabaseManager:
-    def __init__(self, db_path="data/test_cases.db"):
+    def __init__(self, db_path="data/db/test_cases.db"):
         self.db_path = db_path
         self.init_database()
     

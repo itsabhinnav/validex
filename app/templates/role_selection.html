@@ -13,14 +13,14 @@
             
             <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="card content-card h-100 {% if not get_text('app.features.admin_enabled') %}disabled-feature{% endif %}">
+                    <div class="card content-card h-100 {% if not admin_enabled %}disabled-feature{% endif %}">
                         <div class="card-body text-center p-4">
                             <div class="mb-3">
-                                <i class="fas fa-user-shield fa-2x {% if get_text('app.features.admin_enabled') %}text-primary{% else %}text-muted{% endif %}"></i>
+                                <i class="fas fa-user-shield fa-2x {% if admin_enabled %}text-primary{% else %}text-muted{% endif %}"></i>
                             </div>
                             <h5 class="card-title">{{ get_text('role_selection.admin.title') }}</h5>
                             <p class="card-text text-muted small">{{ get_text('role_selection.admin.description') }}</p>
-                            {% if get_text('app.features.admin_enabled') %}
+                            {% if admin_enabled %}
                             <form method="POST" action="{{ url_for('main.set_role') }}">
                                 <input type="hidden" name="role" value="admin">
                                 <button type="submit" class="btn btn-primary btn-sm">

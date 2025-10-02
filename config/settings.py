@@ -18,7 +18,9 @@ class Config:
             "app": {
                 "excel_files_dir": "excel_files",
                 "reports_dir": "reports",
-                "auto_refresh_interval": 30
+                "auto_refresh_interval": 30,
+                "admin_enabled": False,
+                "multiselect_threshold": 5
             }
         }
         self.config = self.load_config()
@@ -104,6 +106,14 @@ class Config:
     def is_jfrog_enabled(self):
         """Check if JFrog integration is enabled"""
         return self.get('jfrog.enabled', False)
+    
+    def is_admin_enabled(self):
+        """Check if admin section is enabled"""
+        return self.get('app.admin_enabled', False)
+    
+    def get_multiselect_threshold(self):
+        """Get the multiselect threshold for UI switching"""
+        return self.get('app.multiselect_threshold', 5)
     
     def get_jfrog_file_url(self, filename):
         """Get full JFrog URL for a file"""

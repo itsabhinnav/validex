@@ -1,0 +1,1222 @@
+{% extends "base.html" %}
+
+{% block title %}Prepare Test Suite - Validex{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-1">
+                        <i class="fas fa-cogs me-2"></i>Prepare Test Suite
+                    </h1>
+                    <p class="text-muted mb-0">Configure release details and select test cases for your test suite</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Release Details Section -->
+    <div class="card content-card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Release Information</h5>
+        </div>
+        <div class="card-body">
+            <form id="releaseDetailsForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="releaseVersion" class="form-label">Release Version *</label>
+                        <input type="text" class="form-control" id="releaseVersion" name="releaseVersion" 
+                               placeholder="e.g., v2.1.0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sprint" class="form-label">Sprint</label>
+                        <input type="text" class="form-control" id="sprint" name="sprint" 
+                               placeholder="e.g., Sprint 15">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="buildNumber" class="form-label">Build Number</label>
+                        <input type="text" class="form-control" id="buildNumber" name="buildNumber" 
+                               placeholder="e.g., Build 1234">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="environment" class="form-label">Environment</label>
+                        <select class="form-select" id="environment" name="environment">
+                            <option value="">Select Environment</option>
+                            <option value="Development">Development</option>
+                            <option value="Staging">Staging</option>
+                            <option value="Production">Production</option>
+                            <option value="UAT">UAT</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <label for="testLead" class="form-label">Test Lead</label>
+                        <input type="text" class="form-control" id="testLead" name="testLead" 
+                               placeholder="Test Lead Name">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="testDate" class="form-label">Test Date</label>
+                        <input type="date" class="form-control" id="testDate" name="testDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="testType" class="form-label">Test Type</label>
+                        <select class="form-select" id="testType" name="testType">
+                            <option value="">Select Test Type</option>
+                            <option value="Smoke Testing">Smoke Testing</option>
+                            <option value="Regression Testing">Regression Testing</option>
+                            <option value="Sanity Testing">Sanity Testing</option>
+                            <option value="Full Regression">Full Regression</option>
+                            <option value="User Acceptance">User Acceptance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2" 
+                                  placeholder="Brief description of the test suite..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                  placeholder="Additional notes or special instructions..."></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Test Case Selection Section -->
+    <div class="card content-card">
+        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Select Test Cases</h6>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="toggleFilters()">
+                        <i class="fas fa-chevron-up" id="filterToggle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" id="filterContent">
+            <form method="GET" action="{{ url_for('main.prepare_test_suite') }}" id="filterForm">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label small">Search</label>
+                        <input type="text" class="form-control form-control-sm" name="search" id="search" 
+                               placeholder="Search test cases..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="app" class="form-label small">App</label>
+                        <select class="form-select form-select-sm" name="app" id="app" multiple>
+                            <option value="">All Apps</option>
+                            {% for app in apps %}
+                            <option value="{{ app }}" {% if app in request.args.getlist('app') %}selected{% endif %}>
+                                {{ app }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="test_type" class="form-label small">Test Type</label>
+                        <select class="form-select form-select-sm" name="test_type" id="test_type" multiple>
+                            <option value="">All Types</option>
+                            {% for test_type in test_types %}
+                            <option value="{{ test_type }}" {% if test_type in request.args.getlist('test_type') %}selected{% endif %}>
+                                {{ test_type }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    
+                    <div class="col-md-2">
+                        <label for="priority" class="form-label small">Priority</label>
+                        <select class="form-select form-select-sm" name="priority" id="priority" multiple>
+                            <option value="">All Priority</option>
+                            {% for priority in priorities %}
+                            <option value="{{ priority }}" {% if priority in request.args.getlist('priority') %}selected{% endif %}>
+                                {{ priority }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dynamic Filters Section -->
+                <div class="row g-2 mt-2">
+                    <div class="col-12">
+                        <hr class="my-3">
+                        <h6 class="text-muted mb-2"><i class="fas fa-filter me-2"></i>Advanced Filters</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterColumn" class="form-label small">Add Filter Column</label>
+                        <select class="form-select form-select-sm" id="filterColumn" onchange="addDynamicFilter()">
+                            <option value="">Select column to filter...</option>
+                            <option value="App">App</option>
+                            <option value="Test Type">Test Type</option>
+                            <option value="Feature">Feature</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Summary">Summary</option>
+                            <option value="Test Case ID">Test Case ID</option>
+                        </select>
+                    </div>
+                    <div class="col-md-9" id="dynamicFilterContainer">
+                        <!-- Dynamic filters will be added here -->
+                    </div>
+                </div>
+                
+                <div class="row g-2 mt-2">
+                    <div class="col-md-2">
+                        <label for="sort" class="form-label small">Sort By</label>
+                        <select class="form-select form-select-sm" name="sort" id="sort">
+                            <option value="Test Case ID" {% if request.args.get('sort') == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
+                            <option value="Summary" {% if request.args.get('sort') == 'Summary' %}selected{% endif %}>Summary</option>
+                            <option value="App" {% if request.args.get('sort') == 'App' %}selected{% endif %}>App</option>
+                            <option value="Test Type" {% if request.args.get('sort') == 'Test Type' %}selected{% endif %}>Test Type</option>
+                            <option value="Feature" {% if request.args.get('sort') == 'Feature' %}selected{% endif %}>Feature</option>
+                            <option value="Priority" {% if request.args.get('sort') == 'Priority' %}selected{% endif %}>Priority</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="order" class="form-label small">Order</label>
+                        <select class="form-select form-select-sm" name="order" id="order">
+                            <option value="asc" {% if request.args.get('order') == 'asc' %}selected{% endif %}>Ascending</option>
+                            <option value="desc" {% if request.args.get('order') == 'desc' %}selected{% endif %}>Descending</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4 d-flex align-items-end">
+                        <a href="{{ url_for('main.prepare_test_suite') }}" class="btn btn-outline-secondary btn-sm me-2" onclick="clearAllDynamicFilters()">
+                            <i class="fas fa-times"></i> Clear All
+                        </a>
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="exportTestSuite()">
+                            <i class="fas fa-download"></i> Export Test Suite
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Test Cases Results -->
+    <div class="card content-card mt-4">
+        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Selected Test Cases</h5>
+                    <small class="text-muted">Select test cases for your test suite</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary" id="selectedCount">0 selected</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" id="selectAllBtn">
+                            <i class="fas fa-check-square"></i> Select All
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="clearSelectionBtn">
+                            <i class="fas fa-square"></i> Clear Selection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="testCasesContainer">
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No test cases loaded</h5>
+                    <p class="text-muted">Use the filters above to search and select test cases for your test suite.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Export Test Suite</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Export Format</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exportFormat" id="excelFormat" value="excel" checked>
+                                <label class="form-check-label" for="excelFormat">
+                                    <i class="fas fa-file-excel me-2"></i>Excel (.xlsx)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exportFormat" id="csvFormat" value="csv">
+                                <label class="form-check-label" for="csvFormat">
+                                    <i class="fas fa-file-csv me-2"></i>CSV (.csv)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Include Release Details</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeReleaseDetails" checked>
+                                <label class="form-check-label" for="includeReleaseDetails">
+                                    Add release information to export
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmExport()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Test Suite Preparation Styles */
+.release-details-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+}
+
+.test-case-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.test-case-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.test-case-item.selected {
+    border-color: #007bff;
+    background-color: #f8f9ff;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+}
+
+.test-case-item .form-check-input {
+    transform: scale(1.2);
+}
+
+.test-case-item .test-case-id {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.test-case-item .test-case-summary {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.test-case-item .test-case-meta {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.selected-count {
+    font-weight: 600;
+    color: #007bff;
+}
+
+/* Dynamic Filter Styles */
+#dynamicFilterContainer {
+    min-height: 40px;
+}
+
+.dynamic-filter-item {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dynamic-filter-item.removing {
+    animation: slideOut 0.3s ease-in;
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Filter Column Selector */
+#filterColumn {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+#filterColumn:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+#filterColumn:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Dynamic Filter Items */
+.dynamic-filter-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dynamic-filter-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.dynamic-filter-item .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.dynamic-filter-item .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* JIRA-Style Select2 Styling */
+.select2-container--bootstrap-5 {
+    width: 100% !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    min-height: 32px;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.select2-container--bootstrap-5 .select2-selection:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    height: 32px;
+    line-height: 30px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    padding-left: 8px;
+    padding-right: 24px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+    height: 30px;
+    right: 6px;
+    width: 16px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+    border-color: #6b7280 transparent transparent transparent;
+    border-style: solid;
+    border-width: 4px 3px 0 3px;
+    height: 0;
+    left: 50%;
+    margin-left: -3px;
+    margin-top: -2px;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 1050;
+    background: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-size: 14px;
+    margin: 6px;
+    width: calc(100% - 12px);
+    background: #f9fafb;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field:focus {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    background: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #374151;
+    transition: background-color 0.1s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.select2-container--bootstrap-5 .select2-results__option:last-child {
+    border-bottom: none;
+}
+
+.select2-container--bootstrap-5 .select2-results__option:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.select2-container--bootstrap-5 .select2-results__option[aria-selected="true"] {
+    background-color: #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+}
+
+.select2-container--bootstrap-5 .select2-results__option[aria-selected="true"]:hover {
+    background-color: #d1d5db;
+}
+
+/* Dynamic Filter Select2 Styling */
+.dynamic-filter-item .select2-container {
+    width: 100% !important;
+}
+
+/* JIRA-Style Multi-select Styling */
+.select2-container--bootstrap-5 .select2-selection--multiple {
+    min-height: 32px;
+    padding: 2px 4px;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    color: #374151;
+    padding: 2px 6px;
+    margin: 1px 2px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.1s ease;
+    line-height: 1.4;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice:hover {
+    background-color: #d1d5db;
+    border-color: #9ca3af;
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+    color: #6b7280;
+    margin-right: 3px;
+    border-right: 1px solid #d1d5db;
+    padding-right: 3px;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.1s ease;
+    line-height: 1;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.1);
+    border-radius: 2px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+    padding: 4px 0;
+    font-style: italic;
+}
+
+/* JIRA-Style Focus and Interaction States */
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* JIRA-Style Loading State */
+.select2-container--bootstrap-5 .select2-selection--loading {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 12px 8px;
+}
+
+/* JIRA-Style Responsive Design */
+@media (max-width: 768px) {
+    .select2-container--bootstrap-5 {
+        width: 100% !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--multiple {
+        min-height: 36px;
+        padding: 4px 6px;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+        font-size: 11px;
+        padding: 3px 5px;
+        margin: 2px;
+    }
+}
+
+/* JIRA-Style Compact Design */
+.select2-container--bootstrap-5 .select2-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.select2-container--bootstrap-5 .select2-results {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+/* JIRA-Style No Results */
+.select2-container--bootstrap-5 .select2-results__option--no-results {
+    color: #6b7280;
+    font-style: italic;
+    padding: 8px 12px;
+    background-color: #f9fafb;
+}
+
+/* JIRA-Style Group Headers */
+.select2-container--bootstrap-5 .select2-results__group {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #e5e7eb;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Smart Multi-Select Styles */
+.checkbox-multiselect-container {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    background: #fff;
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.checkbox-multiselect-container .form-control {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 6px 8px;
+}
+
+.checkbox-multiselect-container .form-control:focus {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.checkbox-options {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.checkbox-options .form-check {
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: background-color 0.1s ease;
+}
+
+.checkbox-options .form-check:hover {
+    background-color: #f3f4f6;
+}
+
+.checkbox-options .form-check-input {
+    margin-top: 0.2em;
+    margin-right: 8px;
+}
+
+.checkbox-options .form-check-label {
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.checkbox-options .form-check-input:checked + .form-check-label {
+    color: #111827;
+    font-weight: 500;
+}
+
+/* JIRA-Style Tag Multi-Select */
+.select2-tag {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    color: #374151;
+    padding: 2px 6px;
+    margin: 1px 2px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.1s ease;
+    line-height: 1.4;
+}
+
+.select2-tag:hover {
+    background-color: #d1d5db;
+    border-color: #9ca3af;
+}
+
+.select2-option {
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #374151;
+    transition: background-color 0.1s ease;
+}
+
+.select2-option:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+</style>
+
+<script>
+// Initialize Select2 on all select elements
+    $(document).ready(function() {
+        // Initialize smart multi-select on all select elements
+        initializeSmartMultiSelect();
+    
+    // Re-initialize Select2 when dynamic filters are added
+    $(document).on('DOMNodeInserted', function(e) {
+        if ($(e.target).find('select').length > 0) {
+        $(e.target).find('select').select2({
+            theme: 'bootstrap-5',
+            placeholder: function() {
+                return $(this).find('option:first').text();
+            },
+            allowClear: true,
+            width: '100%',
+            minimumResultsForSearch: 0,
+            multiple: function() {
+                return $(this).attr('multiple') !== undefined;
+            }
+        });
+        }
+    });
+});
+
+// Global variables
+let selectedTestCases = new Set();
+let allTestCases = [];
+let filterCounter = 0;
+const usedColumns = new Set();
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default test date to today
+    document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+    
+    // Initialize dynamic filters
+    updateAvailableColumns();
+    
+    // Load test cases if filters are applied
+    if (window.location.search) {
+        loadTestCases();
+    }
+});
+
+// Toggle filters visibility
+function toggleFilters() {
+    const content = document.getElementById('filterContent');
+    const toggle = document.getElementById('filterToggle');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.className = 'fas fa-chevron-up';
+    } else {
+        content.style.display = 'none';
+        toggle.className = 'fas fa-chevron-down';
+    }
+}
+
+// Load test cases based on filters
+function loadTestCases() {
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+    
+    // Add release details to params
+    const releaseDetails = getReleaseDetails();
+    Object.keys(releaseDetails).forEach(key => {
+        if (releaseDetails[key]) {
+            params.append(key, releaseDetails[key]);
+        }
+    });
+    
+    fetch(`{{ url_for('main.prepare_test_suite') }}?${params.toString()}`)
+        .then(response => response.text())
+        .then(html => {
+            // Parse the response and extract test cases
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const testCasesContainer = doc.querySelector('#testCasesContainer');
+            
+            if (testCasesContainer) {
+                document.getElementById('testCasesContainer').innerHTML = testCasesContainer.innerHTML;
+                initializeTestCaseSelection();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading test cases:', error);
+            showNotification('Error loading test cases', 'error');
+        });
+}
+
+// Get release details from form
+function getReleaseDetails() {
+    return {
+        releaseVersion: document.getElementById('releaseVersion').value,
+        sprint: document.getElementById('sprint').value,
+        buildNumber: document.getElementById('buildNumber').value,
+        environment: document.getElementById('environment').value,
+        testLead: document.getElementById('testLead').value,
+        testDate: document.getElementById('testDate').value,
+        testType: document.getElementById('testType').value,
+        description: document.getElementById('description').value,
+        notes: document.getElementById('notes').value
+    };
+}
+
+// Initialize test case selection
+function initializeTestCaseSelection() {
+    const testCaseItems = document.querySelectorAll('.test-case-item');
+    allTestCases = Array.from(testCaseItems);
+    
+    // Add click handlers
+    testCaseItems.forEach((item, index) => {
+        item.addEventListener('click', function(e) {
+            if (e.target.type !== 'checkbox') {
+                toggleTestCaseSelection(index);
+            }
+        });
+        
+        const checkbox = item.querySelector('.form-check-input');
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                toggleTestCaseSelection(index);
+            });
+        }
+    });
+    
+    updateSelectedCount();
+}
+
+// Toggle test case selection
+function toggleTestCaseSelection(index) {
+    const testCase = allTestCases[index];
+    const checkbox = testCase.querySelector('.form-check-input');
+    
+    if (selectedTestCases.has(index)) {
+        selectedTestCases.delete(index);
+        testCase.classList.remove('selected');
+        if (checkbox) checkbox.checked = false;
+    } else {
+        selectedTestCases.add(index);
+        testCase.classList.add('selected');
+        if (checkbox) checkbox.checked = true;
+    }
+    
+    updateSelectedCount();
+}
+
+// Update selected count display
+function updateSelectedCount() {
+    const count = selectedTestCases.size;
+    document.getElementById('selectedCount').textContent = `${count} selected`;
+    document.getElementById('selectedCount').className = count > 0 ? 'badge bg-success' : 'badge bg-primary';
+}
+
+// Select all test cases
+document.getElementById('selectAllBtn').addEventListener('click', function() {
+    allTestCases.forEach((item, index) => {
+        if (!selectedTestCases.has(index)) {
+            selectedTestCases.add(index);
+            item.classList.add('selected');
+            const checkbox = item.querySelector('.form-check-input');
+            if (checkbox) checkbox.checked = true;
+        }
+    });
+    updateSelectedCount();
+});
+
+// Clear selection
+document.getElementById('clearSelectionBtn').addEventListener('click', function() {
+    selectedTestCases.clear();
+    allTestCases.forEach(item => {
+        item.classList.remove('selected');
+        const checkbox = item.querySelector('.form-check-input');
+        if (checkbox) checkbox.checked = false;
+    });
+    updateSelectedCount();
+});
+
+// Export test suite
+function exportTestSuite() {
+    if (selectedTestCases.size === 0) {
+        showNotification('Please select at least one test case', 'warning');
+        return;
+    }
+    
+    const releaseDetails = getReleaseDetails();
+    if (!releaseDetails.releaseVersion) {
+        showNotification('Please enter a release version', 'warning');
+        return;
+    }
+    
+    // Show export modal
+    const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+    exportModal.show();
+}
+
+// Confirm export
+function confirmExport() {
+    const releaseDetails = getReleaseDetails();
+    const selectedFormat = document.querySelector('input[name="exportFormat"]:checked').value;
+    const includeReleaseDetails = document.getElementById('includeReleaseDetails').checked;
+    
+    // Build export URL
+    const params = new URLSearchParams();
+    params.append('export_format', selectedFormat);
+    params.append('include_release_details', includeReleaseDetails);
+    
+    // Add release details
+    Object.keys(releaseDetails).forEach(key => {
+        if (releaseDetails[key]) {
+            params.append(key, releaseDetails[key]);
+        }
+    });
+    
+    // Add selected test case indices
+    params.append('selected_indices', Array.from(selectedTestCases).join(','));
+    
+    // Redirect to export
+    window.location.href = `{{ url_for('main.export_test_suite') }}?${params.toString()}`;
+}
+
+// Dynamic Filter Functions
+function addDynamicFilter() {
+    const columnSelect = document.getElementById('filterColumn');
+    const selectedColumn = columnSelect.value;
+    
+    if (!selectedColumn || usedColumns.has(selectedColumn)) {
+        return;
+    }
+    
+    usedColumns.add(selectedColumn);
+    filterCounter++;
+    
+    const container = document.getElementById('dynamicFilterContainer');
+    const filterDiv = document.createElement('div');
+    filterDiv.className = 'col-md-3 mb-2 dynamic-filter-item';
+    filterDiv.id = `filter-${filterCounter}`;
+    
+    // Get unique values for the selected column
+    const uniqueValues = getUniqueValuesForColumn(selectedColumn);
+    
+    filterDiv.innerHTML = `
+        <div class="d-flex align-items-end">
+            <div class="flex-grow-1 me-2">
+                <label class="form-label small">${selectedColumn}</label>
+                <select class="form-select form-select-sm" name="dynamic_${selectedColumn.toLowerCase().replace(' ', '_')}" id="dynamic_${filterCounter}">
+                    <option value="">All ${selectedColumn}</option>
+                    ${uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('')}
+                </select>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDynamicFilter(${filterCounter}, '${selectedColumn}')" title="Remove filter">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(filterDiv);
+    
+    // Initialize Select2 on the new filter
+    $(filterDiv).find('select').select2({
+        theme: 'bootstrap-5',
+        placeholder: function() {
+            return $(this).find('option:first').text();
+        },
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        multiple: function() {
+            return $(this).attr('multiple') !== undefined;
+        }
+    });
+    
+    // Reset the column selector
+    columnSelect.value = '';
+    updateAvailableColumns();
+}
+
+function removeDynamicFilter(filterId, column) {
+    const filterElement = document.getElementById(`filter-${filterId}`);
+    if (filterElement) {
+        filterElement.classList.add('removing');
+        
+        setTimeout(() => {
+            filterElement.remove();
+            usedColumns.delete(column);
+            updateAvailableColumns();
+        }, 300);
+    }
+}
+
+function updateAvailableColumns() {
+    const columnSelect = document.getElementById('filterColumn');
+    const options = columnSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value && usedColumns.has(option.value)) {
+            option.style.display = 'none';
+            option.disabled = true;
+        } else {
+            option.style.display = 'block';
+            option.disabled = false;
+        }
+    });
+    
+    // Update the placeholder text based on available options
+    const availableOptions = Array.from(options).filter(opt => opt.value && !opt.disabled);
+    if (availableOptions.length === 0) {
+        columnSelect.querySelector('option[value=""]').textContent = 'All columns selected';
+    } else {
+        columnSelect.querySelector('option[value=""]').textContent = 'Select column to filter...';
+    }
+}
+
+function getUniqueValuesForColumn(column) {
+    // Get values from the template data
+    const columnValues = {
+        'App': {{ apps | tojson }},
+        'Test Type': {{ test_types | tojson }},
+        'Feature': ['Login', 'Dashboard', 'Reports', 'Settings', 'User Management', 'Data Processing'],
+        'Priority': {{ priorities | tojson }},
+        'Summary': ['Login Test', 'Data Validation', 'API Test', 'UI Test', 'Performance Test', 'Security Test'],
+        'Test Case ID': ['TC-001', 'TC-002', 'TC-003', 'TC-004', 'Auto-Generated']
+    };
+    
+    return columnValues[column] || [];
+}
+
+// Clear all dynamic filters
+function clearAllDynamicFilters() {
+    const container = document.getElementById('dynamicFilterContainer');
+    container.innerHTML = '';
+    usedColumns.clear();
+    filterCounter = 0;
+    updateAvailableColumns();
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Smart Multi-Select Implementation
+function initializeSmartMultiSelect() {
+    const threshold = 5; // Default threshold for prepare_test_suite
+    
+    $('select[multiple]').each(function() {
+        const $select = $(this);
+        const options = $select.find('option').length - 1; // Exclude "All" option
+        
+        if (options <= threshold) {
+            // Use checkbox-based UI for small lists
+            initializeCheckboxMultiSelect($select);
+        } else {
+            // Use JIRA-style tags for large lists
+            initializeTagMultiSelect($select);
+        }
+    });
+}
+
+function initializeCheckboxMultiSelect($select) {
+    // Create checkbox container
+    const $container = $('<div class="checkbox-multiselect-container"></div>');
+    const $searchInput = $('<input type="text" class="form-control form-control-sm mb-2" placeholder="Search options..." />');
+    const $checkboxContainer = $('<div class="checkbox-options"></div>');
+    
+    // Add search input
+    $container.append($searchInput);
+    $container.append($checkboxContainer);
+    
+    // Populate checkboxes
+    $select.find('option').each(function() {
+        if ($(this).val() !== '') { // Skip "All" option
+            const $checkbox = $(`
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${$(this).val()}" id="cb_${$(this).val()}" ${$(this).is(':selected') ? 'checked' : ''}>
+                    <label class="form-check-label" for="cb_${$(this).val()}">
+                        ${$(this).text()}
+                    </label>
+                </div>
+            `);
+            $checkboxContainer.append($checkbox);
+        }
+    });
+    
+    // Search functionality
+    $searchInput.on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $checkboxContainer.find('.form-check').each(function() {
+            const label = $(this).find('label').text().toLowerCase();
+            $(this).toggle(label.includes(searchTerm));
+        });
+    });
+    
+    // Handle checkbox changes
+    $checkboxContainer.on('change', 'input[type="checkbox"]', function() {
+        updateSelectFromCheckboxes($select, $checkboxContainer);
+    });
+    
+    // Replace select with container
+    $select.hide().after($container);
+}
+
+function initializeTagMultiSelect($select) {
+    // Use Select2 with JIRA-style configuration
+    $select.select2({
+        theme: 'bootstrap-5',
+        placeholder: function() {
+            return $(this).find('option:first').text();
+        },
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        multiple: true,
+        tags: false,
+        tokenSeparators: [','],
+        // Custom styling for JIRA-style tags
+        templateResult: function(data) {
+            if (data.loading) return data.text;
+            return $('<span class="select2-option">' + data.text + '</span>');
+        },
+        templateSelection: function(data) {
+            return $('<span class="select2-tag">' + data.text + '</span>');
+        }
+    });
+}
+
+function updateSelectFromCheckboxes($select, $checkboxContainer) {
+    const selectedValues = [];
+    $checkboxContainer.find('input[type="checkbox"]:checked').each(function() {
+        selectedValues.push($(this).val());
+    });
+    
+    // Update select values
+    $select.val(selectedValues);
+    $select.trigger('change');
+}
+</script>
+{% endblock %}

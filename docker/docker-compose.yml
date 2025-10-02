@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  validex:
+    build: .
+    container_name: validex-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-your-super-secret-production-key}
+      - DATABASE_URL=sqlite:///data/test_cases.db
+      - UPLOAD_FOLDER=/app/data/excel_files
+      - REPORTS_FOLDER=/app/data/reports
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+    networks:
+      - validex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: validex-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./app/static:/var/www/static:ro
+    depends_on:
+      - validex
+    networks:
+      - validex-network
+
+  redis:
+    image: redis:alpine
+    container_name: validex-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - validex-network
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: validex-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=validex
+      - POSTGRES_USER=validex
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-validex_password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - validex-network
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  validex-network:
+    driver: bridge
