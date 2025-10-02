@@ -21,6 +21,23 @@ class Config:
                 "auto_refresh_interval": 30,
                 "admin_enabled": False,
                 "multiselect_threshold": 5
+            },
+            "network_security": {
+                "restricted_mode": True,
+                "allowed_domains": [
+                    "trialdablg5.jfrog.io",
+                    "*.jfrog.io",
+                    "localhost",
+                    "127.0.0.1"
+                ],
+                "allowed_ips": [
+                    "127.0.0.1",
+                    "::1"
+                ],
+                "blocked_domains": [
+                    "malicious-site.com",
+                    "*.suspicious-domain.com"
+                ]
             }
         }
         self.config = self.load_config()
@@ -114,6 +131,26 @@ class Config:
     def get_multiselect_threshold(self):
         """Get the multiselect threshold for UI switching"""
         return self.get('app.multiselect_threshold', 5)
+    
+    def get_network_security_config(self):
+        """Get network security configuration"""
+        return self.get('network_security', {})
+    
+    def is_network_restricted(self):
+        """Check if network access is restricted"""
+        return self.get('network_security.restricted_mode', True)
+    
+    def get_allowed_domains(self):
+        """Get list of allowed domains"""
+        return self.get('network_security.allowed_domains', [])
+    
+    def get_allowed_ips(self):
+        """Get list of allowed IPs"""
+        return self.get('network_security.allowed_ips', [])
+    
+    def get_blocked_domains(self):
+        """Get list of blocked domains"""
+        return self.get('network_security.blocked_domains', [])
     
     def get_jfrog_file_url(self, filename):
         """Get full JFrog URL for a file"""

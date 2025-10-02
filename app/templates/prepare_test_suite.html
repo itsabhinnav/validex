@@ -765,26 +765,19 @@
 </style>
 
 <script>
-// Initialize Select2 on all select elements
-    $(document).ready(function() {
-        // Initialize smart multi-select on all select elements
+// Initialize smart multi-select on document ready
+$(document).ready(function() {
+    // Initialize smart multi-select with a small delay to ensure DOM is ready
+    setTimeout(function() {
         initializeSmartMultiSelect();
+    }, 100);
     
-    // Re-initialize Select2 when dynamic filters are added
+    // Re-initialize smart multi-select when dynamic filters are added
     $(document).on('DOMNodeInserted', function(e) {
         if ($(e.target).find('select').length > 0) {
-        $(e.target).find('select').select2({
-            theme: 'bootstrap-5',
-            placeholder: function() {
-                return $(this).find('option:first').text();
-            },
-            allowClear: true,
-            width: '100%',
-            minimumResultsForSearch: 0,
-            multiple: function() {
-                return $(this).attr('multiple') !== undefined;
-            }
-        });
+            setTimeout(function() {
+                initializeSmartMultiSelect();
+            }, 50);
         }
     });
 });

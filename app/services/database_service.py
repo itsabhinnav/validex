@@ -4,6 +4,7 @@ Database service for Test Case Management System
 
 import sqlite3
 import os
+import threading
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
@@ -16,9 +17,22 @@ class DatabaseService:
     
     def __init__(self, db_path: str = "data/db/test_cases.db"):
         self.db_path = db_path
-        self.connection = None
+        self._local = threading.local()
         # Ensure the data directory exists
         self._ensure_data_directory()
+    
+    def _get_connection(self):
+        """Get thread-local database connection"""
+        if not hasattr(self._local, 'connection') or self._local.connection is None:
+            self._local.connection = sqlite3.connect(self.db_path)
+            self._local.connection.row_factory = sqlite3.Row
+        return self._local.connection
+    
+    def _close_connection(self):
+        """Close thread-local database connection"""
+        if hasattr(self._local, 'connection') and self._local.connection is not None:
+            self._local.connection.close()
+            self._local.connection = None
     
     def _ensure_data_directory(self):
         """Ensure the data directory exists"""
@@ -36,9 +50,8 @@ class DatabaseService:
             # Ensure data directory exists
             self._ensure_data_directory()
             
-            # Create database connection
-            self.connection = sqlite3.connect(self.db_path)
-            self.connection.row_factory = sqlite3.Row  # Enable column access by name
+            # Get thread-local connection
+            connection = self._get_connection()
             
             # Create tables and indexes
             self.create_tables()
@@ -148,7 +161,8 @@ class DatabaseService:
     
     def create_tables(self):
         """Create database tables"""
-        cursor = self.connection.cursor()
+        connection = self._get_connection()
+        cursor = connection.cursor()
         
         # Test cases table
         cursor.execute('''

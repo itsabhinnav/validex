@@ -880,58 +880,19 @@
 }
 </style>
 <script>
-// Initialize Select2 on all select elements
+// Initialize smart multi-select on document ready
 $(document).ready(function() {
-    // Initialize Select2 on all select elements
-    $('select').select2({
-        theme: 'bootstrap-5',
-        placeholder: function() {
-            return $(this).find('option:first').text();
-        },
-        allowClear: true,
-        width: '100%',
-        // Enable search functionality
-        minimumResultsForSearch: 0,
-        // Enable multi-select for filter dropdowns
-        multiple: function() {
-            return $(this).attr('multiple') !== undefined;
-        },
-        // Add checkboxes for multi-select
-        templateResult: function(data) {
-            if (data.loading) return data.text;
-            
-            var $result = $(
-                '<div class="select2-result-repository clearfix">' +
-                    '<div class="select2-result-repository__meta">' +
-                        '<div class="select2-result-repository__title"></div>' +
-                    '</div>' +
-                '</div>'
-            );
-            
-            $result.find('.select2-result-repository__title').text(data.text);
-            
-            return $result;
-        },
-        templateSelection: function(data) {
-            return data.text;
-        }
-    });
+    // Initialize smart multi-select with a small delay to ensure DOM is ready
+    setTimeout(function() {
+        initializeSmartMultiSelect();
+    }, 100);
     
-    // Re-initialize Select2 when dynamic filters are added
+    // Re-initialize smart multi-select when dynamic filters are added
     $(document).on('DOMNodeInserted', function(e) {
         if ($(e.target).find('select').length > 0) {
-        $(e.target).find('select').select2({
-            theme: 'bootstrap-5',
-            placeholder: function() {
-                return $(this).find('option:first').text();
-            },
-            allowClear: true,
-            width: '100%',
-            minimumResultsForSearch: 0,
-            multiple: function() {
-                return $(this).attr('multiple') !== undefined;
-            }
-        });
+            setTimeout(function() {
+                initializeSmartMultiSelect();
+            }, 50);
         }
     });
 });
@@ -1403,7 +1364,6 @@ function updateSelectFromCheckboxes($select, $checkboxContainer) {
 // Initialize available columns
 document.addEventListener('DOMContentLoaded', function() {
     updateAvailableColumns();
-    initializeSmartMultiSelect();
 });
 </script>
 {% endblock %}

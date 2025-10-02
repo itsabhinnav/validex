@@ -7,6 +7,7 @@ from datetime import datetime
 from app.models.sync_status import SyncStatus, SyncStatusType, SyncStrategy
 from app.services.database_service import DatabaseService
 from app.services.file_service import FileService
+from app.services.network_security_service import network_security_service
 
 class SyncService:
     """Service for synchronization operations"""

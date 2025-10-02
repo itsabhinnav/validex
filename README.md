@@ -25,29 +25,65 @@ limitations under the License.
 ## 📋 Table of Contents
 
 - [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Project Structure](#project-structure)
 - [Configuration](#configuration)
-- [API Documentation](#api-documentation)
-- [Scalability & Performance](#scalability--performance)
 - [Development](#development)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 
 ## 🎯 Overview
 
-Validex is a professional test case management platform designed for enterprise use. It provides a complete solution for managing test cases stored in Excel files, executing tests, and generating comprehensive reports. The system supports both local and remote file storage with advanced synchronization capabilities.
+Validex is a **portable team distribution** test case management platform designed for enterprise use. It provides a complete solution for managing test cases stored in Excel files, executing tests, and generating comprehensive reports. The system is optimized for **client-side distribution** to team members rather than server hosting.
 
 ### Key Highlights
+- **Portable Distribution**: Self-contained package for team distribution
+- **Localhost-Only Security**: Binds only to 127.0.0.1 for maximum security
+- **Team Collaboration**: Artifactory integration for shared Excel files
+- **No Server Required**: Each team member runs their own instance
+- **Offline Capable**: Works without network dependencies
 - **Enterprise-Ready**: Scalable architecture supporting 400,000+ test cases
-- **Role-Based Access**: Separate interfaces for Administrators and Testers
-- **Hybrid Storage**: Local and remote file synchronization
-- **Modern UI**: Responsive design with professional styling
-- **Extensible**: Flexible column configuration system
-- **Performance Optimized**: Database-backed with pagination and caching
+
+## 🚀 Quick Start
+
+### For Team Distribution
+```bash
+# Build team distribution package
+python scripts/build_team_distribution.py
+
+# Distribute to team members
+# Team members run: pip install -r requirements.txt
+# Team members run: python scripts/configure_team.py
+# Team members run: ./start_team.sh
+```
+
+### For Development
+```bash
+# Clone and setup
+git clone <repository-url>
+cd testPoc
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python run.py
+```
+
+## 📚 Documentation
+
+**Complete documentation is available in the `docs/` folder:**
+
+- **[docs/README.md](docs/README.md)** - Comprehensive documentation including:
+  - Architecture overview
+  - Team distribution guide
+  - Security guide
+  - Build guide
+  - License analysis
+- **[docs/PWA_GUIDE.md](docs/PWA_GUIDE.md)** - Progressive Web App features
+- **[docs/TEXT_CONFIGURATION.md](docs/TEXT_CONFIGURATION.md)** - Text configuration
+- **[docs/LICENSING.md](docs/LICENSING.md)** - Licensing information
 
 ## ✨ Features
 

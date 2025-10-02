@@ -24,6 +24,7 @@ from app.services.file_service import FileService
 from app.services.sync_service import SyncService
 from app.services.column_service import ColumnManager
 from app.services.background_sync_service import initialize_background_sync
+from app.services.network_security_service import network_security_service
 from app.utils.text_config import inject_text_config
 
 # Global service instances
@@ -70,6 +71,12 @@ def create_app(config_name='development'):
         
         print("Initializing column manager...")
         column_manager = ColumnManager()
+        
+        # Initialize network security service
+        print("Initializing network security service...")
+        from config.settings import config
+        network_security_config = config.get_network_security_config()
+        network_security_service.configure_security(network_security_config)
         
         # Initialize background sync service only if database is available
         if db_service and db_service.is_initialized():

@@ -34,10 +34,15 @@ def main():
     # Create Flask application
     app = create_app(config_name)
     
-    # Get host and port from environment
-    host = os.environ.get('FLASK_HOST', '0.0.0.0')
+    # Get host and port from environment (default to localhost for security)
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
     port = int(os.environ.get('FLASK_PORT', 8000))
     debug = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
+    
+    # Security: Force localhost binding in production
+    if config_name == 'production':
+        host = '127.0.0.1'
+        debug = False
     
     print("Starting Test Case Management System")
     print(f"Environment: {config_name}")
