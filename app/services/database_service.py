@@ -34,6 +34,14 @@ class DatabaseService:
             self._local.connection.close()
             self._local.connection = None
     
+    def __enter__(self):
+        """Context manager entry"""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit"""
+        self._close_connection()
+    
     def _ensure_data_directory(self):
         """Ensure the data directory exists"""
         try:
@@ -80,11 +88,10 @@ class DatabaseService:
             self._ensure_data_directory()
             
             # Create a basic SQLite database
-            self.connection = sqlite3.connect(self.db_path)
-            self.connection.row_factory = sqlite3.Row
+            connection = self._get_connection()
             
             # Create minimal tables
-            cursor = self.connection.cursor()
+            cursor = connection.cursor()
             
             # Test cases table (minimal structure)
             cursor.execute('''
@@ -152,7 +159,7 @@ class DatabaseService:
                 )
             ''')
             
-            self.connection.commit()
+            connection.commit()
             print("Basic database structure created")
             
         except Exception as e:
@@ -240,12 +247,13 @@ class DatabaseService:
             )
         ''')
         
-        self.connection.commit()
+        connection.commit()
     
     def migrate_schema(self):
         """Migrate database schema to add missing columns"""
         try:
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             
             # Check if file_id column exists in test_cases table
             cursor.execute("PRAGMA table_info(test_cases)")
@@ -278,7 +286,7 @@ class DatabaseService:
                     cursor.execute(f"ALTER TABLE test_cases ADD COLUMN {column_name} {column_type}")
                     print(f"✅ {column_name} column added")
             
-            self.connection.commit()
+            connection.commit()
             print("✅ Database schema migration completed")
             
         except Exception as e:
@@ -288,7 +296,8 @@ class DatabaseService:
     
     def create_indexes(self):
         """Create database indexes"""
-        cursor = self.connection.cursor()
+        connection = self._get_connection()
+        cursor = connection.cursor()
         
         # Test cases indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_tc_id ON test_cases(tc_id)')
@@ -319,11 +328,12 @@ class DatabaseService:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_sync_status_id ON sync_status(sync_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_sync_status_status ON sync_status(status)')
         
-        self.connection.commit()
+        connection.commit()
     
     def search_test_cases(self, filters: Dict[str, Any] = None, limit: int = 50, offset: int = 0) -> Dict[str, Any]:
         """Search test cases with filters and pagination"""
-        cursor = self.connection.cursor()
+        connection = self._get_connection()
+        cursor = connection.cursor()
         
         # Build WHERE clause
         where_conditions = []
@@ -366,7 +376,8 @@ class DatabaseService:
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get aggregated statistics"""
-        cursor = self.connection.cursor()
+        connection = self._get_connection()
+        cursor = connection.cursor()
         
         stats = {}
         
@@ -402,7 +413,8 @@ class DatabaseService:
     
     def get_filter_options(self) -> Dict[str, List[str]]:
         """Get unique values for filter dropdowns"""
-        cursor = self.connection.cursor()
+        connection = self._get_connection()
+        cursor = connection.cursor()
         
         options = {}
         
@@ -418,7 +430,8 @@ class DatabaseService:
     def insert_test_case(self, test_case: TestCase) -> bool:
         """Insert a test case"""
         try:
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute('''
                 INSERT INTO test_cases 
                 (tc_id, summary, feature, priority, status, screen_id, test_type,
@@ -432,7 +445,7 @@ class DatabaseService:
                 test_case.file_path, test_case.directory_structure, test_case.app_name,
                 test_case.test_category, test_case.file_id, test_case.local_version
             ))
-            self.connection.commit()
+            connection.commit()
             return True
         except Exception as e:
             print(f"Error inserting test case: {e}")
@@ -441,7 +454,8 @@ class DatabaseService:
     def update_file_metadata(self, file_metadata: FileMetadata) -> bool:
         """Update file metadata"""
         try:
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute('''
                 INSERT OR REPLACE INTO file_metadata 
                 (file_id, file_path, file_hash, file_size, last_modified, last_synced,
@@ -456,7 +470,7 @@ class DatabaseService:
                 file_metadata.local_version, file_metadata.record_count, file_metadata.processing_time,
                 file_metadata.error_message
             ))
-            self.connection.commit()
+            connection.commit()
             return True
         except Exception as e:
             print(f"Error updating file metadata: {e}")
@@ -465,11 +479,9 @@ class DatabaseService:
     def is_initialized(self) -> bool:
         """Check if database is properly initialized"""
         try:
-            if not self.connection:
-                return False
-            
             # Test connection by running a simple query
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='test_cases'")
             result = cursor.fetchone()
             return result is not None
@@ -481,7 +493,7 @@ class DatabaseService:
     def get_connection_status(self) -> Dict[str, Any]:
         """Get database connection status information"""
         try:
-            if not self.connection:
+            if not self.is_initialized():
                 return {
                     'connected': False,
                     'error': 'No database connection',
@@ -490,7 +502,8 @@ class DatabaseService:
                 }
             
             # Test connection
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
             table_count = cursor.fetchone()[0]
             
@@ -513,7 +526,8 @@ class DatabaseService:
     def _get_table_names(self) -> List[str]:
         """Get list of table names in the database"""
         try:
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             return [row[0] for row in cursor.fetchall()]
         except Exception:
@@ -522,10 +536,11 @@ class DatabaseService:
     def safe_execute(self, query, params=None):
         """Safely execute a database query with error handling"""
         try:
-            if not self.connection or not self.is_initialized():
+            if not self.is_initialized():
                 return None, "Database not available"
             
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             if params:
                 cursor.execute(query, params)
             else:
@@ -539,12 +554,13 @@ class DatabaseService:
     def safe_insert(self, query, params):
         """Safely insert data with error handling"""
         try:
-            if not self.connection or not self.is_initialized():
+            if not self.is_initialized():
                 return False, "Database not available"
             
-            cursor = self.connection.cursor()
+            connection = self._get_connection()
+            cursor = connection.cursor()
             cursor.execute(query, params)
-            self.connection.commit()
+            connection.commit()
             return True, None
             
         except Exception as e:
@@ -606,6 +622,4 @@ class DatabaseService:
 
     def close(self):
         """Close database connection"""
-        if self.connection:
-            self.connection.close()
-            self.connection = None
+        self._close_connection()
