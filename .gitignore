@@ -190,7 +190,6 @@ local_*
 dev_*
 
 # Database files
-*.db
 *.sqlite
 *.sqlite3
 
