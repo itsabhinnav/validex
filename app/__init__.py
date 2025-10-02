@@ -51,43 +51,43 @@ def create_app(config_name='development'):
     
     try:
         # Initialize database service first
-        print("🔧 Initializing database service...")
+        print("Initializing database service...")
         db_service = DatabaseService()
         
         # Initialize database with proper error handling
         with app.app_context():
             db_initialized = db_service.initialize()
             if not db_initialized:
-                print("⚠️ Database initialization failed, but continuing with limited functionality")
-                print("ℹ️ App will work with Excel files only (no database features)")
+                print("Database initialization failed, but continuing with limited functionality")
+                print("App will work with Excel files only (no database features)")
         
         # Initialize other services
-        print("🔧 Initializing file service...")
+        print("Initializing file service...")
         file_service = FileService()
         
-        print("🔧 Initializing sync service...")
+        print("Initializing sync service...")
         sync_service = SyncService(db_service, file_service) if db_service else None
         
-        print("🔧 Initializing column manager...")
+        print("Initializing column manager...")
         column_manager = ColumnManager()
         
         # Initialize background sync service only if database is available
         if db_service and db_service.is_initialized():
-            print("🔧 Initializing background sync service...")
+            print("Initializing background sync service...")
             background_sync_service = initialize_background_sync(db_service, file_service, sync_service)
             
             # Configure and start background sync if enabled
             with app.app_context():
                 _configure_background_sync(background_sync_service)
         else:
-            print("⚠️ Skipping background sync service (database not available)")
+            print("Skipping background sync service (database not available)")
             background_sync_service = None
             
-        print("✅ All services initialized successfully")
+        print("All services initialized successfully")
             
     except Exception as e:
-        print(f"❌ Service initialization error: {e}")
-        print("⚠️ Continuing with limited functionality")
+        print(f"Service initialization error: {e}")
+        print("Continuing with limited functionality")
         # Set services to None to prevent errors
         db_service = None
         file_service = None
@@ -156,14 +156,14 @@ def _configure_background_sync(background_sync_service):
                 
                 # Start background sync
                 background_sync_service.start_background_sync()
-                print("🔄 Background sync enabled and started")
+                print("Background sync enabled and started")
             else:
-                print("⏸️ Background sync disabled in configuration")
+                print("Background sync disabled in configuration")
         else:
-            print("⚠️ Configuration file not found, using default settings")
+            print("Configuration file not found, using default settings")
             
     except Exception as e:
-        print(f"❌ Error configuring background sync: {e}")
+        print(f"Error configuring background sync: {e}")
 
 def get_services():
     """Get service instances"""

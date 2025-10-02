@@ -25,9 +25,9 @@ class DatabaseService:
         try:
             data_dir = Path(self.db_path).parent
             data_dir.mkdir(parents=True, exist_ok=True)
-            print(f"✅ Data directory ensured: {data_dir}")
+            print(f"Data directory ensured: {data_dir}")
         except Exception as e:
-            print(f"❌ Error creating data directory: {e}")
+            print(f"Error creating data directory: {e}")
             raise
 
     def initialize(self):
@@ -45,19 +45,19 @@ class DatabaseService:
             self.migrate_schema()
             self.create_indexes()
             
-            print(f"✅ Database initialized successfully: {self.db_path}")
+            print(f"Database initialized successfully: {self.db_path}")
             return True
             
         except Exception as e:
-            print(f"❌ Database initialization error: {e}")
+            print(f"Database initialization error: {e}")
             # Try to create a basic database file
             try:
                 self._create_basic_database()
-                print("✅ Basic database created as fallback")
+                print("Basic database created as fallback")
                 return True
             except Exception as fallback_error:
-                print(f"❌ Fallback database creation failed: {fallback_error}")
-                print("⚠️ Continuing without database - app will work with limited functionality")
+                print(f"Fallback database creation failed: {fallback_error}")
+                print("Continuing without database - app will work with limited functionality")
                 return False
 
     def _create_basic_database(self):
@@ -140,10 +140,10 @@ class DatabaseService:
             ''')
             
             self.connection.commit()
-            print("✅ Basic database structure created")
+            print("Basic database structure created")
             
         except Exception as e:
-            print(f"❌ Error creating basic database: {e}")
+            print(f"Error creating basic database: {e}")
             raise
     
     def create_tables(self):
