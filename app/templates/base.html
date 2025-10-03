@@ -37,6 +37,139 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/main.css') }}?v=14.0" rel="stylesheet">
+    
+    <!-- Dark Theme Support -->
+    <style>
+        :root {
+            --bs-body-bg: #ffffff;
+            --bs-body-color: #212529;
+            --bs-primary: #007bff;
+            --bs-secondary: #6c757d;
+            --bs-success: #28a745;
+            --bs-danger: #dc3545;
+            --bs-warning: #ffc107;
+            --bs-info: #17a2b8;
+            --bs-light: #f8f9fa;
+            --bs-dark: #343a40;
+        }
+        
+        .dark-theme {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #ffffff;
+            --bs-primary: #0d6efd;
+            --bs-secondary: #6c757d;
+            --bs-success: #198754;
+            --bs-danger: #dc3545;
+            --bs-warning: #ffc107;
+            --bs-info: #0dcaf0;
+            --bs-light: #212529;
+            --bs-dark: #ffffff;
+        }
+        
+        .dark-theme body {
+            background-color: var(--bs-body-bg) !important;
+            color: var(--bs-body-color) !important;
+        }
+        
+        .dark-theme .navbar {
+            background-color: #2d2d2d !important;
+            border-color: #404040 !important;
+        }
+        
+        .dark-theme .navbar-brand,
+        .dark-theme .navbar-text {
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .card {
+            background-color: #2d2d2d !important;
+            border-color: #404040 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .card-header {
+            background-color: #3d3d3d !important;
+            border-color: #404040 !important;
+        }
+        
+        .dark-theme .table {
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .table-striped > tbody > tr:nth-of-type(odd) > td,
+        .dark-theme .table-striped > tbody > tr:nth-of-type(odd) > th {
+            background-color: #3d3d3d !important;
+        }
+        
+        .dark-theme .form-control,
+        .dark-theme .form-select {
+            background-color: #3d3d3d !important;
+            border-color: #404040 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .form-control:focus,
+        .dark-theme .form-select:focus {
+            background-color: #3d3d3d !important;
+            border-color: #007bff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+        }
+        
+        .dark-theme .btn-outline-primary {
+            color: #007bff !important;
+            border-color: #007bff !important;
+        }
+        
+        .dark-theme .btn-outline-primary:hover {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+        
+        .dark-theme .chart-container {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .metric-card {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .dashboard-header {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+        }
+        
+        .dark-theme .timeline-content {
+            background-color: #3d3d3d !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .select2-container--default .select2-selection--single {
+            background-color: #3d3d3d !important;
+            border-color: #404040 !important;
+        }
+        
+        .dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .select2-dropdown {
+            background-color: #2d2d2d !important;
+            border-color: #404040 !important;
+        }
+        
+        .dark-theme .select2-container--default .select2-results__option {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #007bff !important;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -84,10 +217,13 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js temporarily disabled -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="{{ url_for('static', filename='js/text-config.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bulk-operations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/advanced-search.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pwa-enhancements.js') }}"></script>
     
     <!-- PWA Service Worker Registration -->
     <script>
