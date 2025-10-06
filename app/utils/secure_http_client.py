@@ -3,8 +3,6 @@ Secure HTTP Client
 
 This module provides a secure HTTP client that respects network security policies
 and only allows connections to whitelisted URLs.
-
-Copyright 2025 Validex Project
 """
 
 import urllib.request

@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ get_text('app.name') }} - {{ get_text('app.tagline') }}{% endblock %}</title>
+    <title>{% block title %}Sakura - Requirement Management & Design Platform{% endblock %}</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="{{ get_text('app.description', 'Quality Assurance Management System for testing workflows') }}">
-    <meta name="theme-color" content="#007bff">
+    <meta name="description" content="Intelligent requirement management and design phase platform with collaborative tools and AI insights">
+    <meta name="theme-color" content="#28a745">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="{{ get_text('app.name') }}">
-    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="apple-mobile-web-app-title" content="Sakura">
+    <meta name="msapplication-TileColor" content="#28a745">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}">
     
     <!-- PWA Manifest -->
@@ -36,73 +36,54 @@
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='css/main.css') }}?v=15.0" rel="stylesheet">
-    
+    <link href="{{ url_for('static', filename='css/main.css') }}?v=14.0" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
-            <a class="navbar-brand text-dark" href="{% if session.get('current_app') == 'sakura' %}{{ url_for('sakura.sakura_dashboard') }}{% else %}{{ url_for('main.dashboard') }}{% endif %}">
-                {% if session.get('current_app') == 'sakura' %}
-                    <i class="fas fa-spa" style="color: #ff69b4;"></i>
-                {% else %}
-                    <i class="fas fa-clipboard-check"></i>
-                {% endif %}
-                {% if session.get('current_app') %}
-                    {{ session.get('current_app', 'Platform').title() }}
-                {% else %}
-                    Platform
-                {% endif %}
+            <a class="navbar-brand text-dark" href="{{ url_for('sakura.sakura_dashboard') }}">
+                <i class="fas fa-seedling" style="color: #ff69b4;"></i> Sakura
             </a>
             
-            {% if current_role %}
             <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3 text-dark">
-                    <i class="fas fa-user"></i> 
-                    <span class="role-badge badge bg-secondary">{{ get_text('roles.' + current_role) if current_role else get_text('roles.guest') }}</span>
-                </span>
-                <a class="nav-link text-dark" href="{{ url_for('main.dashboard') }}">
-                    <i class="fas fa-tachometer-alt"></i> {{ get_text('navigation.dashboard') }}
-                </a>
-                {% if current_role == 'tester' %}
-                    <a class="nav-link text-dark" href="{{ url_for('main.test_cases') }}">
-                        <i class="fas fa-list"></i> {{ get_text('navigation.test_cases') }}
-                    </a>
-                    <span class="nav-link text-muted" style="cursor: not-allowed; opacity: 0.6;">
-                        <i class="fas fa-chart-bar"></i> {{ get_text('navigation.reports') }}
-                    </span>
-                {% elif current_role == 'admin' %}
-                    {% if admin_enabled %}
-                    <a class="nav-link text-dark" href="{{ url_for('main.admin') }}">
-                        <i class="fas fa-cog"></i> {{ get_text('navigation.admin') }}
-                    </a>
-                    {% endif %}
-                    <a class="nav-link text-dark" href="{{ url_for('main.jfrog_config') }}">
-                        <i class="fas fa-cloud"></i> {{ get_text('navigation.jfrog') }}
-                    </a>
-                {% endif %}
                 <a class="nav-link text-dark" href="{{ url_for('main.app_selector') }}">
                     <i class="fas fa-exchange-alt"></i> Switch App
                 </a>
-                <a class="nav-link text-dark" href="{{ url_for('main.logout') }}">
-                    <i class="fas fa-sign-out-alt"></i> {{ get_text('navigation.logout') }}
+                
+                {% if current_role %}
+                <span class="navbar-text me-3 text-dark">
+                    <i class="fas fa-user"></i> 
+                    <span class="role-badge badge bg-success">{{ get_text('roles.' + current_role) if current_role else get_text('roles.guest') }}</span>
+                </span>
+                <a class="nav-link text-dark" href="{{ url_for('sakura.sakura_dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
+                <a class="nav-link text-dark" href="{{ url_for('sakura.automation') }}">
+                    <i class="fas fa-list-check"></i> Requirements
+                </a>
+                <a class="nav-link text-dark" href="{{ url_for('sakura.orchestration') }}">
+                    <i class="fas fa-drafting-compass"></i> Design
+                </a>
+                <a class="nav-link text-dark" href="{{ url_for('sakura.monitoring') }}">
+                    <i class="fas fa-users"></i> Collaboration
+                </a>
+                <a class="nav-link text-dark" href="{{ url_for('sakura.insights') }}">
+                    <i class="fas fa-brain"></i> AI Insights
+                </a>
+                <a class="nav-link text-dark" href="{{ url_for('main.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </nav>
 
-    <main class="container mt-4">
-        {% block content %}{% endblock %}
-    </main>
+    {% block content %}{% endblock %}
 
+    <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/text-config.js') }}?v=15.0"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=15.0"></script>
-    
-    
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Select2 JavaScript -->
@@ -153,7 +134,7 @@
     }
 
     .pwa-install-icon {
-        color: #007bff;
+        color: #28a745;
         flex-shrink: 0;
     }
 
@@ -272,4 +253,3 @@
     </script>
 </body>
 </html>
-

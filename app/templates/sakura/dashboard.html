@@ -1,0 +1,193 @@
+{% extends "sakura_base.html" %}
+
+{% block title %}Sakura Dashboard - Test Automation Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+    <!-- Requirements Overview -->
+    <div class="row mb-3">
+        <div class="col-lg-4 col-md-12 mb-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1 text-dark" id="total-requirements">0</h4>
+                            <small class="text-muted">Total Requirements</small>
+                        </div>
+                        <div>
+                            <i class="fas fa-list-check fa-2x text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Requirements Management -->
+        <div class="col-lg-8 mb-3">
+            <div class="card">
+                <div class="card-header py-2">
+                    <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>Requirements Management</h6>
+                </div>
+                <div class="card-body py-3">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('sakura.browse_requirements') }}" class="btn btn-outline-dark">
+                            <i class="fas fa-search me-2"></i>Browse Requirements
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.card {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.requirement-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+.requirement-item:hover {
+    background-color: #f8f9fa;
+}
+
+.requirement-item:last-child {
+    border-bottom: none;
+}
+
+.badge-sm {
+    font-size: 0.7em;
+    padding: 0.25em 0.5em;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadRequirementsData();
+});
+
+function loadRequirementsData() {
+    // Load requirements from Excel data (simulated)
+    // In a real implementation, this would fetch from the backend API
+    const requirements = [
+        { 
+            id: 'REQ-001', 
+            title: 'User Authentication System', 
+            description: 'User wants to access the system',
+            given: 'User wants to access the system',
+            when: 'User enters credentials',
+            then: 'System should authenticate user',
+            status: 'Active', 
+            priority: 'High', 
+            category: 'Security',
+            assignee: 'John Doe',
+            created: '2024-01-15',
+            tags: 'auth,security'
+        },
+        { 
+            id: 'REQ-002', 
+            title: 'Payment Gateway Integration', 
+            description: 'User needs to process payments',
+            given: 'User needs to process payments',
+            when: 'User initiates payment',
+            then: 'Payment should be processed securely',
+            status: 'Active', 
+            priority: 'Medium', 
+            category: 'Integration',
+            assignee: 'Jane Smith',
+            created: '2024-01-14',
+            tags: 'payment,integration'
+        },
+        { 
+            id: 'REQ-003', 
+            title: 'API Documentation Standards', 
+            description: 'Developers need API documentation',
+            given: 'Developers need API documentation',
+            when: 'Developer accesses API',
+            then: 'Clear documentation should be provided',
+            status: 'Completed', 
+            priority: 'Low', 
+            category: 'Documentation',
+            assignee: 'Mike Johnson',
+            created: '2024-01-10',
+            tags: 'docs,api'
+        },
+        { 
+            id: 'REQ-004', 
+            title: 'Database Schema Design', 
+            description: 'System needs data storage',
+            given: 'System needs data storage',
+            when: 'Data is stored/retrieved',
+            then: 'Data should be stored efficiently',
+            status: 'Active', 
+            priority: 'High', 
+            category: 'Database',
+            assignee: 'Sarah Wilson',
+            created: '2024-01-12',
+            tags: 'database,schema'
+        },
+        { 
+            id: 'REQ-005', 
+            title: 'Security Requirements', 
+            description: 'System needs security measures',
+            given: 'System needs security measures',
+            when: 'System is accessed',
+            then: 'System should be secure',
+            status: 'Active', 
+            priority: 'High', 
+            category: 'Security',
+            assignee: 'David Brown',
+            created: '2024-01-08',
+            tags: 'security,access'
+        },
+        { 
+            id: 'REQ-006', 
+            title: 'User Interface Guidelines', 
+            description: 'Users need intuitive interface',
+            given: 'Users need intuitive interface',
+            when: 'User interacts with system',
+            then: 'Interface should be user-friendly',
+            status: 'Pending', 
+            priority: 'Medium', 
+            category: 'UI/UX',
+            assignee: 'Lisa Davis',
+            created: '2024-01-16',
+            tags: 'ui,ux,design'
+        }
+    ];
+
+    // Update counters
+    const totalRequirements = requirements.length;
+    document.getElementById('total-requirements').textContent = totalRequirements;
+
+}
+
+function viewRequirement(id) {
+    // In a real implementation, this would navigate to the requirement details
+    alert(`Viewing requirement ${id}`);
+}
+</script>
+{% endblock %}

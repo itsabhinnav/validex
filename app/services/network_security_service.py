@@ -3,8 +3,6 @@ Network Security Service
 
 This service provides network isolation and URL whitelisting capabilities
 to restrict outbound internet access while allowing specific URLs like Artifactory.
-
-Copyright 2025 Validex Project
 """
 
 import socket

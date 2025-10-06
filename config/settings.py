@@ -1,162 +1,92 @@
 import os
 import json
 from pathlib import Path
+from .config_manager import config_manager
 
 class Config:
-    """Configuration management for Validex application"""
+    """Configuration management for Validex application - now using centralized config"""
     
     def __init__(self):
-        self.config_file = Path("config/validex_config.json")
-        self.default_config = {
-            "jfrog": {
-                "base_url": "https://trialdablg5.jfrog.io/artifactory",
-                "repository": "testccs-test",
-                "root_path": "test",
-                "access_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                "enabled": True
-            },
-            "app": {
-                "excel_files_dir": "excel_files",
-                "reports_dir": "reports",
-                "auto_refresh_interval": 30,
-                "admin_enabled": False,
-                "multiselect_threshold": 5
-            },
-            "network_security": {
-                "restricted_mode": True,
-                "allowed_domains": [
-                    "trialdablg5.jfrog.io",
-                    "*.jfrog.io",
-                    "localhost",
-                    "127.0.0.1"
-                ],
-                "allowed_ips": [
-                    "127.0.0.1",
-                    "::1"
-                ],
-                "blocked_domains": [
-                    "malicious-site.com",
-                    "*.suspicious-domain.com"
-                ]
-            }
-        }
-        self.config = self.load_config()
+        # Use centralized configuration
+        self.config = config_manager.config
     
     def load_config(self):
-        """Load configuration from file or create default"""
-        if self.config_file.exists():
-            try:
-                with open(self.config_file, 'r') as f:
-                    config = json.load(f)
-                    # Merge with default config to ensure all keys exist
-                    merged_config = self.default_config.copy()
-                    merged_config.update(config)
-                    return merged_config
-            except (json.JSONDecodeError, IOError) as e:
-                print(f"Error loading config: {e}. Using default configuration.")
-                return self.default_config.copy()
-        else:
-            self.save_config(self.default_config)
-            return self.default_config.copy()
+        """Load configuration from centralized config"""
+        return config_manager.config
     
     def save_config(self, config=None):
-        """Save configuration to file"""
-        if config is None:
-            config = self.config
-        
-        try:
-            with open(self.config_file, 'w') as f:
-                json.dump(config, f, indent=2)
-        except IOError as e:
-            print(f"Error saving config: {e}")
+        """Save configuration using centralized config"""
+        if config is not None:
+            config_manager.config = config
+        config_manager._save_config()
     
     def get(self, key_path, default=None):
-        """Get configuration value using dot notation (e.g., 'jfrog.base_url')"""
-        keys = key_path.split('.')
-        value = self.config
-        
-        try:
-            for key in keys:
-                value = value[key]
-            return value
-        except (KeyError, TypeError):
-            return default
+        """Get configuration value using dot notation"""
+        return config_manager.get(key_path, default)
     
     def set(self, key_path, value):
         """Set configuration value using dot notation"""
-        keys = key_path.split('.')
-        config = self.config
-        
-        # Navigate to the parent of the target key
-        for key in keys[:-1]:
-            if key not in config:
-                config[key] = {}
-            config = config[key]
-        
-        # Set the value
-        config[keys[-1]] = value
-        self.save_config()
+        config_manager.set(key_path, value)
     
     def update_jfrog_config(self, base_url=None, repository=None, root_path=None, 
                           access_token=None, enabled=None):
         """Update JFrog configuration"""
-        jfrog_config = self.config.get('jfrog', {})
-        
+        jfrog_updates = {}
         if base_url is not None:
-            jfrog_config['base_url'] = base_url
+            jfrog_updates['base_url'] = base_url
         if repository is not None:
-            jfrog_config['repository'] = repository
+            jfrog_updates['repository'] = repository
         if root_path is not None:
-            jfrog_config['root_path'] = root_path
+            jfrog_updates['root_path'] = root_path
         if access_token is not None:
-            jfrog_config['access_token'] = access_token
+            jfrog_updates['access_token'] = access_token
         if enabled is not None:
-            jfrog_config['enabled'] = enabled
+            jfrog_updates['enabled'] = enabled
         
-        self.config['jfrog'] = jfrog_config
-        self.save_config()
+        config_manager.update_jfrog_config(**jfrog_updates)
     
     def get_jfrog_config(self):
         """Get complete JFrog configuration"""
-        return self.config.get('jfrog', {})
+        return config_manager.get_jfrog_config()
     
     def is_jfrog_enabled(self):
         """Check if JFrog integration is enabled"""
-        return self.get('jfrog.enabled', False)
+        return config_manager.is_jfrog_enabled()
     
     def is_admin_enabled(self):
         """Check if admin section is enabled"""
-        return self.get('app.admin_enabled', False)
+        return config_manager.is_admin_enabled()
     
     def get_multiselect_threshold(self):
         """Get the multiselect threshold for UI switching"""
-        return self.get('app.multiselect_threshold', 5)
+        return config_manager.get_multiselect_threshold()
     
     def get_network_security_config(self):
         """Get network security configuration"""
-        return self.get('network_security', {})
+        return config_manager.get_section('network_security')
     
     def is_network_restricted(self):
         """Check if network access is restricted"""
-        return self.get('network_security.restricted_mode', True)
+        return config_manager.is_network_restricted()
     
     def get_allowed_domains(self):
         """Get list of allowed domains"""
-        return self.get('network_security.allowed_domains', [])
+        return config_manager.get_allowed_domains()
     
     def get_allowed_ips(self):
         """Get list of allowed IPs"""
-        return self.get('network_security.allowed_ips', [])
+        return config_manager.get_allowed_ips()
     
     def get_blocked_domains(self):
         """Get list of blocked domains"""
-        return self.get('network_security.blocked_domains', [])
+        return config_manager.get_blocked_domains()
     
     def get_jfrog_file_url(self, filename):
         """Get full JFrog URL for a file"""
-        base_url = self.get('jfrog.base_url', '').rstrip('/')
-        repository = self.get('jfrog.repository', '')
-        root_path = self.get('jfrog.root_path', '').strip('/')
+        jfrog_config = config_manager.get_jfrog_config()
+        base_url = jfrog_config.get('base_url', '').rstrip('/')
+        repository = jfrog_config.get('repository', '')
+        root_path = jfrog_config.get('root_path', '').strip('/')
         
         if root_path:
             return f"{base_url}/{repository}/{root_path}/{filename}"
@@ -165,28 +95,32 @@ class Config:
 
 # Flask Configuration Classes
 class DevelopmentConfig:
-    """Development configuration"""
-    DEBUG = True
-    SECRET_KEY = 'dev-secret-key'
-    DATABASE_URL = 'sqlite:///data/test_cases.db'
-    UPLOAD_FOLDER = 'data/excel_files'
-    REPORTS_FOLDER = 'data/reports'
+    """Development configuration using centralized config"""
+    DEBUG = config_manager.get('app.debug', True)
+    SECRET_KEY = config_manager.get('app.secret_key', 'dev-secret-key')
+    DATABASE_URL = f"sqlite:///{config_manager.get_database_path()}"
+    UPLOAD_FOLDER = config_manager.get_test_files_dir()
+    REPORTS_FOLDER = config_manager.get_reports_dir()
+    HOST = config_manager.get('app.host', '127.0.0.1')
+    PORT = config_manager.get('app.port', 8000)
 
 class ProductionConfig:
-    """Production configuration"""
+    """Production configuration using centralized config"""
     DEBUG = False
-    SECRET_KEY = 'prod-secret-key'
-    DATABASE_URL = 'sqlite:///data/test_cases.db'
-    UPLOAD_FOLDER = 'data/excel_files'
-    REPORTS_FOLDER = 'data/reports'
+    SECRET_KEY = config_manager.get('app.secret_key', 'prod-secret-key')
+    DATABASE_URL = f"sqlite:///{config_manager.get_database_path()}"
+    UPLOAD_FOLDER = config_manager.get_test_files_dir()
+    REPORTS_FOLDER = config_manager.get_reports_dir()
+    HOST = config_manager.get('app.host', '127.0.0.1')
+    PORT = config_manager.get('app.port', 8000)
 
 class TestingConfig:
-    """Testing configuration"""
+    """Testing configuration using centralized config"""
     TESTING = True
     SECRET_KEY = 'test-secret-key'
     DATABASE_URL = 'sqlite:///:memory:'
-    UPLOAD_FOLDER = 'data/excel_files'
-    REPORTS_FOLDER = 'data/reports'
+    UPLOAD_FOLDER = config_manager.get_test_files_dir()
+    REPORTS_FOLDER = config_manager.get_reports_dir()
 
 # Global config instance
 config = Config()

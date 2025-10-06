@@ -1,0 +1,420 @@
+{% extends "sakura_base.html" %}
+
+{% block title %}Browse Requirements - Sakura{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">
+                                <i class="fas fa-search me-2 text-muted"></i>Browse Requirements
+                            </h4>
+                            <small class="text-muted">Search and manage your requirements</small>
+                        </div>
+                <div>
+                    <a href="{{ url_for('sakura.sakura_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="search-input" placeholder="Search requirements...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="status-filter">
+                                <option value="">All Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="priority-filter">
+                                <option value="">All Priority</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirements Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Requirements</h5>
+                        <div>
+                            <span class="badge bg-primary" id="total-count">0</span>
+                            <span class="text-muted ms-2">requirements found</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="requirements-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Requirement ID</th>
+                                    <th>Screen ID</th>
+                                    <th>Description</th>
+                                    <th>Given</th>
+                                    <th>When</th>
+                                    <th>Then</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Category</th>
+                                    <th>Assignee</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requirements-tbody">
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading requirements...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 0.9em;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.requirement-id {
+    font-weight: 600;
+    color: #495057;
+}
+
+.requirement-description {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.given-when-then {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.85em;
+    color: #6c757d;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadRequirements();
+    setupEventListeners();
+});
+
+// Sample requirements data (Excel-based structure)
+const requirements = [
+    {
+        id: 'REQ-001',
+        screenId: 'SCR-001',
+        title: 'User Authentication System',
+        description: 'User wants to access the system',
+        given: 'User wants to access the system',
+        when: 'User enters credentials',
+        then: 'System should authenticate user',
+        status: 'Active',
+        priority: 'High',
+        created: '2024-01-15',
+        updated: '2 hours ago',
+        assignee: 'John Doe',
+        category: 'Security',
+        tags: 'auth,security'
+    },
+    {
+        id: 'REQ-002',
+        screenId: 'SCR-002',
+        title: 'Payment Gateway Integration',
+        description: 'User needs to process payments',
+        given: 'User needs to process payments',
+        when: 'User initiates payment',
+        then: 'Payment should be processed securely',
+        status: 'Active',
+        priority: 'Medium',
+        created: '2024-01-14',
+        updated: '1 day ago',
+        assignee: 'Jane Smith',
+        category: 'Integration',
+        tags: 'payment,integration'
+    },
+    {
+        id: 'REQ-003',
+        screenId: 'SCR-003',
+        title: 'API Documentation Standards',
+        description: 'Developers need API documentation',
+        given: 'Developers need API documentation',
+        when: 'Developer accesses API',
+        then: 'Clear documentation should be provided',
+        status: 'Completed',
+        priority: 'Low',
+        created: '2024-01-10',
+        updated: '3 days ago',
+        assignee: 'Mike Johnson',
+        category: 'Documentation',
+        tags: 'docs,api'
+    },
+    {
+        id: 'REQ-004',
+        screenId: 'SCR-004',
+        title: 'Database Schema Design',
+        description: 'System needs data storage',
+        given: 'System needs data storage',
+        when: 'Data is stored/retrieved',
+        then: 'Data should be stored efficiently',
+        status: 'Active',
+        priority: 'High',
+        created: '2024-01-12',
+        updated: '5 days ago',
+        assignee: 'Sarah Wilson',
+        category: 'Database',
+        tags: 'database,schema'
+    },
+    {
+        id: 'REQ-005',
+        screenId: 'SCR-005',
+        title: 'Security Requirements',
+        description: 'System needs security measures',
+        given: 'System needs security measures',
+        when: 'System is accessed',
+        then: 'System should be secure',
+        status: 'Active',
+        priority: 'High',
+        created: '2024-01-08',
+        updated: '1 week ago',
+        assignee: 'David Brown',
+        category: 'Security',
+        tags: 'security,access'
+    },
+    {
+        id: 'REQ-006',
+        screenId: 'SCR-006',
+        title: 'User Interface Guidelines',
+        description: 'Users need intuitive interface',
+        given: 'Users need intuitive interface',
+        when: 'User interacts with system',
+        then: 'Interface should be user-friendly',
+        status: 'Pending',
+        priority: 'Medium',
+        created: '2024-01-16',
+        updated: '1 hour ago',
+        assignee: 'Lisa Davis',
+        category: 'UI/UX',
+        tags: 'ui,ux,design'
+    }
+];
+
+function loadRequirements() {
+    const requirementsTbody = document.getElementById('requirements-tbody');
+    const totalCount = document.getElementById('total-count');
+    
+    if (requirements.length === 0) {
+        requirementsTbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No requirements found</td></tr>';
+        totalCount.textContent = '0';
+        return;
+    }
+
+    totalCount.textContent = requirements.length;
+    requirementsTbody.innerHTML = '';
+
+    requirements.forEach(req => {
+        const statusClass = getStatusClass(req.status);
+        const priorityClass = getPriorityClass(req.priority);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="requirement-id">${req.id}</td>
+            <td class="screen-id">${req.screenId}</td>
+            <td class="requirement-description" title="${req.description}">${req.description}</td>
+            <td class="given-when-then" title="${req.given}">${req.given}</td>
+            <td class="given-when-then" title="${req.when}">${req.when}</td>
+            <td class="given-when-then" title="${req.then}">${req.then}</td>
+            <td><span class="badge ${priorityClass}">${req.priority}</span></td>
+            <td><span class="badge ${statusClass}">${req.status}</span></td>
+            <td>${req.category}</td>
+            <td>${req.assignee}</td>
+        `;
+        requirementsTbody.appendChild(row);
+    });
+}
+
+function getStatusClass(status) {
+    switch(status) {
+        case 'Active': return 'bg-dark';
+        case 'Completed': return 'bg-secondary';
+        case 'Pending': return 'bg-light text-dark';
+        default: return 'bg-light text-dark';
+    }
+}
+
+function getPriorityClass(priority) {
+    switch(priority) {
+        case 'High': return 'bg-light text-dark';
+        case 'Medium': return 'bg-light text-dark';
+        case 'Low': return 'bg-light text-dark';
+        default: return 'bg-light text-dark';
+    }
+}
+
+function setupEventListeners() {
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const priorityFilter = document.getElementById('priority-filter');
+
+    searchInput.addEventListener('input', filterRequirements);
+    statusFilter.addEventListener('change', filterRequirements);
+    priorityFilter.addEventListener('change', filterRequirements);
+}
+
+function filterRequirements() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
+    const priorityFilter = document.getElementById('priority-filter').value;
+
+    const filteredRequirements = requirements.filter(req => {
+        const matchesSearch = req.title.toLowerCase().includes(searchTerm) || 
+                           req.description.toLowerCase().includes(searchTerm);
+        const matchesStatus = !statusFilter || req.status === statusFilter;
+        const matchesPriority = !priorityFilter || req.priority === priorityFilter;
+        
+        return matchesSearch && matchesStatus && matchesPriority;
+    });
+
+    displayFilteredRequirements(filteredRequirements);
+}
+
+function displayFilteredRequirements(filteredRequirements) {
+    const requirementsList = document.getElementById('requirements-list');
+    const totalCount = document.getElementById('total-count');
+    
+    totalCount.textContent = filteredRequirements.length;
+
+    if (filteredRequirements.length === 0) {
+        requirementsList.innerHTML = '<div class="text-center text-muted">No requirements match your filters</div>';
+        return;
+    }
+
+    requirementsList.innerHTML = '';
+
+    filteredRequirements.forEach(req => {
+        const statusClass = getStatusClass(req.status);
+        const priorityClass = getPriorityClass(req.priority);
+        
+        const requirementCard = document.createElement('div');
+        requirementCard.className = 'requirement-card';
+        requirementCard.innerHTML = `
+            <div class="requirement-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">${req.title}</h6>
+                    <div>
+                        <span class="badge status-badge ${statusClass}">${req.status}</span>
+                        <span class="badge priority-badge ${priorityClass}">${req.priority}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <p class="text-muted mb-2">${req.description}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            <strong>Assignee:</strong> ${req.assignee}<br>
+                            <strong>Category:</strong> ${req.category}
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            <strong>Created:</strong> ${req.created}<br>
+                            <strong>Updated:</strong> ${req.updated}
+                        </small>
+                    </div>
+                </div>
+                <div class="requirement-actions">
+                    <button class="btn btn-sm btn-primary" onclick="viewRequirement(${req.id})">
+                        <i class="fas fa-eye me-1"></i>View
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editRequirement(${req.id})">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="duplicateRequirement(${req.id})">
+                        <i class="fas fa-copy me-1"></i>Duplicate
+                    </button>
+                </div>
+            </div>
+        `;
+        requirementsList.appendChild(requirementCard);
+    });
+}
+
+function viewRequirement(id) {
+    const req = requirements.find(r => r.id === id);
+    if (req) {
+        alert(`Viewing requirement: ${req.title}\n\nDescription: ${req.description}\n\nStatus: ${req.status}\nPriority: ${req.priority}\nAssignee: ${req.assignee}`);
+    }
+}
+
+function editRequirement(id) {
+    alert(`Edit requirement ${id} - This would open an edit form`);
+}
+
+function duplicateRequirement(id) {
+    alert(`Duplicate requirement ${id} - This would create a copy`);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "sakura_base.html" %}
+
+{% block title %}Add Requirement - Sakura{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-1">
+                        <i class="fas fa-plus me-2" style="color: #ff69b4;"></i>Add New Requirement
+                    </h1>
+                    <p class="text-muted mb-0">Create a new requirement for your project</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('sakura.sakura_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Requirement Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Requirement Details</h5>
+                </div>
+                <div class="card-body">
+                    <form id="requirement-form">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Requirement Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority</label>
+                                    <select class="form-select" id="priority" name="priority">
+                                        <option value="High">High</option>
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <select class="form-select" id="category" name="category">
+                                        <option value="Functional">Functional</option>
+                                        <option value="Non-Functional">Non-Functional</option>
+                                        <option value="Security">Security</option>
+                                        <option value="Performance">Performance</option>
+                                        <option value="UI/UX">UI/UX</option>
+                                        <option value="Integration">Integration</option>
+                                        <option value="Database">Database</option>
+                                        <option value="Documentation">Documentation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="assignee" class="form-label">Assignee</label>
+                                    <input type="text" class="form-control" id="assignee" name="assignee">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="due-date" class="form-label">Due Date</label>
+                                    <input type="date" class="form-control" id="due-date" name="due_date">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Enter tags separated by commas">
+                            <div class="form-text">Separate multiple tags with commas</div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Requirement
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Help & Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Writing Good Requirements</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Be specific and clear</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Use action verbs</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Include acceptance criteria</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Make them testable</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Priority Levels</h6>
+                    <ul class="list-unstyled">
+                        <li><span class="badge bg-danger me-2">High</span>Critical for project success</li>
+                        <li><span class="badge bg-warning me-2">Medium</span>Important but not critical</li>
+                        <li><span class="badge bg-info me-2">Low</span>Nice to have features</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.card {
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus {
+    border-color: #ff69b4;
+    box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.25);
+}
+
+.btn-primary {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+}
+
+.btn-primary:hover {
+    background-color: #ff1493;
+    border-color: #ff1493;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupFormValidation();
+});
+
+function setupFormValidation() {
+    const form = document.getElementById('requirement-form');
+    form.addEventListener('submit', handleFormSubmit);
+}
+
+function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const requirement = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        priority: formData.get('priority'),
+        category: formData.get('category'),
+        assignee: formData.get('assignee'),
+        due_date: formData.get('due_date'),
+        tags: formData.get('tags')
+    };
+    
+    // Validate required fields
+    if (!requirement.title.trim()) {
+        alert('Please enter a requirement title');
+        return;
+    }
+    
+    if (!requirement.description.trim()) {
+        alert('Please enter a requirement description');
+        return;
+    }
+    
+    // Simulate saving requirement
+    saveRequirement(requirement);
+}
+
+function saveRequirement(requirement) {
+    // Show loading state
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+    submitBtn.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        
+        // Show success message
+        alert(`Requirement "${requirement.title}" has been saved successfully!`);
+        
+        // Reset form
+        resetForm();
+        
+        // In a real implementation, you would redirect to the requirements list
+        // window.location.href = "{{ url_for('sakura.browse_requirements') }}";
+    }, 1500);
+}
+
+function resetForm() {
+    document.getElementById('requirement-form').reset();
+}
+</script>
+{% endblock %}

@@ -123,7 +123,7 @@ All third-party licenses are properly attributed in the NOTICE file:
 
 ```
 Apache License 2.0
-Copyright 2025 Validex Project
+Open Source Project
 
 Third-party licenses:
 - Flask, Werkzeug, Jinja2, click, blinker, itsdangerous, MarkupSafe: BSD 3-Clause

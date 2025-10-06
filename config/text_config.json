@@ -1,428 +1,175 @@
 {
   "app": {
-    "name": "Validex",
-    "tagline": "Professional Test Case Management Platform",
-    "description": "Streamline your testing workflow with our powerful BDD-style test case management system. Upload Excel files, execute tests, and generate comprehensive reports.",
-    "features": {
-      "admin_enabled": false
-    }
-  },
-  "navigation": {
-    "dashboard": "Dashboard",
-    "test_cases": "Test Cases",
-    "reports": "Reports",
-    "admin": "Admin",
-    "jfrog": "JFrog",
-    "logout": "Logout"
+    "name": "Platform",
+    "tagline": "Professional Quality Management Platform",
+    "description": "Quality Assurance Management System for testing workflows"
   },
   "roles": {
     "admin": "Administrator",
     "tester": "Tester",
     "guest": "Guest"
   },
-  "landing_page": {
-    "title": "Validex - Quality Assurance Management",
-    "hero_title": "Validex",
-    "hero_tagline": "Quality Assurance Management System",
-    "hero_description": "Manage your testing process with confidence. Upload test files, track execution, and generate reports for better quality control.",
-    "get_started": "Get Started",
-    "stats": {
-      "test_cases": "Test Cases",
-      "user_roles": "User Types",
-      "bdd_compatible": "Excel Compatible",
-      "scalability": "Scalable"
-    },
-    "features": {
-      "title": "What You Get",
-      "items": [
-        "Test Case Management",
-        "User Access Control",
-        "Execution Tracking",
-        "Report Generation",
-        "Search & Filter",
-        "Quality Analytics"
-      ]
-    },
-    "info_sections": {
-      "test_management": {
-        "title": "Test Management",
-        "description": "Organize and manage your test cases in one place"
-      },
-      "role_based_access": {
-        "title": "User Management",
-        "description": "Control access with different user types and permissions"
-      },
-      "analytics_reports": {
-        "title": "Reports & Analytics",
-        "description": "Track progress and generate reports for stakeholders"
-      }
-    }
-  },
   "role_selection": {
     "title": "Select Your Role",
-    "subtitle": "Choose how you want to use the system",
+    "subtitle": "Choose your role to access the appropriate features",
     "admin": {
       "title": "Administrator",
-      "description": "Manage test cases and system settings",
-      "button": "Admin Panel",
-      "upcoming": "Upcoming Feature",
-      "upcoming_description": "Admin features are coming soon"
+      "description": "Full system access with configuration and management capabilities",
+      "button": "Access Admin Panel",
+      "upcoming": "Coming Soon",
+      "upcoming_description": "Admin features are being prepared for release"
     },
     "tester": {
       "title": "Tester",
-      "description": "Execute tests and view results",
+      "description": "Test case management and execution capabilities",
       "button": "Start Testing"
     }
   },
+  "landing_page": {
+    "title": "Validex",
+    "hero_title": "Welcome to Validex",
+    "hero_tagline": "Professional Test Case Management Platform",
+    "hero_description": "Streamline your testing process with our comprehensive test case management system. Upload, organize, and execute test cases with ease.",
+    "get_started": "Get Started",
+    "features": {
+      "title": "What You Get",
+      "items": []
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "test_cases": "Test Cases",
+    "prepare_test_suite": "Prepare Test Suite",
+    "reports": "Reports",
+    "admin": "Admin",
+    "jfrog": "JFrog",
+    "logout": "Logout"
+  },
   "dashboard": {
-    "title": "Dashboard - Validex",
-    "welcome": "Welcome to your Validex workspace",
-    "role_view": "View",
+    "title": "Dashboard",
+    "welcome": "Welcome to Validex",
     "stats": {
-      "features": "Features",
-      "total_test_cases": "Total Test Cases",
-      "executed_today": "Executed Today",
-      "pass_rate": "Pass Rate %"
+      "total_cases": "Total Test Cases",
+      "files": "Test Files",
+      "apps": "Applications",
+      "test_types": "Test Types"
     },
-    "overview": {
-      "title": "Test Case Overview",
-      "applications": "Applications",
-      "test_types": "Test Types",
-      "directory_structure": "Directory Structure",
-      "cases": "cases",
-      "tests": "tests"
-    },
-    "features_table": {
-      "feature": "Feature",
-      "test_cases": "Test Cases",
-      "status": "Status",
-      "actions": "Actions",
-      "active": "Active",
-      "view": "View"
-    },
-    "no_features": {
-      "title": "No features found",
-      "description": "Test case features will appear here once loaded.",
-      "manage_button": "Manage Features"
-    },
-    "quick_actions": {
-      "title": "Quick Actions",
-      "browse_all": "Browse All Test Cases",
-      "view_reports": "View Reports",
-      "admin_panel": "Admin Panel"
-    },
-    "system_info": {
-      "title": "System Info",
-      "role": "Role",
-      "features": "Features",
-      "total_cases": "Total Cases"
+    "actions": {
+      "prepare_test_suite": "Prepare Test Suite",
+      "view_test_cases": "View Test Cases",
+      "generate_reports": "Generate Reports"
     }
   },
   "test_cases": {
-    "title": "Test Cases - Validex",
+    "title": "Test Cases",
     "filters": {
-      "title": "Filters & Search",
-      "search_placeholder": "Search test cases...",
-      "app_label": "App",
-      "all_apps": "All Apps",
-      "test_type_label": "Test Type",
-      "all_types": "All Types",
-      "status_label": "Status",
-      "all_status": "All Status",
-      "priority_label": "Priority",
-      "all_priority": "All Priority",
-      "sort_by": "Sort By",
-      "order": "Order",
-      "ascending": "Ascending",
-      "descending": "Descending",
-      "clear_all": "Clear All",
-      "export": "Export",
-      "export_excel": "Export to Excel",
-      "export_csv": "Export to CSV",
-      "export_selected": "Export Selected Only"
+      "search": "Search test cases...",
+      "app": "Application",
+      "test_type": "Test Type",
+      "priority": "Priority",
+      "status": "Status"
     },
-    "advanced_filters": {
-      "title": "Advanced Filters",
-      "add_filter_column": "Add Filter Column",
-      "select_column": "Select column to filter...",
-      "all": "All"
-    },
-    "results": {
-      "title": "Test Cases",
-      "subtitle": "Visualize, filter, and execute your test cases",
-      "results_count": "of results",
-      "grid_view": "Grid View",
-      "table_view": "Table View",
-      "test_case_id": "Test Case ID",
+    "table": {
+      "tc_id": "TC ID",
       "summary": "Summary",
       "app": "App",
-      "test_type": "Test Type",
-      "feature": "Feature",
-      "status": "Status",
+      "test_type": "Type",
       "priority": "Priority",
-      "source_file": "Source File",
-      "actions": "Actions",
-      "auto_generated": "Auto-Generated",
-      "passed": "Passed",
-      "failed": "Failed",
-      "running": "Running",
-      "pending": "Pending",
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
       "execute": "Execute",
-      "view": "View",
-      "edit": "Edit"
-    },
-    "bulk_actions": {
-      "selected_count": "test cases selected",
-      "execute_selected": "Execute Selected",
-      "clear_selection": "Clear Selection"
-    },
-    "pagination": {
-      "showing": "Showing",
-      "to": "to",
-      "of": "of",
-      "results": "results",
-      "previous": "Previous",
-      "next": "Next",
-      "per_page": "per page"
-    },
-    "no_results": {
-      "title": "No test cases found",
-      "description": "Try adjusting your filters or search criteria.",
-      "show_all": "Show All"
-    },
-    "back_to_dashboard": "Back to Dashboard",
-    "modals": {
-      "test_case_details": {
-        "title": "Test Case Details",
-        "close": "Close",
-        "execute_test": "Execute Test"
-      },
-      "execute_test": {
-        "title": "Execute Test Case",
-        "test_environment": "Test Environment",
-        "select_environment": "Select Environment",
-        "development": "Development",
-        "staging": "Staging",
-        "production": "Production",
-        "test_data": "Test Data",
-        "test_data_placeholder": "Enter test data (optional)",
-        "run_in_background": "Run in background",
-        "cancel": "Cancel",
-        "execute": "Execute"
-      }
+      "edit": "Edit",
+      "delete": "Delete"
     }
   },
-  "admin": {
-    "title": "Admin Panel - Validex",
-    "subtitle": "Manage test cases and system settings",
-    "admin_only": "Admin Only",
-    "feature_management": {
-      "title": "Feature Management",
-      "upload_label": "Upload Test Case Module",
-      "upload_button": "Upload",
-      "module_management": "Module Management:",
-      "module_description": "Upload test case modules to create new features. The system will automatically load them on startup.",
-      "active_features": "Active Features",
-      "feature": "Feature",
-      "test_cases": "Test Cases",
-      "status": "Status",
-      "active": "Active",
-      "no_features": "No features found in the directory.",
-      "refresh_files": "Refresh Files"
+  "prepare_test_suite": {
+    "title": "Prepare Test Suite",
+    "release_info": {
+      "title": "Release Information",
+      "release_version": "Release Version",
+      "sprint": "Sprint",
+      "build_number": "Build Number",
+      "environment": "Environment"
     },
-    "system_statistics": {
-      "title": "System Statistics",
-      "features": "Features",
-      "total_test_cases": "Total Test Cases",
-      "feature_details": "Feature Details:",
-      "test_cases": "test cases",
-      "no_features_loaded": "No features loaded",
-      "add": "Add",
-      "edit_by_id": "Edit by ID"
+    "filters": {
+      "title": "Filter Test Cases",
+      "search": "Search test cases...",
+      "app": "Application",
+      "test_type": "Test Type",
+      "priority": "Priority"
     },
-    "database_migration": {
-      "title": "Database Migration",
-      "jfrog_integration": "JFrog Integration:",
-      "jfrog_description": "Configure automatic Excel file sync from JFrog Artifactory.",
-      "jfrog_features": [
-        "Automatic download from JFrog Artifactory",
-        "CLI and API-based file sync",
-        "Secure token-based authentication",
-        "Real-time file updates"
-      ],
-      "configure_jfrog": "Configure JFrog"
+    "test_cases": {
+      "title": "Selected Test Cases",
+      "no_cases": "No test cases loaded",
+      "no_cases_description": "Use the filters above to search and select test cases for your test suite."
     },
-    "system_configuration": {
-      "title": "System Configuration",
-      "artifactory_url": "Artifactory URL",
-      "artifactory_placeholder": "https://your-artifactory.com",
-      "download_directory": "Download Directory",
-      "auto_refresh_interval": "Auto-refresh Interval (minutes)",
-      "save_configuration": "Save Configuration",
-      "config_info": "Configuration options will be available in future updates."
+    "export": {
+      "title": "Export Test Suite",
+      "format": "Export Format",
+      "include_release_details": "Include Release Details",
+      "export_button": "Export Test Suite"
     }
   },
   "reports": {
-    "title": "Reports - Validex",
-    "subtitle": "Track and analyze test execution results",
-    "role_view": "View",
-    "stats": {
-      "passed": "Passed",
-      "failed": "Failed",
-      "blocked": "Blocked",
-      "skipped": "Skipped"
-    },
-    "execution_history": {
-      "title": "Execution History",
-      "test_id": "Test ID",
-      "result": "Result",
-      "execution_time": "Execution Time",
-      "executed_by": "Executed By",
-      "timestamp": "Timestamp",
-      "comments": "Comments",
-      "unknown": "Unknown",
-      "min": "min"
-    },
-    "no_reports": {
-      "title": "No execution reports found",
-      "description": "Start executing test cases to see reports here.",
-      "execute_test_cases": "Execute Test Cases"
-    },
-    "export_reports": {
-      "title": "Export Reports",
-      "description": "Export execution reports in various formats.",
-      "export_excel": "Export to Excel",
-      "export_pdf": "Export to PDF",
-      "export_csv": "Export to CSV",
-      "export_info": "Export functionality will be available in future updates."
-    },
-    "filter_reports": {
-      "title": "Filter Reports",
-      "filter_by_result": "Filter by Result",
-      "all_results": "All Results",
-      "passed_only": "Passed Only",
-      "failed_only": "Failed Only",
-      "blocked_only": "Blocked Only",
-      "skipped_only": "Skipped Only",
-      "filter_by_date": "Filter by Date Range",
-      "from": "From",
-      "to": "To",
-      "filter_by_executor": "Filter by Executor",
-      "all_users": "All Users",
-      "admin_only": "Admin Only",
-      "tester_only": "Tester Only",
-      "apply_filters": "Apply Filters",
-      "filter_info": "Advanced filtering will be available in future updates."
-    }
+    "title": "Reports",
+    "generate": "Generate Report",
+    "download": "Download Report"
   },
-  "execute_test": {
-    "title": "Execute Test - Validex",
-    "subtitle": "Execute and record test results",
-    "test_case_details": {
-      "title": "Test Case Details",
-      "test_case_id": "Test Case ID",
-      "priority": "Priority",
-      "app": "App",
-      "test_type": "Test Type",
-      "summary": "Summary",
-      "feature": "Feature",
-      "preconditions": "Preconditions",
-      "given": "Given (Setup)",
-      "when": "When (Action)",
-      "then": "Then (Verification)",
-      "expected_behavior": "Expected Behavior",
-      "remarks": "Remarks",
-      "source_file": "Source File"
-    },
-    "test_execution": {
-      "title": "Test Execution",
-      "test_result": "Test Result",
-      "select_result": "Select Result",
-      "execution_time": "Execution Time (minutes)",
-      "execution_time_placeholder": "e.g., 5.5",
-      "test_environment": "Test Environment",
-      "comments": "Comments",
-      "comments_placeholder": "Add any comments about the test execution...",
-      "submit_result": "Submit Result",
-      "back_to_test_cases": "Back to Test Cases"
-    },
-    "execution_history": {
-      "title": "Execution History",
-      "no_executions": "No previous executions found."
-    }
-  },
-  "jfrog_config": {
-    "sync_message": "Syncing files from JFrog...",
-    "no_files": "No files found or sync failed",
-    "sync_error": "Error occurred during sync",
-    "list_files_alert": "List files functionality will be implemented in the next update."
-  },
-  "setup": {
-    "sync_status_success": "Sync completed successfully",
-    "sync_status_error": "Sync failed"
-  },
-  "javascript": {
-    "loading": "Loading...",
-    "executing": "Executing...",
-    "exporting": "Exporting...",
-    "execute_confirm": "Execute test case",
-    "bulk_execute_confirm": "Execute test cases?",
-    "bulk_execution_started": "Bulk execution started!",
-    "edit_coming_soon": "Edit functionality coming soon!",
-    "select_environment_required": "Please select a test environment",
-    "execution_started": "Test case execution started in environment!",
-    "export_selected_required": "Please select test cases to export",
-    "searching_for": "Searching for:",
-    "test_case": "Test Case",
-    "sample_description": "Sample test case description",
-    "sample_app": "Sample App",
-    "functional": "Functional",
-    "user_authentication": "User Authentication"
-  },
-  "statuses": {
-    "passed": "Passed",
-    "failed": "Failed",
-    "running": "Running",
-    "pending": "Pending",
-    "blocked": "Blocked",
-    "skipped": "Skipped"
-  },
-  "priorities": {
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
-  },
-  "environments": {
-    "development": "Development",
-    "staging": "Staging",
-    "production": "Production"
+  "admin": {
+    "title": "Admin Panel",
+    "settings": "Settings",
+    "users": "Users",
+    "system": "System"
   },
   "common": {
-    "na": "N/A",
-    "close": "Close",
-    "cancel": "Cancel",
-    "save": "Save",
-    "edit": "Edit",
-    "delete": "Delete",
-    "view": "View",
-    "execute": "Execute",
-    "export": "Export",
-    "import": "Import",
-    "refresh": "Refresh",
-    "search": "Search",
-    "filter": "Filter",
-    "clear": "Clear",
-    "submit": "Submit",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Info"
+    "info": "Information",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All",
+    "export": "Export",
+    "import": "Import",
+    "upload": "Upload",
+    "download": "Download"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "file_not_found": "File not found.",
+    "permission_denied": "Permission denied.",
+    "invalid_input": "Invalid input provided.",
+    "server_error": "Server error. Please contact support."
+  },
+  "messages": {
+    "success": {
+      "file_uploaded": "File uploaded successfully.",
+      "test_case_saved": "Test case saved successfully.",
+      "test_case_deleted": "Test case deleted successfully.",
+      "settings_saved": "Settings saved successfully."
+    },
+    "info": {
+      "no_test_cases": "No test cases found.",
+      "loading_test_cases": "Loading test cases...",
+      "processing": "Processing..."
+    }
   }
 }

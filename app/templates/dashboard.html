@@ -1,343 +1,109 @@
 {% extends "base.html" %}
 
-{% block title %}Advanced Dashboard - Validex{% endblock %}
-
-{% block extra_css %}
-<style>
-    .stats-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .stats-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-    }
-    .chart-container {
-        position: relative;
-        height: 300px;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    .timeline-item {
-        position: relative;
-        padding-left: 30px;
-        margin-bottom: 20px;
-    }
-    .timeline-marker {
-        position: absolute;
-        left: 0;
-        top: 5px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: 3px solid #fff;
-        box-shadow: 0 0 0 3px #007bff;
-    }
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 4px solid #007bff;
-    }
-    .timeline-time {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-    .timeline-action {
-        font-weight: 600;
-        color: #343a40;
-        margin: 5px 0;
-    }
-    .timeline-user {
-        font-size: 0.9rem;
-        color: #6c757d;
-    }
-    .metric-card {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        border: none;
-        transition: transform 0.3s ease;
-    }
-    .metric-card:hover {
-        transform: translateY(-3px);
-    }
-    .metric-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0;
-    }
-    .metric-label {
-        color: #6c757d;
-        font-weight: 500;
-        margin-bottom: 0;
-    }
-    .metric-change {
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-    .metric-change.positive {
-        color: #28a745;
-    }
-    .metric-change.negative {
-        color: #dc3545;
-    }
-    .quick-action-btn {
-        border-radius: 10px;
-        padding: 15px 25px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .quick-action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .theme-toggle {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        background: rgba(255,255,255,0.9);
-        border: none;
-        border-radius: 50px;
-        padding: 10px 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    .theme-toggle:hover {
-        background: rgba(255,255,255,1);
-        transform: scale(1.05);
-    }
-</style>
-{% endblock %}
+{% block title %}Dashboard - Validex{% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
 
-<!-- Theme Toggle -->
-<button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
-    <i class="fas fa-moon" id="theme-icon"></i>
-</button>
-
-<div class="container-fluid mt-4">
-    <!-- Dashboard Header -->
-    <div class="dashboard-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-4 fw-bold mb-3">
-                    <i class="fas fa-tachometer-alt me-3"></i>Advanced Dashboard
-                </h1>
-                <p class="lead mb-0">Real-time analytics and insights for your test case management</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <div class="d-flex justify-content-end">
-                    <div class="me-3">
-                        <div class="h4 mb-0">{{ stats.total_cases or 0 }}</div>
-                        <small class="opacity-75">Total Test Cases</small>
-                    </div>
-                    <div>
-                        <div class="h4 mb-0">{{ stats.apps|length if stats.apps else 0 }}</div>
-                        <small class="opacity-75">Active Apps</small>
-                    </div>
-                </div>
+<!-- Statistics Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ total_cases }}</h3>
+                <p class="card-text">Total Test Cases</p>
             </div>
         </div>
     </div>
-
-    <!-- Key Metrics -->
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card metric-card text-center">
-                <div class="card-body">
-                    <div class="metric-value text-primary">68</div>
-                    <div class="metric-label">Test Cases Passed</div>
-                    <div class="metric-change positive">
-                        <i class="fas fa-arrow-up me-1"></i>+12% from last week
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card metric-card text-center">
-                <div class="card-body">
-                    <div class="metric-value text-danger">12</div>
-                    <div class="metric-label">Test Cases Failed</div>
-                    <div class="metric-change negative">
-                        <i class="fas fa-arrow-down me-1"></i>-8% from last week
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card metric-card text-center">
-                <div class="card-body">
-                    <div class="metric-value text-warning">23</div>
-                    <div class="metric-label">Pending Tests</div>
-                    <div class="metric-change positive">
-                        <i class="fas fa-arrow-up me-1"></i>+5% from last week
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card metric-card text-center">
-                <div class="card-body">
-                    <div class="metric-value text-info">85%</div>
-                    <div class="metric-label">Success Rate</div>
-                    <div class="metric-change positive">
-                        <i class="fas fa-arrow-up me-1"></i>+3% from last week
-                    </div>
-                </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ file_count }}</h3>
+                <p class="card-text">Test Files</p>
             </div>
         </div>
     </div>
-
-    <!-- Charts Row -->
-    <div class="row mb-4">
-        <div class="col-lg-6 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Test Cases Overview</h5>
-                <canvas id="testCasesOverview"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Test Execution Trend</h5>
-                <canvas id="testExecutionChart"></canvas>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.apps|length }}</h3>
+                <p class="card-text">Applications</p>
             </div>
         </div>
     </div>
-
-    <!-- Additional Charts Row -->
-    <div class="row mb-4">
-        <div class="col-lg-4 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Feature Distribution</h5>
-                <canvas id="featureDistribution"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-4 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-area me-2"></i>Priority Breakdown</h5>
-                <canvas id="priorityBreakdown"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-4 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-radar me-2"></i>App Coverage</h5>
-                <canvas id="appCoverage"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Trend and Recent Activity -->
-    <div class="row mb-4">
-        <div class="col-lg-8 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-area me-2"></i>Test Status Trend</h5>
-                <canvas id="testStatusTrend"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-4 mb-4">
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Recent Activity</h5>
-                <div id="recentActivity"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary quick-action-btn w-100">
-                                <i class="fas fa-list me-2"></i>Browse Test Cases
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="{{ url_for('main.prepare_test_suite') }}" class="btn btn-success quick-action-btn w-100">
-                                <i class="fas fa-cogs me-2"></i>Prepare Test Suite
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <button type="button" class="btn btn-info quick-action-btn w-100" onclick="showReports()">
-                                <i class="fas fa-chart-bar me-2"></i>View Reports
-                            </button>
-                        </div>
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <button type="button" class="btn btn-warning quick-action-btn w-100" onclick="exportData()">
-                                <i class="fas fa-download me-2"></i>Export Data
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.test_types|length }}</h3>
+                <p class="card-text">Test Types</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">View Test Cases</h5>
+                <p class="card-text">Browse and manage all {{ total_cases }} test cases</p>
+                <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary btn-lg">
+                    View Test Cases
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Prepare Test Suite</h5>
+                <p class="card-text">Create and export test suites</p>
+                <a href="{{ url_for('main.prepare_test_suite') }}" class="btn btn-success btn-lg">
+                    Prepare Test Suite
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Statistics (if available) -->
+{% if app_stats %}
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Test Cases by Application</h5>
+            </div>
+            <div class="card-body">
+                {% for app, count in app_stats.by_app.items() %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ app }}</span>
+                    <span class="badge bg-primary">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Test Cases by Type</h5>
+            </div>
+            <div class="card-body">
+                {% for test_type, count in app_stats.by_test_type.items() %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ test_type }}</span>
+                    <span class="badge bg-success">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
-<script>
-// Theme toggle functionality
-function toggleTheme() {
-    document.body.classList.toggle('dark-theme');
-    const icon = document.getElementById('theme-icon');
-    if (document.body.classList.contains('dark-theme')) {
-        icon.className = 'fas fa-sun';
-    } else {
-        icon.className = 'fas fa-moon';
-    }
-}
-
-// Quick action functions
-function showReports() {
-    alert('Advanced reporting feature coming soon!');
-}
-
-function exportData() {
-    alert('Data export feature coming soon!');
-}
-
-// Initialize dashboard when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Add some dynamic data updates
-    setInterval(function() {
-        // Simulate real-time updates
-        updateMetrics();
-    }, 30000); // Update every 30 seconds
-});
-
-function updateMetrics() {
-    // This would typically fetch real data from the server
-    console.log('Updating dashboard metrics...');
-}
-</script>
-{% endblock %}
-

@@ -1,49 +1,133 @@
 {
-  "jfrog": {
-    "base_url": "YOUR_ARTIFACTORY_URL",
-    "repository": "YOUR_REPOSITORY_NAME",
-    "root_path": "YOUR_PROJECT_PATH",
-    "access_token": "YOUR_ACCESS_TOKEN",
-    "enabled": true
-  },
   "app": {
-    "excel_files_dir": "data/excel_files",
-    "reports_dir": "data/reports",
-    "auto_refresh_interval": 30,
+    "name": "Validex",
+    "version": "1.0.0",
+    "description": "Professional Test Case Management Platform",
+    "tagline": "Quality Assurance Management System",
+    "debug": true,
+    "secret_key": "dev-secret-key-change-in-production",
+    "host": "127.0.0.1",
+    "port": 8000,
     "admin_enabled": false,
-    "multiselect_threshold": 5
+    "multiselect_threshold": 5,
+    "test_cases_per_page": 10,
+    "auto_refresh_interval": 30
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "data/db/test_cases.db",
+    "backup_enabled": true,
+    "backup_interval_hours": 24,
+    "max_backups": 7,
+    "thread_safe": true,
+    "connection_timeout": 30
+  },
+  "filesystem": {
+    "test_files_dir": "data/excel_files",
+    "reports_dir": "data/reports",
+    "cache_dir": "data/cache",
+    "logs_dir": "logs",
+    "backup_dir": "data/backups",
+    "allowed_extensions": [".xlsx", ".xls"],
+    "max_file_size_mb": 50
+  },
+  "jfrog": {
+    "enabled": false,
+    "base_url": "https://your-artifactory.com",
+    "repository": "your-repository",
+    "root_path": "your-project-path",
+    "access_token": "your-access-token",
+    "sync_enabled": true,
+    "auto_sync_interval": 300,
+    "retry_attempts": 3,
+    "retry_delay": 60
   },
   "network_security": {
     "restricted_mode": true,
     "allowed_domains": [
-      "trialdablg5.jfrog.io",
-      "*.jfrog.io",
       "localhost",
-      "127.0.0.1"
+      "127.0.0.1",
+      "*.jfrog.io"
     ],
+    "blocked_domains": [],
     "allowed_ips": [
       "127.0.0.1",
       "::1"
     ],
-    "blocked_domains": [
-      "malicious-site.com",
-      "*.suspicious-domain.com"
-    ]
+    "blocked_ips": []
   },
   "sync": {
-    "background_sync_enabled": true,
-    "sync_interval_seconds": 300,
-    "change_detection_enabled": true,
-    "file_hash_cache_enabled": true,
-    "incremental_sync_enabled": true,
-    "force_sync_on_startup": false,
-    "sync_strategy": "incremental",
-    "max_retry_attempts": 3,
-    "retry_delay_seconds": 60
+    "strategy": "incremental",
+    "enabled": true,
+    "auto_sync": false,
+    "sync_interval": 300,
+    "max_retries": 3,
+    "retry_delay": 60,
+    "chunk_size": 1000
   },
   "logging": {
-    "sync_log_level": "INFO",
-    "sync_log_file": "logs/sync.log",
-    "enable_console_logging": true
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "logs/validex.log",
+    "max_size": 10485760,
+    "backup_count": 5
+  },
+  "ui": {
+    "theme": "light",
+    "language": "en",
+    "timezone": "UTC",
+    "date_format": "%Y-%m-%d",
+    "time_format": "%H:%M:%S"
+  },
+  "text": {
+    "landing_page": {
+      "title": "Validex - Test Case Management",
+      "hero_title": "Professional Test Case Management",
+      "hero_tagline": "Streamline your testing process with enterprise-grade tools",
+      "hero_description": "Manage test cases, execute tests, and generate comprehensive reports with our powerful platform.",
+      "get_started": "Get Started"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "welcome": "Welcome to Validex"
+    },
+    "test_cases": {
+      "title": "Test Cases",
+      "no_cases": "No test cases found"
+    }
+  },
+  "columns": {
+    "required": ["TC ID", "Summary"],
+    "optional": ["Feature", "Priority", "Status", "Screen ID", "Test Type", "Expected Behavior"],
+    "mappings": {
+      "id": ["TC ID", "Test Case ID", "ID"],
+      "summary": ["Summary", "Description", "Title"],
+      "feature": ["Feature", "Component", "Module"],
+      "priority": ["Priority", "Level"],
+      "status": ["Status", "State"],
+      "screen": ["Screen ID", "Screen", "Page"],
+      "type": ["Test Type", "Type", "Category"],
+      "expected": ["Expected Behavior", "Expected Result", "Expected"]
+    }
+  },
+  "export": {
+    "default_format": "file",
+    "include_metadata": true,
+    "include_timestamps": true,
+    "max_file_size_mb": 50
+  },
+  "security": {
+    "session_timeout": 3600,
+    "max_login_attempts": 5,
+    "lockout_duration": 900,
+    "password_min_length": 8,
+    "require_https": false
+  },
+  "performance": {
+    "cache_enabled": true,
+    "cache_ttl": 3600,
+    "max_workers": 4,
+    "chunk_size": 1000,
+    "timeout": 30
   }
 }

@@ -9,133 +9,178 @@
         <!-- Advanced search will be injected here by JavaScript -->
     </div>
     
-    <!-- Filters Section -->
-    <div class="card content-card mb-3">
-        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+    <!-- Modern Filters & Search Section -->
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header bg-gradient-primary text-white" style="border-radius: 15px 15px 0 0;">
             <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filters & Search</h6>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary" onclick="toggleFilters()">
-                        <i class="fas fa-chevron-up" id="filterToggle"></i>
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Advanced Filters & Search
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm" type="button" onclick="toggleFilters()" id="filterToggle">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" id="saveFilterBtn" title="Save current filters">
+                        <i class="fas fa-bookmark"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <div class="card-body" id="filterContent">
+        <div class="card-body bg-light" id="filterContent">
             <form method="GET" action="{{ url_for('main.test_cases') }}" id="filterForm">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <label for="search" class="form-label small">Search</label>
-                        <input type="text" class="form-control form-control-sm" name="search" id="search" 
-                               placeholder="Search test cases..." value="{{ current_search }}">
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="app" class="form-label small">App</label>
-                        <select class="form-select form-select-sm" name="app" id="app" multiple>
-                            <option value="">All Apps</option>
-                            {% for app in apps %}
-                            <option value="{{ app }}" {% if app in current_app_filter %}selected{% endif %}>
-                                {{ app }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <label for="test_type" class="form-label small">Test Type</label>
-                        <select class="form-select form-select-sm" name="test_type" id="test_type" multiple>
-                            <option value="">All Types</option>
-                            {% for test_type in test_types %}
-                            <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>
-                                {{ test_type }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    
-                    <div class="col-md-2">
-                        <label for="priority" class="form-label small">Priority</label>
-                        <select class="form-select form-select-sm" name="priority" id="priority" multiple>
-                            <option value="">All Priority</option>
-                            {% for priority in priorities %}
-                            <option value="{{ priority }}" {% if priority in current_priority_filter %}selected{% endif %}>
-                                {{ priority }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm w-100">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Dynamic Filters Section -->
-                <div class="row g-2 mt-2">
+                <!-- Quick Search Bar -->
+                <div class="row mb-4">
                     <div class="col-12">
-                        <hr class="my-3">
-                        <h6 class="text-muted mb-2"><i class="fas fa-filter me-2"></i>Advanced Filters</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filterColumn" class="form-label small">Add Filter Column</label>
-                        <select class="form-select form-select-sm" id="filterColumn" onchange="addDynamicFilter()">
-                            <option value="">Select column to filter...</option>
-                            <option value="App">App</option>
-                            <option value="Test Type">Test Type</option>
-                            <option value="Feature">Feature</option>
-                            <option value="Priority">Priority</option>
-                            <option value="Summary">Summary</option>
-                            <option value="Test Case ID">Test Case ID</option>
-                        </select>
-                    </div>
-                    <div class="col-md-9" id="dynamicFilterContainer">
-                        <!-- Dynamic filters will be added here -->
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="search" name="search" value="{{ current_search or '' }}" placeholder="Search across all test cases, summaries, features, and more...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="row g-2 mt-2">
-                    <div class="col-md-2">
-                        <label for="sort" class="form-label small">Sort By</label>
-                        <select class="form-select form-select-sm" name="sort" id="sort">
-                            <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
-                            <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
-                            <option value="App" {% if current_sort == 'App' %}selected{% endif %}>App</option>
-                            <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
-                            <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
-                            <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
-                            <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
-                        </select>
+                <!-- Filter Cards -->
+                <div class="row g-3">
+                    <!-- App Filter Card -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-primary">
+                                    <i class="fas fa-mobile-alt me-2"></i>Applications
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="app" name="app" multiple>
+                                    <option value="">All Applications</option>
+                                    {% for app in apps %}
+                                        <option value="{{ app }}" {% if app in current_app_filter %}selected{% endif %}>{{ app }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Select one or more applications</small>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="col-md-2">
-                        <label for="order" class="form-label small">Order</label>
-                        <select class="form-select form-select-sm" name="order" id="order">
-                            <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
-                            <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
-                        </select>
+                    <!-- Test Type Filter Card -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-success">
+                                    <i class="fas fa-vial me-2"></i>Test Types
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="test_type" name="test_type" multiple>
+                                    <option value="">All Test Types</option>
+                                    {% for test_type in test_types %}
+                                        <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>{{ test_type }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Choose test categories</small>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="col-md-4 d-flex align-items-end">
-                        <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary btn-sm me-2" onclick="clearAllDynamicFilters()">
-                            <i class="fas fa-times"></i> Clear All
-                        </a>
-                        <div class="btn-group" role="group">
-                            <a href="{{ url_for('main.export_test_cases', **request.args) }}" class="btn btn-outline-info btn-sm" id="exportBtn">
-                                <i class="fas fa-download"></i> Export
-                            </a>
-                            <button type="button" class="btn btn-outline-info btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-                                <span class="visually-hidden">Toggle Dropdown</span>
+                    <!-- Priority Filter Card -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Priority
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="priority" name="priority" multiple>
+                                    <option value="">All Priorities</option>
+                                    {% for priority in priorities %}
+                                        <option value="{{ priority }}" {% if priority in current_priority_filter %}selected{% endif %}>{{ priority }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Filter by priority level</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sort & Options Card -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-info">
+                                    <i class="fas fa-sort me-2"></i>Sort & Options
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select mb-2" id="sort" name="sort">
+                                    <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
+                                    <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
+                                    <option value="App" {% if current_sort == 'App' %}selected{% endif %}>Application</option>
+                                    <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
+                                    <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
+                                    <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
+                                    <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
+                                </select>
+                                <select class="form-select" id="order" name="order">
+                                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Apply Filters
                             </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('main.export_test_cases', **request.args) }}"><i class="fas fa-file-excel me-2"></i>Export to Excel</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" onclick="exportSelected()"><i class="fas fa-check-square me-2"></i>Export Selected Only</a></li>
-                            </ul>
+                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary" onclick="clearAllDynamicFilters()">
+                                <i class="fas fa-times me-1"></i>Clear All
+                            </a>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('main.export_test_cases', **request.args) }}" class="btn btn-outline-success" id="exportBtn">
+                                    <i class="fas fa-download me-1"></i>Export Results
+                                </a>
+                                <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('main.export_test_cases', **request.args) }}"><i class="fas fa-file-excel me-2"></i>Export to Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportSelected()"><i class="fas fa-check-square me-2"></i>Export Selected Only</a></li>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-outline-info" id="saveSearchBtn">
+                                <i class="fas fa-bookmark me-1"></i>Save Search
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-history me-1"></i>Saved Searches
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="loadSearch1">Recent Search 1</a></li>
+                                    <li><a class="dropdown-item" href="#" id="loadSearch2">Recent Search 2</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="manageSearches">Manage Saved Searches</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Filters Display -->
+                <div class="row mt-3" id="activeFilters" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2"><i class="fas fa-filter me-1"></i>Active Filters:</h6>
+                            <div id="activeFiltersList"></div>
                         </div>
                     </div>
                 </div>
@@ -459,6 +504,27 @@
 
 {% block scripts %}
 <style>
+/* Modern Filter UI Styling */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modern-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.modern-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.modern-select:hover {
+    border-color: #adb5bd;
+}
+
 /* Dynamic Filter Styles */
 #dynamicFilterContainer {
     min-height: 40px;
@@ -902,6 +968,19 @@ $(document).ready(function() {
     });
 });
 
+// Also initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        initializeSmartMultiSelect();
+    }, 200);
+});
+
+// Force initialization after a longer delay
+setTimeout(function() {
+    console.log('Force initializing smart multi-select...');
+    initializeSmartMultiSelect();
+}, 1000);
+
 // Toggle filters visibility
 function toggleFilters() {
     const content = document.getElementById('filterContent');
@@ -1272,16 +1351,21 @@ function clearAllDynamicFilters() {
 
 // Smart Multi-Select Implementation
 function initializeSmartMultiSelect() {
+    console.log('Initializing smart multi-select...');
     const threshold = {{ multiselect_threshold }};
+    console.log('Threshold:', threshold);
     
     $('select[multiple]').each(function() {
         const $select = $(this);
         const options = $select.find('option').length - 1; // Exclude "All" option
+        console.log('Select element found with', options, 'options');
         
         if (options <= threshold) {
+            console.log('Using checkbox UI for', options, 'options');
             // Use checkbox-based UI for small lists
             initializeCheckboxMultiSelect($select);
         } else {
+            console.log('Using tag UI for', options, 'options');
             // Use JIRA-style tags for large lists
             initializeTagMultiSelect($select);
         }
@@ -1289,6 +1373,12 @@ function initializeSmartMultiSelect() {
 }
 
 function initializeCheckboxMultiSelect($select) {
+    // Check if Select2 is already initialized
+    if ($select.hasClass('select2-hidden-accessible')) {
+        console.log('Select2 already initialized, destroying first...');
+        $select.select2('destroy');
+    }
+    
     // Create checkbox container
     const $container = $('<div class="checkbox-multiselect-container"></div>');
     const $searchInput = $('<input type="text" class="form-control form-control-sm mb-2" placeholder="Search options..." />');
@@ -1332,6 +1422,12 @@ function initializeCheckboxMultiSelect($select) {
 }
 
 function initializeTagMultiSelect($select) {
+    // Check if Select2 is already initialized
+    if ($select.hasClass('select2-hidden-accessible')) {
+        console.log('Select2 already initialized, destroying first...');
+        $select.select2('destroy');
+    }
+    
     // Use Select2 with JIRA-style configuration
     $select.select2({
         theme: 'bootstrap-5',

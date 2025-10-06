@@ -4,23 +4,7 @@ A comprehensive Flask-based web application for managing and executing test case
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-```
-Copyright 2025 Validex Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+This project is open source and available under the MIT License.
 
 ## 📋 Table of Contents
 
@@ -37,12 +21,12 @@ limitations under the License.
 
 ## 🎯 Overview
 
-Validex is a **portable team distribution** test case management platform designed for enterprise use. It provides a complete solution for managing test cases stored in Excel files, executing tests, and generating comprehensive reports. The system is optimized for **client-side distribution** to team members rather than server hosting.
+Validex is a **portable team distribution** test case management platform designed for enterprise use. It provides a complete solution for managing test cases stored in test files, executing tests, and generating comprehensive reports. The system is optimized for **client-side distribution** to team members rather than server hosting.
 
 ### Key Highlights
 - **Portable Distribution**: Self-contained package for team distribution
 - **Localhost-Only Security**: Binds only to 127.0.0.1 for maximum security
-- **Team Collaboration**: Artifactory integration for shared Excel files
+- **Team Collaboration**: Artifactory integration for shared test files
 - **No Server Required**: Each team member runs their own instance
 - **Offline Capable**: Works without network dependencies
 - **Enterprise-Ready**: Scalable architecture supporting 400,000+ test cases
@@ -89,7 +73,7 @@ python run.py
 
 ### 🎭 Role-Based Access Control
 - **Administrator Role**: 
-  - Manage Excel files and test cases
+  - Manage test files and test cases
   - Configure system settings
   - View comprehensive reports
   - Manage user permissions
@@ -100,7 +84,7 @@ python run.py
   - View execution reports
 
 ### 📊 Advanced Test Management
-- **Excel File Support**: Load test cases from Excel files with flexible column mapping
+- **Test File Support**: Load test cases from test files with flexible column mapping
 - **Dynamic Filtering**: Advanced filtering by feature, status, priority, app, test type
 - **Search Functionality**: Full-text search across test cases
 - **Test Execution**: Execute individual test cases with result tracking
@@ -130,7 +114,7 @@ test_case_management/
 ├── README.md                       # This documentation
 ├── data/
 │   ├── test_cases.db               # SQLite database
-│   ├── excel_files/                # Excel files
+│   ├── excel_files/                # Test files
 │   ├── reports/                    # Generated reports
 │   └── cache/                      # Cache directory
 ├── config/                         # Configuration management
@@ -187,7 +171,7 @@ test_case_management/
 │   └── migrate_to_new_structure.py
 ├── docs/                          # Documentation
 ├── data/                          # Data storage
-│   ├── excel_files/               # Excel files
+│   ├── excel_files/               # Test files
 │   │   └── validex/               # Test data
 │   ├── reports/                   # Generated reports
 │   └── cache/                     # Cache directory
@@ -276,13 +260,13 @@ test_case_management/
 
 1. **Access the Application**: Navigate to `http://localhost:8000`
 2. **Select Role**: Choose between Administrator or Tester role
-3. **Load Test Cases**: Upload Excel files or use existing ones
+3. **Load Test Cases**: Upload test files or use existing ones
 4. **Execute Tests**: Run test cases and record results
 5. **View Reports**: Analyze test execution results
 
-### Excel File Format
+### Test File Format
 
-The application supports flexible Excel file formats with the following standard columns:
+The application supports flexible test file formats with the following standard columns:
 
 | Column | Description | Required |
 |--------|-------------|----------|
@@ -300,7 +284,7 @@ The application supports flexible Excel file formats with the following standard
 ### Role-Specific Features
 
 #### Administrator Features
-- **File Management**: Upload, edit, and delete Excel files
+- **File Management**: Upload, edit, and delete test files
 - **Test Case Management**: Add, edit, and delete test cases
 - **System Configuration**: Configure column mappings and settings
 - **User Management**: Manage user roles and permissions
@@ -322,7 +306,7 @@ The application supports flexible Excel file formats with the following standard
 | `FLASK_ENV` | Environment (development/production) | development |
 | `FLASK_DEBUG` | Debug mode | True |
 | `DATABASE_URL` | Database connection URL | sqlite:///data/test_cases.db |
-| `UPLOAD_FOLDER` | Excel files directory | data/excel_files |
+| `UPLOAD_FOLDER` | Test files directory | data/excel_files |
 | `REPORTS_FOLDER` | Reports directory | data/reports |
 
 ### Configuration Files
@@ -330,11 +314,15 @@ The application supports flexible Excel file formats with the following standard
 #### `config/settings.py`
 Main application configuration with environment-specific settings.
 
-#### `config/column_config.json`
-Extensible column configuration for flexible Excel file support.
-
-#### `config/database.py`
-Database configuration and connection settings.
+#### `config/validex_config.json`
+Single source of truth for all application configuration including:
+- Application settings (name, version, debug mode)
+- Database configuration (path, backup settings)
+- File system settings (directories, file size limits)
+- JFrog Artifactory integration
+- Network security settings
+- UI and text configuration
+- Column mappings and export settings
 
 ### Remote Sync Configuration
 
@@ -453,7 +441,7 @@ GET /api/sync/status
 
 #### Services Layer
 - **DatabaseService**: Database operations and queries
-- **FileService**: File management and Excel processing
+- **FileService**: File management and test file processing
 - **SyncService**: Remote synchronization
 - **ColumnService**: Column configuration management
 
@@ -506,7 +494,7 @@ rm data/test_cases.db
 python run.py  # Will recreate database
 ```
 
-#### 3. Excel Files Not Loading
+#### 3. Test Files Not Loading
 - Check file format and column names
 - Ensure files are in `data/excel_files/` directory
 - Verify file permissions
@@ -619,7 +607,7 @@ For feature requests, please include:
 - **Flask**: Web framework
 - **Bootstrap**: UI framework
 - **SQLite**: Database engine
-- **Pandas**: Excel file processing
+- **Pandas**: Test file processing
 - **Font Awesome**: Icons
 
 ---

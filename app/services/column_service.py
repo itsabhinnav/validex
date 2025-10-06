@@ -7,7 +7,8 @@ class ColumnManager:
     """Manages column definitions and mappings for test cases"""
     
     def __init__(self, config_file: str = "column_config.json"):
-        self.config_file = Path(config_file)
+        from app.utils.path_resolver import path_resolver
+        self.config_file = path_resolver.get_config_path(config_file)
         self.config = self.load_config()
     
     def load_config(self) -> Dict[str, Any]:

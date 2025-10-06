@@ -7,13 +7,12 @@ from app import get_services
 # Create blueprint
 main_bp = Blueprint('main', __name__)
 
-# Global variable to store current role (temporary solution)
-current_role = None
+# Role management is now handled entirely through session storage
 
 @main_bp.context_processor
 def inject_current_role():
     """Inject current_role into all templates"""
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     return dict(current_role=role, min=min, max=max)
 
 # Global variable to store test cases data
@@ -56,21 +55,22 @@ def check_database_availability():
             'fallback_mode': True
         }
 
-def load_excel_files():
+def load_test_files():
     """Load test cases from local files"""
     global test_cases_data
     
-    print("Loading local Excel files...")
-    excel_dir = current_app.config.get('UPLOAD_FOLDER', 'excel_files')
+    print("Loading local test files...")
+    from app.utils.path_resolver import path_resolver
+    test_dir = current_app.config.get('UPLOAD_FOLDER', str(path_resolver.get_test_files_path()))
     
-    if not os.path.exists(excel_dir):
-        print(f"Excel directory {excel_dir} not found")
+    if not os.path.exists(test_dir):
+        print(f"Test files directory {test_dir} not found")
         return
     
     test_cases_data = {}
     
     # Simple file loading for now
-    for root, dirs, files in os.walk(excel_dir):
+    for root, dirs, files in os.walk(test_dir):
         for file in files:
             if file.endswith(('.xlsx', '.xls')):
                 file_path = os.path.join(root, file)
@@ -121,18 +121,52 @@ def load_excel_files():
 
 @main_bp.route('/')
 def index():
-    """Landing page for Validex"""
-    # Load files to display stats on the landing page
-    load_excel_files()
-    file_count = len(test_cases_data)
-    total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
-    return render_template('landing.html', file_count=file_count, total_cases=total_cases)
+    """Main application selector page"""
+    return render_template('app_selector.html')
+
+@main_bp.route('/app-selector')
+def app_selector():
+    """Application selector page"""
+    return render_template('app_selector.html')
+
+@main_bp.route('/select-app', methods=['POST'])
+def select_app():
+    """Handle app selection and redirect to appropriate landing page"""
+    selected_app = request.form.get('selected_app')
+    
+    # Store the selected app in session
+    session['current_app'] = selected_app
+    
+    if selected_app == 'validex':
+        return redirect(url_for('main.landing', app='validex'))
+    elif selected_app == 'sakura':
+        return redirect(url_for('sakura.sakura_dashboard'))
+    else:
+        # Default to validex if no valid selection
+        session['current_app'] = 'validex'
+        return redirect(url_for('main.landing', app='validex'))
+
+@main_bp.route('/landing')
+def landing():
+    """Landing page with role selection"""
+    app_name = request.args.get('app', 'validex')
+    return render_template('landing.html', app_name=app_name)
+
+@main_bp.route('/app')
+def app_entry():
+    """Application entry point - redirects based on role"""
+    # Check if role is selected, redirect to dashboard if yes, role selection if no
+    role = session.get('current_role')
+    if role:
+        return redirect(url_for('main.dashboard'))
+    else:
+        return redirect(url_for('main.role_selection'))
 
 @main_bp.route('/role-selection')
 def role_selection():
     """Role selection page"""
     # Load files to display stats on the role selection page
-    load_excel_files()
+    load_test_files()
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
     
@@ -148,13 +182,16 @@ def role_selection():
 @main_bp.route('/dashboard')
 def dashboard():
     """Dashboard page"""
-    global current_role
+    # Check if role is selected, redirect to role selection if not
+    role = session.get('current_role')
+    if not role:
+        return redirect(url_for('main.role_selection'))
     
     # Check database availability
     db_status = check_database_availability()
     
     # Load files to display stats on the dashboard
-    load_excel_files()
+    load_test_files()
     
     # Calculate statistics
     file_count = len(test_cases_data)
@@ -217,7 +254,8 @@ def dashboard():
     
     return render_template('dashboard.html', 
                          stats=stats, 
-                         current_role=current_role, 
+                         total_cases=total_cases,
+                         file_count=file_count,
                          test_cases_data=test_cases_data, 
                          app_stats=app_stats,
                          db_status=db_status,
@@ -226,10 +264,9 @@ def dashboard():
 @main_bp.route('/test-cases')
 def test_cases():
     """Test cases page with filtering and search"""
-    global current_role
     
     # Load files
-    load_excel_files()
+    load_test_files()
     
     # Get filter parameters (handle both single values and arrays from multi-select)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
@@ -339,7 +376,7 @@ def test_cases():
                          current_search=search_query,
                          current_sort=sort_by,
                          current_order=sort_order,
-                         current_role=current_role,
+                         current_role=session.get('current_role'),
                          dynamic_filters=dynamic_filters,
                          # Pagination info
                          page=page,
@@ -353,8 +390,7 @@ def test_cases():
 @main_bp.route('/admin')
 def admin():
     """Admin page"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     # Check if admin is enabled
     from config.settings import config
@@ -365,7 +401,7 @@ def admin():
         return redirect(url_for('main.role_selection'))
     
     # Load files for admin stats
-    load_excel_files()
+    load_test_files()
     
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
@@ -373,20 +409,19 @@ def admin():
     return render_template('admin.html', 
                          file_count=file_count, 
                          total_cases=total_cases,
-                         current_role=current_role,
+                         current_role=session.get('current_role'),
                          test_cases_data=test_cases_data)
 
 @main_bp.route('/reports')
 def reports():
     """Reports page"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
     
     # Load files for reports
-    load_excel_files()
+    load_test_files()
     
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
@@ -400,8 +435,7 @@ def reports():
 @main_bp.route('/execute-test')
 def execute_test():
     """Execute test page"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
@@ -411,7 +445,7 @@ def execute_test():
     source_file = request.args.get('source_file')
     
     # Load files to find the test case
-    load_excel_files()
+    load_test_files()
     
     test_case = None
     if test_id and source_file:
@@ -447,8 +481,7 @@ def execute_test():
 @main_bp.route('/execute-test', methods=['POST'])
 def submit_test_execution():
     """Handle test execution submission"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
@@ -469,15 +502,14 @@ def submit_test_execution():
 
 @main_bp.route('/export-test-cases')
 def export_test_cases():
-    """Export test cases to Excel"""
-    global current_role
-    role = session.get('current_role', current_role)
+    """Export test cases to file"""
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
     
     # Load files
-    load_excel_files()
+    load_test_files()
     
     # Get filter parameters (same as test_cases route)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
@@ -553,7 +585,7 @@ def export_test_cases():
         other_columns = [col for col in df.columns if col not in existing_columns]
         df = df[existing_columns + other_columns]
         
-        # Create Excel file in memory
+        # Create file in memory
         from io import BytesIO
         output = BytesIO()
         
@@ -584,7 +616,7 @@ def export_test_cases():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"test_cases_export_{timestamp}.xlsx"
         
-        # Return Excel file
+        # Return file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -597,14 +629,13 @@ def export_test_cases():
 @main_bp.route('/export-test-cases-csv')
 def export_test_cases_csv():
     """Export test cases to CSV"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
     
     # Load files
-    load_excel_files()
+    load_test_files()
     
     # Get filter parameters (same as test_cases route)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
@@ -709,8 +740,7 @@ def setup():
 @main_bp.route('/jfrog-config')
 def jfrog_config():
     """JFrog configuration page"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     # Check if admin is enabled
     from config.settings import config
@@ -734,7 +764,6 @@ def jfrog_config():
 @main_bp.route('/set-role', methods=['POST'])
 def set_role():
     """Set user role"""
-    global current_role
     role = request.form.get('role')
     
     # Check if admin is enabled when trying to select admin role
@@ -743,7 +772,7 @@ def set_role():
         if not config.is_admin_enabled():
             return redirect(url_for('main.role_selection'))
     
-    current_role = role
+    # Store role in session only (no global variable)
     session['current_role'] = role
     
     if role == 'admin':
@@ -754,14 +783,13 @@ def set_role():
 @main_bp.route('/prepare-test-suite')
 def prepare_test_suite():
     """Prepare test suite page with release details"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
     
     # Load files to get available options
-    load_excel_files()
+    load_test_files()
     
     # Get unique values for filters
     apps = set()
@@ -777,23 +805,56 @@ def prepare_test_suite():
             if 'Priority' in case:
                 priorities.add(case['Priority'])
     
+    # Handle filtering - show all test cases by default, filter if parameters provided
+    filtered_cases = []
+    
+    # Get filter parameters
+    app_filter = request.args.get('app', '')
+    test_type_filter = request.args.get('testType', '')
+    priority_filter = request.args.get('priority', '')
+    search_query = request.args.get('search', '')
+    
+    # Filter test cases
+    for file_name, file_data in test_cases_data.items():
+        for case in file_data:
+            # Apply filters
+            if app_filter and case.get('App', '') != app_filter:
+                continue
+            if test_type_filter and case.get('Test Type', '') != test_type_filter:
+                continue
+            if priority_filter and case.get('Priority', '') != priority_filter:
+                continue
+            if search_query and search_query.lower() not in case.get('Summary', '').lower():
+                continue
+            
+            # Add file information to case
+            case_with_file = case.copy()
+            case_with_file['File'] = file_name
+            filtered_cases.append(case_with_file)
+    
+    # Get multiselect threshold from config
+    from config.settings import config
+    multiselect_threshold = config.get_multiselect_threshold()
+    
     return render_template('prepare_test_suite.html', 
                          current_role=role,
                          apps=sorted(apps),
                          test_types=sorted(test_types),
-                         priorities=sorted(priorities))
+                         priorities=sorted(priorities),
+                         test_cases=filtered_cases,
+                         total_cases=len(filtered_cases),
+                         multiselect_threshold=multiselect_threshold)
 
 @main_bp.route('/export-test-suite')
 def export_test_suite():
     """Export test suite with release details"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     if not role:
         return redirect(url_for('main.role_selection'))
     
     # Get export parameters
-    export_format = request.args.get('export_format', 'excel')
+    export_format = request.args.get('export_format', 'file')
     include_release_details = request.args.get('include_release_details', 'true').lower() == 'true'
     selected_indices = request.args.get('selected_indices', '')
     
@@ -811,7 +872,7 @@ def export_test_suite():
     }
     
     # Load test cases
-    load_excel_files()
+    load_test_files()
     
     # Filter test cases based on request parameters
     filtered_cases = []
@@ -876,8 +937,8 @@ def export_test_suite():
     release_version = release_details['release_version'] or 'Unknown'
     filename = f"test_suite_{release_version}_{timestamp}"
     
-    if export_format == 'excel':
-        # Create Excel file in memory
+    if export_format == 'file':
+        # Create file in memory
         from io import BytesIO
         output = BytesIO()
         
@@ -903,7 +964,7 @@ def export_test_suite():
         
         output.seek(0)
         
-        # Return Excel file
+        # Return file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -929,8 +990,7 @@ def export_test_suite():
 @main_bp.route('/sync-dashboard')
 def sync_dashboard():
     """Sync management dashboard"""
-    global current_role
-    role = session.get('current_role', current_role)
+    role = session.get('current_role')
     
     # Check if admin is enabled
     from config.settings import config
@@ -945,8 +1005,6 @@ def sync_dashboard():
 @main_bp.route('/logout')
 def logout():
     """Logout and return to role selection"""
-    global current_role
-    current_role = None
     session.pop('current_role', None)
     return redirect(url_for('main.role_selection'))
 

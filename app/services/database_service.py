@@ -7,6 +7,7 @@ import os
 import threading
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+from app.utils.path_resolver import path_resolver
 from datetime import datetime
 from app.models.test_case import TestCase
 from app.models.file_metadata import FileMetadata
@@ -15,8 +16,8 @@ from app.models.sync_status import SyncStatus
 class DatabaseService:
     """Service for database operations"""
     
-    def __init__(self, db_path: str = "data/db/test_cases.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        self.db_path = db_path or str(path_resolver.get_database_path())
         self._local = threading.local()
         # Ensure the data directory exists
         self._ensure_data_directory()

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ get_text('landing_page.title') }}{% endblock %}
+{% block title %}{{ get_text('landing_page.title') }} - {{ app_name.title() }}{% endblock %}
 
 {% block content %}
 
@@ -9,40 +9,35 @@
     <div class="row justify-content-center">
       <div class="col-lg-10 text-center">
         <div class="hero-content">
-          <h1 class="display-4 fw-bold mb-3">{{ get_text('landing_page.hero_title') }}</h1>
-          <p class="lead mb-4">{{ get_text('landing_page.hero_tagline') }}</p>
-          <p class="mb-5 text-muted" style="font-size: 1.1rem;">
-            {{ get_text('landing_page.hero_description') }}
-          </p>
+          {% if app_name == 'validex' %}
+            <h1 class="display-4 fw-bold mb-3">Test Case Management System</h1>
+            <p class="lead mb-4">Comprehensive test case management and validation platform</p>
+            <p class="mb-5 text-muted" style="font-size: 1.1rem;">
+              Manage, organize, and execute test cases with advanced filtering, reporting, and role-based access control.
+            </p>
+          {% elif app_name == 'sakura' %}
+            <h1 class="display-4 fw-bold mb-3">Requirement Management & Design</h1>
+            <p class="lead mb-4">Intelligent requirement management and design phase platform</p>
+            <p class="mb-5 text-muted" style="font-size: 1.1rem;">
+              Capture, analyze, and manage requirements with AI-powered insights and collaborative design tools.
+            </p>
+          {% else %}
+            <h1 class="display-4 fw-bold mb-3">Quality Management Platform</h1>
+            <p class="lead mb-4">Comprehensive quality assurance and project management solution</p>
+            <p class="mb-5 text-muted" style="font-size: 1.1rem;">
+              Streamline your quality processes with integrated tools for requirements, design, and testing.
+            </p>
+          {% endif %}
           
-          <a href="{{ url_for('main.role_selection') }}" class="btn btn-primary btn-lg px-4">
-            {{ get_text('landing_page.get_started') }}
-          </a>
+          <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ url_for('main.app_entry') }}" class="btn btn-primary btn-lg px-4">
+              {{ get_text('landing_page.get_started') }}
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Features Section -->
-<div class="py-5 features-section">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 mx-auto text-center mb-5">
-        <h2 class="mb-4">{{ get_text('landing_page.features.title') }}</h2>
-        <div class="row g-4">
-          {% for feature in get_text_list('landing_page.features.items') %}
-          <div class="col-md-6">
-            <div class="d-flex align-items-center p-3 rounded" style="background: #f8f9fa; border: 1px solid #e9ecef;">
-              <i class="fas fa-check-circle me-3" style="color: #000000;"></i>
-              <span class="text-dark fw-semibold">{{ feature }}</span>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-    
-  </div>
-</div>
 {% endblock %}

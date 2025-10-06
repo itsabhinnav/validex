@@ -1,24 +1,9 @@
 """
 Test Case Management System - Flask Application Factory
-
-Copyright 2025 Validex Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 """
 
 from flask import Flask
 from config.settings import DevelopmentConfig, ProductionConfig, TestingConfig
-from core.database.manager import DatabaseManager
 from app.services.database_service import DatabaseService
 from app.services.file_service import FileService
 from app.services.sync_service import SyncService
@@ -115,6 +100,16 @@ def create_app(config_name='development'):
     from app.api.routes import main_bp
     app.register_blueprint(main_bp)
     
+    # Register Sakura blueprint
+    try:
+        from app.api.sakura_routes import sakura_bp
+        app.register_blueprint(sakura_bp)
+        print("Sakura blueprint registered successfully")
+    except ImportError as e:
+        print(f"Sakura blueprint not available: {e}")
+    except Exception as e:
+        print(f"Error registering Sakura blueprint: {e}")
+    
     # Register sync API blueprint
     try:
         from app.api.sync_routes import sync_bp
@@ -143,31 +138,27 @@ def _configure_background_sync(background_sync_service):
         import json
         import os
         
-        # Load configuration
-        config_path = 'config/validex_config.json'
-        if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
-                config = json.load(f)
+        # Load configuration using path resolver
+        from app.utils.path_resolver import path_resolver
+        config = path_resolver.load_config()
+        
+        sync_config = config.get('sync', {})
+        
+        # Configure background sync
+        if sync_config.get('background_sync_enabled', False):
+            sync_interval = sync_config.get('sync_interval_seconds', 300)
+            change_detection = sync_config.get('change_detection_enabled', True)
             
-            sync_config = config.get('sync', {})
+            background_sync_service.configure_sync(
+                sync_interval=sync_interval,
+                enable_change_detection=change_detection
+            )
             
-            # Configure background sync
-            if sync_config.get('background_sync_enabled', False):
-                sync_interval = sync_config.get('sync_interval_seconds', 300)
-                change_detection = sync_config.get('change_detection_enabled', True)
-                
-                background_sync_service.configure_sync(
-                    sync_interval=sync_interval,
-                    enable_change_detection=change_detection
-                )
-                
-                # Start background sync
-                background_sync_service.start_background_sync()
-                print("Background sync enabled and started")
-            else:
-                print("Background sync disabled in configuration")
+            # Start background sync
+            background_sync_service.start_background_sync()
+            print("Background sync enabled and started")
         else:
-            print("Configuration file not found, using default settings")
+            print("Background sync disabled in configuration")
             
     except Exception as e:
         print(f"Error configuring background sync: {e}")

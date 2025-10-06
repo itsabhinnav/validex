@@ -1,20 +1,6 @@
 """
 Text configuration utility for Validex application.
 Provides centralized text management for all UI strings.
-
-Copyright 2025 Validex Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 """
 
 import json
@@ -32,9 +18,8 @@ class TextConfig:
             config_path: Path to the text configuration JSON file
         """
         if config_path is None:
-            # Default path relative to the app directory
-            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            config_path = os.path.join(current_dir, '..', 'config', 'text_config.json')
+            from app.utils.path_resolver import path_resolver
+            config_path = str(path_resolver.get_config_path("text_config.json"))
         
         self.config_path = config_path
         self._config = None

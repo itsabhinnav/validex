@@ -101,26 +101,21 @@ def configure_sync():
         )
         
         # Update configuration file
-        config_path = 'config/validex_config.json'
-        try:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-            
-            config.setdefault('sync', {})
-            config['sync'].update({
-                'sync_interval_seconds': sync_interval,
-                'change_detection_enabled': change_detection
-            })
-            
-            with open(config_path, 'w') as f:
-                json.dump(config, f, indent=2)
-                
-        except Exception as e:
-            print(f"Warning: Could not update configuration file: {e}")
+        from app.utils.path_resolver import path_resolver
+        config = path_resolver.load_config()
+        
+        config.setdefault('sync', {})
+        config['sync'].update({
+            'sync_interval_seconds': sync_interval,
+            'change_detection_enabled': change_detection
+        })
+        
+        path_resolver.save_config(config)
         
         return jsonify({'success': True, 'message': 'Sync configuration updated'})
         
     except Exception as e:
+        print(f"Warning: Could not update configuration file: {e}")
         return jsonify({'error': str(e)}), 500
 
 @sync_bp.route('/health')
