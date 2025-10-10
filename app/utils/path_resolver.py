@@ -23,10 +23,8 @@ class PathResolver:
         """Get the base application path"""
         if self._base_path is None:
             if getattr(sys, 'frozen', False):
-                # Running as executable (PyInstaller)
                 self._base_path = Path(sys._MEIPASS)
             else:
-                # Running as script
                 self._base_path = Path(__file__).parent.parent.parent
         return self._base_path
     
@@ -34,12 +32,11 @@ class PathResolver:
     def is_portable(self) -> bool:
         """Check if running in portable mode"""
         if self._is_portable is None:
-            # Check if we're in a portable environment
             self._is_portable = (
-                getattr(sys, 'frozen', False) or  # PyInstaller
-                'portable' in str(self.base_path).lower() or  # Portable directory
-                os.path.exists(self.base_path / 'START_VALIDEX.bat') or  # Windows launcher
-                os.path.exists(self.base_path / 'start_validex.sh')  # Unix launcher
+                getattr(sys, 'frozen', False) or
+                'portable' in str(self.base_path).lower() or
+                os.path.exists(self.base_path / 'START_VALIDEX.bat') or
+                os.path.exists(self.base_path / 'start_validex.sh')
             )
         return self._is_portable
     
@@ -48,11 +45,9 @@ class PathResolver:
         if isinstance(relative_path, str):
             relative_path = Path(relative_path)
         
-        # If already absolute, return as is
         if relative_path.is_absolute():
             return relative_path
             
-        # Resolve relative to base path
         return self.base_path / relative_path
     
     def get_config_path(self, config_file: str = "validex_config.json") -> Path:
@@ -97,7 +92,6 @@ class PathResolver:
         config_path = self.get_config_path(config_file)
         
         if not config_path.exists():
-            # Return default config if file doesn't exist
             return self.get_default_config()
         
         try:
@@ -112,7 +106,6 @@ class PathResolver:
         config_path = self.get_config_path(config_file)
         
         try:
-            # Ensure directory exists
             config_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(config_path, 'w', encoding='utf-8') as f:
@@ -143,5 +136,4 @@ class PathResolver:
             }
         }
 
-# Global instance
 path_resolver = PathResolver()

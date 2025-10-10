@@ -99,7 +99,7 @@ python run.py
 
 ### 🎨 Modern User Interface
 - **Responsive Design**: Mobile-friendly interface
-- **Professional Styling**: Modern gradients and animations
+- ** Styling**: Modern gradients and animations
 - **Interactive Elements**: Hover effects and smooth transitions
 - **Accessibility**: WCAG compliant design
 - **Dark/Light Themes**: User preference support
@@ -612,6 +612,6 @@ For feature requests, please include:
 
 ---
 
-**Validex - Professional Test Case Management Made Simple** 🚀
+**Validex -  Test Case Management Made Simple** 🚀
 
 *Built with ❤️ for the testing community*

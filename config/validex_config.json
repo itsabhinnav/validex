@@ -2,16 +2,19 @@
   "app": {
     "name": "Validex",
     "version": "1.0.0",
-    "description": "Professional Test Case Management Platform",
+    "description": " Test Case Management Platform",
     "tagline": "Quality Assurance Management System",
     "debug": true,
     "secret_key": "dev-secret-key-change-in-production",
     "host": "127.0.0.1",
     "port": 8000,
     "admin_enabled": false,
+    "sakura_enabled": true,
     "multiselect_threshold": 5,
     "test_cases_per_page": 10,
-    "auto_refresh_interval": 30
+    "auto_refresh_interval": 30,
+    "auto_launch_browser": true,
+    "startup_delay": 2
   },
   "database": {
     "type": "sqlite",
@@ -28,7 +31,10 @@
     "cache_dir": "data/cache",
     "logs_dir": "logs",
     "backup_dir": "data/backups",
-    "allowed_extensions": [".xlsx", ".xls"],
+    "allowed_extensions": [
+      ".xlsx",
+      ".xls"
+    ],
     "max_file_size_mb": 50
   },
   "jfrog": {
@@ -82,7 +88,7 @@
   "text": {
     "landing_page": {
       "title": "Validex - Test Case Management",
-      "hero_title": "Professional Test Case Management",
+      "hero_title": " Test Case Management",
       "hero_tagline": "Streamline your testing process with enterprise-grade tools",
       "hero_description": "Manage test cases, execute tests, and generate comprehensive reports with our powerful platform.",
       "get_started": "Get Started"
@@ -97,17 +103,43 @@
     }
   },
   "columns": {
-    "required": ["TC ID", "Summary"],
-    "optional": ["Feature", "Priority", "Status", "Screen ID", "Test Type", "Expected Behavior"],
+    "required": [
+      "Expected Behavior",
+      "Feature",
+      "Priority",
+      "Screen ID",
+      "Status",
+      "Summary",
+      "TC ID",
+      "type"
+    ],
+    "optional": [],
     "mappings": {
-      "id": ["TC ID", "Test Case ID", "ID"],
-      "summary": ["Summary", "Description", "Title"],
-      "feature": ["Feature", "Component", "Module"],
-      "priority": ["Priority", "Level"],
-      "status": ["Status", "State"],
-      "screen": ["Screen ID", "Screen", "Page"],
-      "type": ["Test Type", "Type", "Category"],
-      "expected": ["Expected Behavior", "Expected Result", "Expected"]
+      "id": [
+        "Screen ID",
+        "TC ID"
+      ],
+      "summary": [
+        "Summary"
+      ],
+      "feature": [
+        "Feature"
+      ],
+      "priority": [
+        "Priority"
+      ],
+      "status": [
+        "Status"
+      ],
+      "screen": [
+        "Screen ID"
+      ],
+      "type": [
+        "type"
+      ],
+      "expected": [
+        "Expected Behavior"
+      ]
     }
   },
   "export": {
@@ -129,5 +161,131 @@
     "max_workers": 4,
     "chunk_size": 1000,
     "timeout": 30
-  }
+  },
+  "dynamic_columns": {
+    "Screen ID": {
+      "display_name": "Screen ID",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Unique identifier",
+      "sample_values": [
+        "LOGIN_001",
+        "HOME_001",
+        "LOGOUT_001",
+        "SEARCH_002",
+        "LOGIN_STRESS_001"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "Status": {
+      "display_name": "Status",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Current status",
+      "sample_values": [
+        "Pending"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "Summary": {
+      "display_name": "Summary",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Brief description or title",
+      "sample_values": [
+        "Report Scheduling",
+        "High Load User Login",
+        "Report Generation",
+        "Database Connection Failure",
+        "Search History"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "Expected Behavior": {
+      "display_name": "Expected Behavior",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Expected result or behavior",
+      "sample_values": [
+        "Database should handle 10000 queries per minute",
+        "System should handle 1000 concurrent logins",
+        "Reports should be exportable in multiple formats",
+        "User should be able to logout successfully",
+        "User should be able to schedule automatic reports"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "type": {
+      "display_name": "type",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Type or category",
+      "sample_values": [
+        "FMEA",
+        "Smoke",
+        "Sanity",
+        "Stress",
+        "Functional"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "Priority": {
+      "display_name": "Priority",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Priority level",
+      "sample_values": [
+        "Critical",
+        "Low",
+        "High",
+        "Medium"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "TC ID": {
+      "display_name": "TC ID",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Unique identifier",
+      "sample_values": [
+        "FMEA005",
+        "SMK004",
+        "STR004",
+        "SF1002",
+        "FMEA004"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    },
+    "Feature": {
+      "display_name": "Feature",
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "description": "Feature or component",
+      "sample_values": [
+        "Navigation",
+        "Session",
+        "Reporting",
+        "Network",
+        "Authentication"
+      ],
+      "frequency": 18,
+      "frequency_percentage": 100.0
+    }
+  },
+  "last_auto_update": "2025-10-10T01:21:01.773197"
 }

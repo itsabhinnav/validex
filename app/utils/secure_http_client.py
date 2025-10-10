@@ -83,7 +83,6 @@ class SecureHTTPClient:
         """Test connectivity to a URL"""
         return network_security_service.test_connectivity(url)
 
-# Custom exceptions
 class SecurityError(Exception):
     """Raised when a security policy violation occurs"""
     pass
@@ -104,6 +103,5 @@ class DownloadError(Exception):
     """Raised when a download error occurs"""
     pass
 
-# Global instance
 secure_client = SecureHTTPClient()
 

@@ -10,33 +10,27 @@ from dataclasses import dataclass
 class FileMetadata:
     """File metadata for tracking and sync operations"""
     
-    # Primary fields
     file_id: str
     file_path: str
     file_hash: str
     file_size: int
     
-    # Sync information
     last_modified: datetime
     last_synced: Optional[datetime] = None
     sync_status: str = 'pending'
     
-    # Remote information
     remote_url: Optional[str] = None
     remote_hash: Optional[str] = None
     remote_version: Optional[str] = None
     
-    # Local information
     local_path: Optional[str] = None
     local_hash: Optional[str] = None
     local_version: Optional[str] = None
     
-    # Processing information
     record_count: Optional[int] = None
     processing_time: Optional[float] = None
     error_message: Optional[str] = None
     
-    # Metadata
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     

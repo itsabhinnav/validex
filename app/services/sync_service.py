@@ -20,7 +20,6 @@ class SyncService:
     def configure_remote_sync(self, remote_url: str, api_token: str, strategy: str = 'minimal') -> Dict[str, Any]:
         """Configure remote sync settings"""
         try:
-            # Create sync status
             sync_status = SyncStatus(
                 sync_id=f"sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                 strategy=SyncStrategy(strategy),
@@ -29,7 +28,6 @@ class SyncService:
             
             self.current_sync = sync_status
             
-            # Start sync process
             return self.start_sync(sync_status)
             
         except Exception as e:
@@ -43,7 +41,6 @@ class SyncService:
         try:
             sync_status.start_sync()
             
-            # Get files to sync
             if self.file_service:
                 files = self.file_service.scan_directory(self.file_service.upload_folder)
                 sync_status.total_files = len(files)
@@ -51,17 +48,14 @@ class SyncService:
                 files = []
                 sync_status.total_files = 0
             
-            # Process files
             processed_files = 0
             processed_test_cases = 0
             
             for file_path in files:
                 try:
-                    # Process file
                     test_cases = self.file_service.process_excel_file(file_path)
                     processed_test_cases += len(test_cases)
                     
-                    # Store in database
                     if self.db_service:
                         for test_case in test_cases:
                             self.db_service.insert_test_case(test_case)
@@ -73,7 +67,6 @@ class SyncService:
                     print(f"Error processing file {file_path}: {e}")
                     sync_status.failed_files += 1
             
-            # Complete sync
             sync_status.complete_sync(success=True)
             
             return {
@@ -97,7 +90,6 @@ class SyncService:
     def incremental_sync(self) -> Dict[str, Any]:
         """Perform incremental sync"""
         try:
-            # Get files that need syncing
             if not self.file_service:
                 return {'changes_processed': 0, 'message': 'File service not available'}
             
@@ -106,15 +98,12 @@ class SyncService:
             
             for file_path in files:
                 try:
-                    # Check if file needs syncing
                     file_metadata = self.file_service.get_file_metadata(file_path)
                     if not file_metadata:
                         continue
                     
-                    # Process file
                     test_cases = self.file_service.process_excel_file(file_path)
                     
-                    # Store in database
                     if self.db_service:
                         for test_case in test_cases:
                             self.db_service.insert_test_case(test_case)

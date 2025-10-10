@@ -117,7 +117,6 @@ class ColumnManager:
             if legacy_col in legacy_mappings:
                 mapping[legacy_col] = legacy_mappings[legacy_col]
             else:
-                # If no mapping exists, use the column as-is if it's in our definitions
                 if legacy_col in self.get_all_columns():
                     mapping[legacy_col] = legacy_col
         
@@ -140,18 +139,14 @@ class ColumnManager:
         errors = []
         warnings = []
         
-        # Check required columns
         for required_col in self.get_required_columns():
             if required_col not in test_case or not test_case.get(required_col):
                 errors.append(f"Required column '{required_col}' is missing or empty")
         
-        # Check unique constraints
         primary_key = self.get_primary_key()
         if primary_key in test_case and self.is_column_unique(primary_key):
-            # This would need to be checked against existing data
             pass
         
-        # Check allowed values
         for column_name, value in test_case.items():
             allowed_values = self.get_allowed_values(column_name)
             if allowed_values and value not in allowed_values:
@@ -173,7 +168,6 @@ class ColumnManager:
                 new_col = column_mapping[original_col]
                 normalized[new_col] = value
             else:
-                # Keep original column name if no mapping exists
                 normalized[original_col] = value
         
         return normalized
@@ -203,6 +197,5 @@ class ColumnManager:
             "column_definitions": columns
         }
 
-# Global instance
 column_manager = ColumnManager()
 

@@ -1,13 +1,9 @@
-/**
- * Service Worker for Validex PWA
- * Provides offline functionality and caching
- */
+
 
 const CACHE_NAME = 'validex-v1.0.0';
 const STATIC_CACHE_NAME = 'validex-static-v1.0.0';
 const DYNAMIC_CACHE_NAME = 'validex-dynamic-v1.0.0';
 
-// Files to cache for offline functionality
 const STATIC_FILES = [
   '/',
   '/static/css/main.css',
@@ -18,14 +14,12 @@ const STATIC_FILES = [
   '/static/icons/icon-512x512.png'
 ];
 
-// API endpoints to cache
 const API_ENDPOINTS = [
   '/api/test-cases',
   '/api/reports',
   '/api/dashboard'
 ];
 
-// Install event - cache static files
 self.addEventListener('install', event => {
   console.log('Service Worker: Installing...');
   
@@ -45,7 +39,6 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', event => {
   console.log('Service Worker: Activating...');
   
@@ -68,34 +61,30 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  
-  // Skip non-GET requests
+
   if (request.method !== 'GET') {
     return;
   }
-  
-  // Handle different types of requests
+
   if (url.pathname.startsWith('/static/')) {
-    // Static files - cache first
+    
     event.respondWith(cacheFirst(request));
   } else if (url.pathname.startsWith('/api/')) {
-    // API requests - network first, then cache
+    
     event.respondWith(networkFirst(request));
   } else if (url.pathname === '/' || url.pathname.startsWith('/dashboard') || 
              url.pathname.startsWith('/test_cases') || url.pathname.startsWith('/reports')) {
-    // App pages - cache first
+    
     event.respondWith(cacheFirst(request));
   } else {
-    // Other requests - network first
+    
     event.respondWith(networkFirst(request));
   }
 });
 
-// Cache first strategy
 async function cacheFirst(request) {
   try {
     const cachedResponse = await caches.match(request);
@@ -120,7 +109,6 @@ async function cacheFirst(request) {
   }
 }
 
-// Network first strategy
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
@@ -135,8 +123,7 @@ async function networkFirst(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
-    // Return offline page for navigation requests
+
     if (request.mode === 'navigate') {
       return caches.match('/') || new Response('Offline - App not available', {
         status: 503,
@@ -148,7 +135,6 @@ async function networkFirst(request) {
   }
 }
 
-// Background sync for offline actions
 self.addEventListener('sync', event => {
   console.log('Service Worker: Background sync', event.tag);
   
@@ -157,7 +143,6 @@ self.addEventListener('sync', event => {
   }
 });
 
-// Push notifications
 self.addEventListener('push', event => {
   console.log('Service Worker: Push notification received');
   
@@ -189,7 +174,6 @@ self.addEventListener('push', event => {
   );
 });
 
-// Notification click handler
 self.addEventListener('notificationclick', event => {
   console.log('Service Worker: Notification clicked');
   
@@ -202,18 +186,16 @@ self.addEventListener('notificationclick', event => {
   }
 });
 
-// Sync test executions when back online
 async function syncTestExecutions() {
   try {
-    // This would sync any pending test executions
+    
     console.log('Service Worker: Syncing test executions');
-    // Implementation would depend on your specific sync requirements
+    
   } catch (error) {
     console.error('Service Worker: Error syncing test executions', error);
   }
 }
 
-// Message handler for communication with main thread
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();

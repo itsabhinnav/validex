@@ -1,0 +1,2690 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Test Suite - Validex{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    
+    <!-- Test Suite Preparation Section -->
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white" style="border-radius: 15px 15px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Test Suite Preparation
+                </h5>
+                <button class="btn btn-light btn-sm" type="button" onclick="toggleTestSuite()" id="testSuiteToggle">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body bg-light" id="testSuiteContent">
+            <form id="releaseDetailsForm">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label for="releaseVersion" class="form-label">Release Version *</label>
+                        <input type="text" class="form-control" id="releaseVersion" name="releaseVersion" 
+                               placeholder="e.g., v2.1.0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sprint" class="form-label">Sprint</label>
+                        <input type="text" class="form-control" id="sprint" name="sprint" 
+                               placeholder="e.g., Sprint 15">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="buildNumber" class="form-label">Build Number</label>
+                        <input type="text" class="form-control" id="buildNumber" name="buildNumber" 
+                               placeholder="e.g., Build 1234">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="environment" class="form-label">Environment</label>
+                        <select class="form-select" id="environment" name="environment">
+                            <option value="">Select Environment</option>
+                            <option value="DEV">Development</option>
+                            <option value="QA">QA</option>
+                            <option value="UAT">UAT</option>
+                            <option value="PROD">Production</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="testSuiteName" class="form-label">Test Suite Name</label>
+                        <input type="text" class="form-control" id="testSuiteName" name="testSuiteName" 
+                               placeholder="e.g., Regression Suite v2.1.0">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="testSuiteDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="testSuiteDescription" name="testSuiteDescription" 
+                               placeholder="Brief description of the test suite">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        <small><i class="fas fa-info-circle me-1"></i>Select test cases below and configure release details to prepare your test suite</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-primary" onclick="clearTestSuiteForm()">
+                            <i class="fas fa-eraser me-1"></i>Clear
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportTestSuite()" id="exportSuiteBtn" disabled>
+                            <i class="fas fa-download me-1"></i>Export Test Suite
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="advanced-search-container mb-4">
+        
+    </div>
+
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header bg-gradient-primary text-white" style="border-radius: 15px 15px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Advanced Filters & Search
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm" type="button" onclick="toggleFilters()" id="filterToggle">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" id="saveFilterBtn" title="Save current filters">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="loadFilterDropdown" data-bs-toggle="dropdown" title="Load saved filters">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                        <ul class="dropdown-menu" id="savedFiltersList">
+                            <li><h6 class="dropdown-header">Saved Filters</h6></li>
+                            <li><span class="dropdown-item-text text-muted">No saved filters</span></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm" id="columnManagerBtn" title="Manage table columns">
+                        <i class="fas fa-columns"></i>
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" id="dynamicFiltersBtn" title="Add additional column filters">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body bg-light" id="filterContent">
+            <form method="GET" action="{{ url_for('main.test_cases') }}" id="filterForm">
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="search" name="search" value="{{ current_search or '' }}" placeholder="Search across all test cases, summaries, features, and more...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-primary">
+                                    <i class="fas fa-mobile-alt me-2"></i>Applications
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="app" name="app" multiple>
+                                    <option value="">All Applications</option>
+                                    {% for app in apps %}
+                                        <option value="{{ app }}" {% if app in current_app_filter %}selected{% endif %}>{{ app }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Select one or more applications</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-success">
+                                    <i class="fas fa-vial me-2"></i>Test Types
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="test_type" name="test_type" multiple>
+                                    <option value="">All Test Types</option>
+                                    {% for test_type in test_types %}
+                                        <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>{{ test_type }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Choose test categories</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Priority
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select modern-select" id="priority" name="priority" multiple>
+                                    <option value="">All Priorities</option>
+                                    {% for priority in priorities %}
+                                        <option value="{{ priority }}" {% if priority in current_priority_filter %}selected{% endif %}>{{ priority }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Filter by priority level</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-info">
+                                    <i class="fas fa-sort me-2"></i>Sort & Options
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select mb-2" id="sort" name="sort">
+                                    <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
+                                    <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
+                                    <option value="App" {% if current_sort == 'App' %}selected{% endif %}>Application</option>
+                                    <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
+                                    <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
+                                    <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
+                                    <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
+                                </select>
+                                <select class="form-select" id="order" name="order">
+                                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Filters Section -->
+                <div class="row mt-4" id="dynamicFiltersSection" style="display: none;">
+                    <div class="col-12">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-filter me-2"></i>Additional Column Filters
+                                    <button type="button" class="btn btn-sm btn-outline-light float-end" onclick="toggleDynamicFilters()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="dynamicFiltersContainer">
+                                    <!-- Dynamic filters will be added here -->
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="addDynamicFilter()">
+                                        <i class="fas fa-plus me-1"></i>Add Filter
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllDynamicFilters()">
+                                        <i class="fas fa-trash me-1"></i>Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary" onclick="clearAllDynamicFilters()">
+                                <i class="fas fa-times me-1"></i>Clear All
+                            </a>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('main.export_test_cases', **request.args) }}" class="btn btn-outline-success" id="exportBtn">
+                                    <i class="fas fa-download me-1"></i>Export Results
+                                </a>
+                                <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('main.export_test_cases', **request.args) }}"><i class="fas fa-file-excel me-2"></i>Export to Excel</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportSelected()"><i class="fas fa-check-square me-2"></i>Export Selected Only</a></li>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-outline-info" id="saveSearchBtn">
+                                <i class="fas fa-bookmark me-1"></i>Save Search
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-history me-1"></i>Saved Searches
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="loadSearch1">Recent Search 1</a></li>
+                                    <li><a class="dropdown-item" href="#" id="loadSearch2">Recent Search 2</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="manageSearches">Manage Saved Searches</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3" id="activeFilters" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2"><i class="fas fa-filter me-1"></i>Active Filters:</h6>
+                            <div id="activeFiltersList"></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if request.args.get('message') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ request.args.get('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="card content-card">
+        <div class="card-header bg-light" style="border-radius: 15px 15px 0 0; border-bottom: 1px solid #e9ecef;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Test Suite</h5>
+                    <small class="text-muted">Visualize, filter, and execute your test cases</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">{{ test_cases|length }} of {{ total_cases }} results</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" id="viewGrid" title="Grid View">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary active" id="viewTable" title="Table View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if test_cases %}
+            
+            <div id="tableView" class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th data-column="select" class="column-select">
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th data-column="test_case_id" class="column-test_case_id">Test Case ID</th>
+                            <th data-column="summary" class="column-summary">Summary</th>
+                            <th data-column="app" class="column-app">App</th>
+                            <th data-column="test_type" class="column-test_type">Test Type</th>
+                            <th data-column="feature" class="column-feature">Feature</th>
+                            <th data-column="status" class="column-status">Status</th>
+                            <th data-column="priority" class="column-priority">Priority</th>
+                            <th data-column="source_file" class="column-source_file">Source File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test_case in test_cases %}
+                        <tr class="test-case-row" data-id="{{ loop.index }}">
+                            <td data-column="select" class="column-select">
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </td>
+                            <td data-column="test_case_id" class="column-test_case_id">
+                                {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                                {% if test_id == 'N/A' %}
+                                    <span class="badge bg-warning">Auto-Generated</span>
+                                {% else %}
+                                    <a href="{{ url_for('main.test_case_details', test_id=test_id) }}" 
+                                       class="text-primary text-decoration-none fw-bold test-case-link">
+                                        {{ test_id }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td data-column="summary" class="column-summary">
+                                <div class="compact-text" style="max-width: 200px;" title="{{ test_case.get('Summary', 'N/A') }}">
+                                    {{ test_case.get('Summary', 'N/A') }}
+                                </div>
+                            </td>
+                            <td data-column="app" class="column-app">
+                                <span class="badge bg-info">{{ test_case.get('App', 'N/A') }}</span>
+                            </td>
+                            <td data-column="test_type" class="column-test_type">
+                                <span class="badge bg-secondary">{{ test_case.get('Test Type', 'N/A') }}</span>
+                            </td>
+                            <td data-column="feature" class="column-feature">
+                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
+                            </td>
+                            <td data-column="status" class="column-status">
+                                {% set status = test_case.get('Status', 'N/A').lower() %}
+                                {% if status == 'passed' %}
+                                    <span class="badge badge-status badge-passed">Passed</span>
+                                {% elif status == 'failed' %}
+                                    <span class="badge badge-status badge-failed">Failed</span>
+                                {% elif status == 'running' %}
+                                    <span class="badge badge-status badge-running">Running</span>
+                                {% else %}
+                                    <span class="badge badge-status badge-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td data-column="priority" class="column-priority">
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge badge-priority-high">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge badge-priority-low">Low</span>
+                                {% else %}
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                {% endif %}
+                            </td>
+                            <td data-column="source_file" class="column-source_file">
+                                <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="gridView" class="row" style="display: none;">
+                {% for test_case in test_cases %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card test-case-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                            {% if test_id == 'N/A' %}
+                                <span class="badge bg-warning">Auto-Generated</span>
+                            {% else %}
+                                <strong class="text-primary">{{ test_id }}</strong>
+                            {% endif %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title compact-text">{{ test_case.get('Summary', 'N/A') }}</h6>
+                            <div class="mb-2">
+                                <span class="badge bg-info me-1">{{ test_case.get('App', 'N/A') }}</span>
+                                <span class="badge bg-secondary me-1">{{ test_case.get('Test Type', 'N/A') }}</span>
+                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
+                            </div>
+                            <div class="mb-2">
+                                {% set status = test_case.get('Status', 'N/A').lower() %}
+                                {% if status == 'passed' %}
+                                    <span class="badge badge-status badge-passed">Passed</span>
+                                {% elif status == 'failed' %}
+                                    <span class="badge badge-status badge-failed">Failed</span>
+                                {% elif status == 'running' %}
+                                    <span class="badge badge-status badge-running">Running</span>
+                                {% else %}
+                                    <span class="badge badge-status badge-pending">Pending</span>
+                                {% endif %}
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge badge-priority-high">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge badge-priority-low">Low</span>
+                                {% else %}
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="bulk-actions mt-3" style="display: none;">
+                <div class="alert alert-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-info-circle me-2"></i><span id="selectedCount">0</span> test cases selected</span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary" id="bulkExecute">
+                                <i class="fas fa-play"></i> Execute Selected
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSelection">
+                                <i class="fas fa-times"></i> Clear Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if total_pages > 1 %}
+            <nav aria-label="Test cases pagination" class="mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="pagination-info">
+                        <span class="text-muted">
+                            Showing {{ ((page - 1) * per_page) + 1 }} to {{ min(page * per_page, total_cases) }} of {{ total_cases }} results
+                        </span>
+                    </div>
+                    
+                    <ul class="pagination mb-0">
+                        {% if has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page-1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ p }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page+1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="pagination-controls">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                {{ per_page }} per page
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=10{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">10 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=25{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">25 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=50{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">50 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=100{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">100 per page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No test cases found</h5>
+                <p class="text-muted">Try adjusting your filters or search criteria.</p>
+                <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-refresh"></i> Show All
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="testCaseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Case Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="testCaseDetails">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="executeFromModal">
+                    <i class="fas fa-play"></i> Execute Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="executeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execute Test Case</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="executeForm">
+                    <div class="mb-3">
+                        <label for="testEnvironment" class="form-label">Test Environment</label>
+                        <select class="form-select" id="testEnvironment" required>
+                            <option value="">Select Environment</option>
+                            <option value="dev">Development</option>
+                            <option value="staging">Staging</option>
+                            <option value="production">Production</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="testData" class="form-label">Test Data</label>
+                        <textarea class="form-control" id="testData" rows="3" placeholder="Enter test data (optional)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="runInBackground">
+                            <label class="form-check-label" for="runInBackground">
+                                Run in background
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmExecute">
+                    <i class="fas fa-play"></i> Execute
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Test Case Link Styling */
+.test-case-link {
+    transition: all 0.2s ease;
+}
+
+.test-case-link:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+    transform: translateY(-1px);
+}
+
+/* Modern Filter UI Styling */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modern-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.modern-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.modern-select:hover {
+    border-color: #adb5bd;
+}
+
+/* Dynamic Filter Styles */
+#dynamicFilterContainer {
+    min-height: 40px;
+}
+
+.dynamic-filter-item {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dynamic-filter-item.removing {
+    animation: slideOut 0.3s ease-in;
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Advanced Filters Section */
+.advanced-filters-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.advanced-filters-section h6 {
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* Filter Column Selector */
+#filterColumn {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+#filterColumn:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+#filterColumn:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Dynamic Filter Items */
+.dynamic-filter-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dynamic-filter-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Remove button styling */
+.dynamic-filter-item .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.dynamic-filter-item .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* JIRA-Style Select2 Styling */
+.select2-container--bootstrap-5 {
+    width: 100% !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    min-height: 32px;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.select2-container--bootstrap-5 .select2-selection:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    height: 32px;
+    line-height: 30px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    padding-left: 8px;
+    padding-right: 24px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+    height: 30px;
+    right: 6px;
+    width: 16px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+    border-color: #6b7280 transparent transparent transparent;
+    border-style: solid;
+    border-width: 4px 3px 0 3px;
+    height: 0;
+    left: 50%;
+    margin-left: -3px;
+    margin-top: -2px;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 1050;
+    background: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-size: 14px;
+    margin: 6px;
+    width: calc(100% - 12px);
+    background: #f9fafb;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field:focus {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    background: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #374151;
+    transition: background-color 0.1s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.select2-container--bootstrap-5 .select2-results__option:last-child {
+    border-bottom: none;
+}
+
+.select2-container--bootstrap-5 .select2-results__option:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.select2-container--bootstrap-5 .select2-results__option[aria-selected="true"] {
+    background-color: #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+}
+
+.select2-container--bootstrap-5 .select2-results__option[aria-selected="true"]:hover {
+    background-color: #d1d5db;
+}
+
+/* Dynamic Filter Select2 Styling */
+.dynamic-filter-item .select2-container {
+    width: 100% !important;
+}
+
+/* JIRA-Style Multi-select Styling */
+.select2-container--bootstrap-5 .select2-selection--multiple {
+    min-height: 32px;
+    padding: 2px 4px;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    color: #374151;
+    padding: 2px 6px;
+    margin: 1px 2px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.1s ease;
+    line-height: 1.4;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice:hover {
+    background-color: #d1d5db;
+    border-color: #9ca3af;
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+    color: #6b7280;
+    margin-right: 3px;
+    border-right: 1px solid #d1d5db;
+    padding-right: 3px;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.1s ease;
+    line-height: 1;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.1);
+    border-radius: 2px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+    padding: 4px 0;
+    font-style: italic;
+}
+
+/* JIRA-Style Focus and Interaction States */
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* JIRA-Style Loading State */
+.select2-container--bootstrap-5 .select2-selection--loading {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 12px 8px;
+}
+
+/* JIRA-Style Responsive Design */
+@media (max-width: 768px) {
+    .select2-container--bootstrap-5 {
+        width: 100% !important;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--multiple {
+        min-height: 36px;
+        padding: 4px 6px;
+    }
+    
+    .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+        font-size: 11px;
+        padding: 3px 5px;
+        margin: 2px;
+    }
+}
+
+/* JIRA-Style Compact Design */
+.select2-container--bootstrap-5 .select2-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.select2-container--bootstrap-5 .select2-results {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+/* JIRA-Style No Results */
+.select2-container--bootstrap-5 .select2-results__option--no-results {
+    color: #6b7280;
+    font-style: italic;
+    padding: 8px 12px;
+    background-color: #f9fafb;
+}
+
+/* JIRA-Style Group Headers */
+.select2-container--bootstrap-5 .select2-results__group {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #e5e7eb;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Smart Multi-Select Styles */
+.checkbox-multiselect-container {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    background: #fff;
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.checkbox-multiselect-container .form-control {
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 6px 8px;
+}
+
+.checkbox-multiselect-container .form-control:focus {
+    border-color: #3b82f6;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.checkbox-options {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.checkbox-options .form-check {
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: background-color 0.1s ease;
+}
+
+.checkbox-options .form-check:hover {
+    background-color: #f3f4f6;
+}
+
+.checkbox-options .form-check-input {
+    margin-top: 0.2em;
+    margin-right: 8px;
+}
+
+.checkbox-options .form-check-label {
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.checkbox-options .form-check-input:checked + .form-check-label {
+    color: #111827;
+    font-weight: 500;
+}
+
+/* JIRA-Style Tag Multi-Select */
+.select2-tag {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    color: #374151;
+    padding: 2px 6px;
+    margin: 1px 2px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.1s ease;
+    line-height: 1.4;
+}
+
+.select2-tag:hover {
+    background-color: #d1d5db;
+    border-color: #9ca3af;
+}
+
+.select2-option {
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #374151;
+    transition: background-color 0.1s ease;
+}
+
+.select2-option:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+</style>
+<script>
+
+$(document).ready(function() {
+    
+    setTimeout(function() {
+        initializeSmartMultiSelect();
+    }, 100);
+
+    $(document).on('DOMNodeInserted', function(e) {
+        if ($(e.target).find('select').length > 0) {
+            setTimeout(function() {
+                initializeSmartMultiSelect();
+            }, 50);
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        initializeSmartMultiSelect();
+    }, 200);
+});
+
+setTimeout(function() {
+    console.log('Force initializing smart multi-select...');
+    initializeSmartMultiSelect();
+}, 1000);
+
+function toggleFilters() {
+    const content = document.getElementById('filterContent');
+    const toggle = document.getElementById('filterToggle');
+    const icon = toggle.querySelector('i');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        content.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+
+// Dynamic Dropdown Functionality
+function initializeDynamicDropdowns() {
+    const appSelect = document.getElementById('app');
+    const testTypeSelect = document.getElementById('test_type');
+    const prioritySelect = document.getElementById('priority');
+    
+    if (!appSelect || !testTypeSelect || !prioritySelect) {
+        console.log('Dropdown elements not found');
+        return;
+    }
+    
+    // Add event listener to app dropdown
+    appSelect.addEventListener('change', function() {
+        updateDropdownOptions();
+    });
+    
+    console.log('Dynamic dropdowns initialized');
+}
+
+function updateDropdownOptions() {
+    const appSelect = document.getElementById('app');
+    const testTypeSelect = document.getElementById('test_type');
+    const prioritySelect = document.getElementById('priority');
+    
+    // Get selected apps
+    const selectedApps = Array.from(appSelect.selectedOptions).map(option => option.value).filter(value => value !== '');
+    
+    console.log('Selected apps:', selectedApps);
+    
+    // Show loading state
+    showDropdownLoading(testTypeSelect, 'Loading test types...');
+    showDropdownLoading(prioritySelect, 'Loading priorities...');
+    
+    // Make API call to get updated options
+    const params = new URLSearchParams();
+    selectedApps.forEach(app => params.append('apps', app));
+    
+    fetch(`/api/filter-options?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Filter options received:', data);
+            updateDropdownOptionsFromData(data);
+        })
+        .catch(error => {
+            console.error('Error fetching filter options:', error);
+            // Fallback to original options
+            restoreOriginalDropdownOptions();
+        });
+}
+
+function showDropdownLoading(selectElement, loadingText) {
+    // Store original options
+    if (!selectElement.dataset.originalOptions) {
+        selectElement.dataset.originalOptions = selectElement.innerHTML;
+    }
+    
+    // Show loading state with spinner
+    selectElement.innerHTML = `<option value=""><i class="fas fa-spinner fa-spin"></i> ${loadingText}</option>`;
+    selectElement.disabled = true;
+    
+    // Add visual feedback
+    selectElement.style.opacity = '0.7';
+    selectElement.style.cursor = 'not-allowed';
+}
+
+function updateDropdownOptionsFromData(data) {
+    const testTypeSelect = document.getElementById('test_type');
+    const prioritySelect = document.getElementById('priority');
+    
+    // Update test types dropdown
+    updateDropdown(testTypeSelect, data.test_types, 'All Test Types');
+    
+    // Update priorities dropdown
+    updateDropdown(prioritySelect, data.priorities, 'All Priorities');
+    
+    // Re-enable dropdowns and restore visual state
+    testTypeSelect.disabled = false;
+    prioritySelect.disabled = false;
+    testTypeSelect.style.opacity = '1';
+    prioritySelect.style.opacity = '1';
+    testTypeSelect.style.cursor = 'pointer';
+    prioritySelect.style.cursor = 'pointer';
+    
+    // Show success message
+    showDropdownUpdateMessage(`Updated options for ${data.test_types.length} test types and ${data.priorities.length} priorities`);
+}
+
+function updateDropdown(selectElement, options, defaultText) {
+    // Clear current options
+    selectElement.innerHTML = '';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = defaultText;
+    selectElement.appendChild(defaultOption);
+    
+    // Add new options
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        selectElement.appendChild(optionElement);
+    });
+    
+    console.log(`Updated ${selectElement.id} with ${options.length} options`);
+}
+
+function restoreOriginalDropdownOptions() {
+    const testTypeSelect = document.getElementById('test_type');
+    const prioritySelect = document.getElementById('priority');
+    
+    if (testTypeSelect.dataset.originalOptions) {
+        testTypeSelect.innerHTML = testTypeSelect.dataset.originalOptions;
+        testTypeSelect.disabled = false;
+        testTypeSelect.style.opacity = '1';
+        testTypeSelect.style.cursor = 'pointer';
+    }
+    
+    if (prioritySelect.dataset.originalOptions) {
+        prioritySelect.innerHTML = prioritySelect.dataset.originalOptions;
+        prioritySelect.disabled = false;
+        prioritySelect.style.opacity = '1';
+        prioritySelect.style.cursor = 'pointer';
+    }
+}
+
+function showDropdownUpdateMessage(message) {
+    // Create or update a temporary message element
+    let messageElement = document.getElementById('dropdown-update-message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'dropdown-update-message';
+        messageElement.className = 'alert alert-info alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close';
+        closeButton.setAttribute('data-bs-dismiss', 'alert');
+        messageElement.appendChild(closeButton);
+        
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-check-circle me-2"></i>${message}
+    `;
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+// Save Filter Functionality
+function initializeSaveFilter() {
+    const saveFilterBtn = document.getElementById('saveFilterBtn');
+    if (!saveFilterBtn) {
+        console.log('Save filter button not found');
+        return;
+    }
+    
+    saveFilterBtn.addEventListener('click', function() {
+        saveCurrentFilters();
+    });
+    
+    console.log('Save filter functionality initialized');
+}
+
+function saveCurrentFilters() {
+    const saveFilterBtn = document.getElementById('saveFilterBtn');
+    
+    // Show loading state
+    const originalContent = saveFilterBtn.innerHTML;
+    saveFilterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    saveFilterBtn.disabled = true;
+    
+    // Collect current filter values
+    const filters = {
+        search: document.getElementById('search')?.value || '',
+        apps: Array.from(document.getElementById('app')?.selectedOptions || []).map(option => option.value).filter(value => value !== ''),
+        test_types: Array.from(document.getElementById('test_type')?.selectedOptions || []).map(option => option.value).filter(value => value !== ''),
+        priorities: Array.from(document.getElementById('priority')?.selectedOptions || []).map(option => option.value).filter(value => value !== ''),
+        sort: document.getElementById('sort')?.value || 'Test Case ID',
+        order: document.getElementById('order')?.value || 'asc'
+    };
+    
+    // Create a unique name for the saved filter
+    const filterName = generateFilterName(filters);
+    
+    // Save to localStorage
+    try {
+        const savedFilters = JSON.parse(localStorage.getItem('savedFilters') || '{}');
+        savedFilters[filterName] = {
+            filters: filters,
+            timestamp: new Date().toISOString(),
+            name: filterName
+        };
+        localStorage.setItem('savedFilters', JSON.stringify(savedFilters));
+        
+        // Show success feedback
+        showSaveFilterSuccess(filterName);
+        
+        // Update button to show saved state
+        saveFilterBtn.innerHTML = '<i class="fas fa-check"></i>';
+        saveFilterBtn.classList.remove('btn-outline-light');
+        saveFilterBtn.classList.add('btn-success');
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            saveFilterBtn.innerHTML = originalContent;
+            saveFilterBtn.disabled = false;
+            saveFilterBtn.classList.remove('btn-success');
+            saveFilterBtn.classList.add('btn-outline-light');
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error saving filters:', error);
+        showSaveFilterError();
+        
+        // Reset button
+        saveFilterBtn.innerHTML = originalContent;
+        saveFilterBtn.disabled = false;
+    }
+}
+
+function generateFilterName(filters) {
+    const parts = [];
+    
+    if (filters.search) {
+        parts.push(`Search: ${filters.search.substring(0, 20)}${filters.search.length > 20 ? '...' : ''}`);
+    }
+    
+    if (filters.apps.length > 0) {
+        parts.push(`Apps: ${filters.apps.join(', ')}`);
+    }
+    
+    if (filters.test_types.length > 0) {
+        parts.push(`Types: ${filters.test_types.join(', ')}`);
+    }
+    
+    if (filters.priorities.length > 0) {
+        parts.push(`Priority: ${filters.priorities.join(', ')}`);
+    }
+    
+    if (parts.length === 0) {
+        return `Default Filter - ${new Date().toLocaleString()}`;
+    }
+    
+    return parts.join(' | ') + ` - ${new Date().toLocaleString()}`;
+}
+
+function showSaveFilterSuccess(filterName) {
+    // Create success message
+    let messageElement = document.getElementById('save-filter-message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'save-filter-message';
+        messageElement.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '400px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-bookmark me-2"></i>
+        <strong>Filter Saved!</strong><br>
+        <small>Saved as: "${filterName}"</small>
+    `;
+    
+    // Auto-hide after 4 seconds
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 4000);
+}
+
+function showSaveFilterError() {
+    // Create error message
+    let messageElement = document.getElementById('save-filter-error');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'save-filter-error';
+        messageElement.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Error!</strong> Could not save filter.
+    `;
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+// Load Saved Filters Functionality
+function initializeLoadSavedFilters() {
+    const loadFilterDropdown = document.getElementById('loadFilterDropdown');
+    const savedFiltersList = document.getElementById('savedFiltersList');
+    
+    if (!loadFilterDropdown || !savedFiltersList) {
+        console.log('Load saved filters elements not found');
+        return;
+    }
+    
+    // Load saved filters on page load
+    loadSavedFiltersList();
+    
+    console.log('Load saved filters functionality initialized');
+}
+
+function loadSavedFiltersList() {
+    const savedFiltersList = document.getElementById('savedFiltersList');
+    if (!savedFiltersList) return;
+    
+    try {
+        const savedFilters = JSON.parse(localStorage.getItem('savedFilters') || '{}');
+        const filterNames = Object.keys(savedFilters);
+        
+        // Clear existing items
+        savedFiltersList.innerHTML = '<li><h6 class="dropdown-header">Saved Filters</h6></li>';
+        
+        if (filterNames.length === 0) {
+            savedFiltersList.innerHTML += '<li><span class="dropdown-item-text text-muted">No saved filters</span></li>';
+            return;
+        }
+        
+        // Sort by timestamp (newest first)
+        const sortedFilters = filterNames.sort((a, b) => {
+            return new Date(savedFilters[b].timestamp) - new Date(savedFilters[a].timestamp);
+        });
+        
+        // Add each saved filter
+        sortedFilters.forEach(filterName => {
+            const filterData = savedFilters[filterName];
+            const listItem = document.createElement('li');
+            
+            listItem.innerHTML = `
+                <div class="dropdown-item d-flex justify-content-between align-items-center" style="cursor: pointer;">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${filterName}</div>
+                        <small class="text-muted">${new Date(filterData.timestamp).toLocaleString()}</small>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary btn-sm" onclick="loadSavedFilter('${filterName}')" title="Load filter">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteSavedFilter('${filterName}')" title="Delete filter">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            savedFiltersList.appendChild(listItem);
+        });
+        
+    } catch (error) {
+        console.error('Error loading saved filters:', error);
+        savedFiltersList.innerHTML = '<li><span class="dropdown-item-text text-danger">Error loading filters</span></li>';
+    }
+}
+
+function loadSavedFilter(filterName) {
+    try {
+        const savedFilters = JSON.parse(localStorage.getItem('savedFilters') || '{}');
+        const filterData = savedFilters[filterName];
+        
+        if (!filterData) {
+            showLoadFilterError('Filter not found');
+            return;
+        }
+        
+        const filters = filterData.filters;
+        
+        // Apply the saved filters
+        if (filters.search) {
+            document.getElementById('search').value = filters.search;
+        }
+        
+        if (filters.apps && filters.apps.length > 0) {
+            const appSelect = document.getElementById('app');
+            Array.from(appSelect.options).forEach(option => {
+                option.selected = filters.apps.includes(option.value);
+            });
+        }
+        
+        if (filters.test_types && filters.test_types.length > 0) {
+            const testTypeSelect = document.getElementById('test_type');
+            Array.from(testTypeSelect.options).forEach(option => {
+                option.selected = filters.test_types.includes(option.value);
+            });
+        }
+        
+        if (filters.priorities && filters.priorities.length > 0) {
+            const prioritySelect = document.getElementById('priority');
+            Array.from(prioritySelect.options).forEach(option => {
+                option.selected = filters.priorities.includes(option.value);
+            });
+        }
+        
+        if (filters.sort) {
+            document.getElementById('sort').value = filters.sort;
+        }
+        
+        if (filters.order) {
+            document.getElementById('order').value = filters.order;
+        }
+        
+        // Show success message
+        showLoadFilterSuccess(filterName);
+        
+        // Submit the form to apply filters
+        document.getElementById('filterForm').submit();
+        
+    } catch (error) {
+        console.error('Error loading filter:', error);
+        showLoadFilterError('Error loading filter');
+    }
+}
+
+function deleteSavedFilter(filterName) {
+    if (!confirm(`Are you sure you want to delete the filter "${filterName}"?`)) {
+        return;
+    }
+    
+    try {
+        const savedFilters = JSON.parse(localStorage.getItem('savedFilters') || '{}');
+        delete savedFilters[filterName];
+        localStorage.setItem('savedFilters', JSON.stringify(savedFilters));
+        
+        // Reload the list
+        loadSavedFiltersList();
+        
+        // Show success message
+        showDeleteFilterSuccess(filterName);
+        
+    } catch (error) {
+        console.error('Error deleting filter:', error);
+        showLoadFilterError('Error deleting filter');
+    }
+}
+
+function showLoadFilterSuccess(filterName) {
+    let messageElement = document.getElementById('load-filter-message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'load-filter-message';
+        messageElement.className = 'alert alert-info alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-play me-2"></i>
+        <strong>Filter Loaded!</strong><br>
+        <small>Applied: "${filterName}"</small>
+    `;
+    
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+function showDeleteFilterSuccess(filterName) {
+    let messageElement = document.getElementById('delete-filter-message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'delete-filter-message';
+        messageElement.className = 'alert alert-warning alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-trash me-2"></i>
+        <strong>Filter Deleted!</strong><br>
+        <small>Removed: "${filterName}"</small>
+    `;
+    
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+function showLoadFilterError(message) {
+    let messageElement = document.getElementById('load-filter-error');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'load-filter-error';
+        messageElement.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Error!</strong> ${message}
+    `;
+    
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+// Column Management Functionality
+function initializeColumnManagement() {
+    const columnManagerBtn = document.getElementById('columnManagerBtn');
+    if (!columnManagerBtn) {
+        console.log('Column manager button not found');
+        return;
+    }
+    
+    columnManagerBtn.addEventListener('click', function() {
+        showColumnManagerModal();
+    });
+    
+    // Load saved column preferences
+    loadColumnPreferences();
+    
+    console.log('Column management functionality initialized');
+}
+
+function showColumnManagerModal() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('columnManagerModal');
+    if (!modal) {
+        modal = createColumnManagerModal();
+        document.body.appendChild(modal);
+    }
+    
+    // Populate the modal with current column states
+    populateColumnManagerModal();
+    
+    // Show the modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+function createColumnManagerModal() {
+    const modal = document.createElement('div');
+    modal.id = 'columnManagerModal';
+    modal.className = 'modal fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', 'columnManagerModalLabel');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="columnManagerModalLabel">
+                        <i class="fas fa-columns me-2"></i>Manage Table Columns
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p class="text-muted">Select which columns to display in the table. You can also reorder columns by dragging them.</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Column Visibility</h6>
+                            <div id="columnCheckboxes" class="list-group">
+                                <!-- Column checkboxes will be populated here -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Column Order</h6>
+                            <div id="columnOrder" class="list-group">
+                                <!-- Column order will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetColumnPreferences()">
+                            <i class="fas fa-undo me-1"></i>Reset to Default
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAllColumns()">
+                            <i class="fas fa-eye me-1"></i>Show All
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="hideAllColumns()">
+                            <i class="fas fa-eye-slash me-1"></i>Hide All
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="applyColumnChanges()">
+                        <i class="fas fa-check me-1"></i>Apply Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return modal;
+}
+
+function populateColumnManagerModal() {
+    const columnCheckboxes = document.getElementById('columnCheckboxes');
+    const columnOrder = document.getElementById('columnOrder');
+    
+    if (!columnCheckboxes || !columnOrder) return;
+    
+    // Define column configuration
+    const columns = [
+        { key: 'select', name: 'Select', required: true },
+        { key: 'test_case_id', name: 'Test Case ID', required: true },
+        { key: 'summary', name: 'Summary', required: false },
+        { key: 'app', name: 'App', required: false },
+        { key: 'test_type', name: 'Test Type', required: false },
+        { key: 'feature', name: 'Feature', required: false },
+        { key: 'status', name: 'Status', required: false },
+        { key: 'priority', name: 'Priority', required: false },
+        { key: 'source_file', name: 'Source File', required: false }
+    ];
+    
+    // Get current column preferences
+    const preferences = getColumnPreferences();
+    
+    // Clear existing content
+    columnCheckboxes.innerHTML = '';
+    columnOrder.innerHTML = '';
+    
+    // Populate checkboxes
+    columns.forEach(column => {
+        const isVisible = preferences.visible[column.key] !== false;
+        const isRequired = column.required;
+        
+        const checkboxItem = document.createElement('div');
+        checkboxItem.className = 'form-check';
+        checkboxItem.innerHTML = `
+            <input class="form-check-input" type="checkbox" 
+                   id="col_${column.key}" 
+                   data-column="${column.key}"
+                   ${isVisible ? 'checked' : ''}
+                   ${isRequired ? 'disabled' : ''}>
+            <label class="form-check-label" for="col_${column.key}">
+                ${column.name}
+                ${isRequired ? '<small class="text-muted"> (Required)</small>' : ''}
+            </label>
+        `;
+        columnCheckboxes.appendChild(checkboxItem);
+    });
+    
+    // Populate order (only visible columns)
+    const visibleColumns = columns.filter(col => preferences.visible[col.key] !== false);
+    visibleColumns.forEach((column, index) => {
+        const orderItem = document.createElement('div');
+        orderItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+        orderItem.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-grip-vertical text-muted me-2"></i>
+                <span>${column.name}</span>
+            </div>
+            <small class="text-muted">${index + 1}</small>
+        `;
+        columnOrder.appendChild(orderItem);
+    });
+}
+
+function getColumnPreferences() {
+    const defaultPreferences = {
+        visible: {
+            select: true,
+            test_case_id: true,
+            summary: true,
+            app: true,
+            test_type: true,
+            feature: true,
+            status: true,
+            priority: true,
+            source_file: true
+        },
+        order: [
+            'select', 'test_case_id', 'summary', 'app', 'test_type', 
+            'feature', 'status', 'priority', 'source_file'
+        ]
+    };
+    
+    try {
+        const saved = localStorage.getItem('columnPreferences');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+    } catch (error) {
+        console.error('Error loading column preferences:', error);
+    }
+    
+    return defaultPreferences;
+}
+
+function saveColumnPreferences(preferences) {
+    try {
+        localStorage.setItem('columnPreferences', JSON.stringify(preferences));
+    } catch (error) {
+        console.error('Error saving column preferences:', error);
+    }
+}
+
+function loadColumnPreferences() {
+    const preferences = getColumnPreferences();
+    
+    // Apply column visibility
+    Object.keys(preferences.visible).forEach(columnKey => {
+        const isVisible = preferences.visible[columnKey];
+        toggleColumn(columnKey, isVisible);
+    });
+    
+    // Apply column order
+    applyColumnOrder(preferences.order);
+}
+
+function toggleColumn(columnKey, isVisible) {
+    const elements = document.querySelectorAll(`[data-column="${columnKey}"]`);
+    elements.forEach(element => {
+        if (isVisible) {
+            element.style.display = '';
+        } else {
+            element.style.display = 'none';
+        }
+    });
+}
+
+function applyColumnOrder(order) {
+    // This is a simplified version - in a real implementation, you'd need to reorder DOM elements
+    // For now, we'll just ensure the columns are in the correct order
+    console.log('Applying column order:', order);
+}
+
+function applyColumnChanges() {
+    const preferences = {
+        visible: {},
+        order: []
+    };
+    
+    // Get visibility preferences
+    const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        const columnKey = checkbox.dataset.column;
+        preferences.visible[columnKey] = checkbox.checked;
+    });
+    
+    // Get order preferences (simplified - in real implementation, you'd get from drag & drop)
+    const orderItems = document.querySelectorAll('#columnOrder .list-group-item');
+    orderItems.forEach((item, index) => {
+        const columnName = item.textContent.trim();
+        // Map column name back to key (simplified)
+        const columnKey = getColumnKeyFromName(columnName);
+        if (columnKey) {
+            preferences.order.push(columnKey);
+        }
+    });
+    
+    // Save preferences
+    saveColumnPreferences(preferences);
+    
+    // Apply changes
+    loadColumnPreferences();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('columnManagerModal'));
+    modal.hide();
+    
+    // Show success message
+    showColumnUpdateMessage('Column preferences updated successfully!');
+}
+
+function getColumnKeyFromName(name) {
+    const mapping = {
+        'Select': 'select',
+        'Test Case ID': 'test_case_id',
+        'Summary': 'summary',
+        'App': 'app',
+        'Test Type': 'test_type',
+        'Feature': 'feature',
+        'Status': 'status',
+        'Priority': 'priority',
+        'Source File': 'source_file'
+    };
+    return mapping[name];
+}
+
+function resetColumnPreferences() {
+    if (confirm('Are you sure you want to reset all column preferences to default?')) {
+        localStorage.removeItem('columnPreferences');
+        loadColumnPreferences();
+        populateColumnManagerModal();
+        showColumnUpdateMessage('Column preferences reset to default!');
+    }
+}
+
+function showAllColumns() {
+    const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        if (!checkbox.disabled) {
+            checkbox.checked = true;
+        }
+    });
+}
+
+function hideAllColumns() {
+    const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        if (!checkbox.disabled) {
+            checkbox.checked = false;
+        }
+    });
+}
+
+function showColumnUpdateMessage(message) {
+    let messageElement = document.getElementById('column-update-message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'column-update-message';
+        messageElement.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        messageElement.style.top = '20px';
+        messageElement.style.right = '20px';
+        messageElement.style.zIndex = '9999';
+        messageElement.style.minWidth = '300px';
+        document.body.appendChild(messageElement);
+    }
+    
+    messageElement.innerHTML = `
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-columns me-2"></i>
+        <strong>Success!</strong> ${message}
+    `;
+    
+    setTimeout(() => {
+        if (messageElement && messageElement.parentNode) {
+            messageElement.remove();
+        }
+    }, 3000);
+}
+
+// Dynamic Filters Functionality
+function initializeDynamicFilters() {
+    const dynamicFiltersBtn = document.getElementById('dynamicFiltersBtn');
+    if (!dynamicFiltersBtn) {
+        console.log('Dynamic filters button not found');
+        return;
+    }
+    
+    dynamicFiltersBtn.addEventListener('click', function() {
+        toggleDynamicFilters();
+    });
+    
+    // Load available columns for dynamic filters
+    loadAvailableColumns();
+    
+    console.log('Dynamic filters functionality initialized');
+}
+
+function toggleDynamicFilters() {
+    const section = document.getElementById('dynamicFiltersSection');
+    const btn = document.getElementById('dynamicFiltersBtn');
+    
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        btn.classList.add('active');
+        btn.classList.remove('btn-outline-light');
+        btn.classList.add('btn-info');
+    } else {
+        section.style.display = 'none';
+        btn.classList.remove('active');
+        btn.classList.remove('btn-info');
+        btn.classList.add('btn-outline-light');
+    }
+}
+
+function loadAvailableColumns() {
+    // Get available columns from the API
+    fetch('/api/filter-options')
+        .then(response => response.json())
+        .then(data => {
+            window.availableColumns = data.available_columns || [];
+            console.log('Available columns loaded:', window.availableColumns);
+        })
+        .catch(error => {
+            console.error('Error loading available columns:', error);
+            // Fallback to default columns
+            window.availableColumns = [
+                'Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 
+                'Status', 'Priority', 'Source File', 'Expected Behavior', 
+                'Screen ID', 'Assignee', 'Category', 'Created Date', 'Due Date'
+            ];
+        });
+}
+
+function addDynamicFilter() {
+    const container = document.getElementById('dynamicFiltersContainer');
+    if (!container) return;
+    
+    const filterId = 'dynamic_filter_' + Date.now();
+    const filterElement = document.createElement('div');
+    filterElement.className = 'col-md-4 mb-3';
+    filterElement.id = filterId;
+    
+    filterElement.innerHTML = `
+        <div class="card border-secondary">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Filter</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDynamicFilter('${filterId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Column</label>
+                    <select class="form-select form-select-sm" name="dynamic_column_${filterId}">
+                        <option value="">Select Column</option>
+                        ${generateColumnOptions()}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Filter Type</label>
+                    <select class="form-select form-select-sm" name="dynamic_type_${filterId}">
+                        <option value="exact">Exact Match</option>
+                        <option value="contains">Contains</option>
+                        <option value="starts_with">Starts With</option>
+                        <option value="ends_with">Ends With</option>
+                        <option value="regex">Regex</option>
+                        <option value="in_list">In List</option>
+                        <option value="not_in_list">Not In List</option>
+                        <option value="greater_than">Greater Than</option>
+                        <option value="less_than">Less Than</option>
+                        <option value="between">Between</option>
+                        <option value="is_empty">Is Empty</option>
+                        <option value="is_not_empty">Is Not Empty</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Value</label>
+                    <input type="text" class="form-control form-control-sm" name="dynamic_value_${filterId}" placeholder="Enter filter value">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Second Value (for 'Between')</label>
+                    <input type="text" class="form-control form-control-sm" name="dynamic_value2_${filterId}" placeholder="Enter second value">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(filterElement);
+}
+
+function generateColumnOptions() {
+    if (!window.availableColumns) return '';
+    
+    return window.availableColumns.map(column => 
+        `<option value="${column}">${column}</option>`
+    ).join('');
+}
+
+function removeDynamicFilter(filterId) {
+    const element = document.getElementById(filterId);
+    if (element) {
+        element.remove();
+    }
+}
+
+function clearAllDynamicFilters() {
+    const container = document.getElementById('dynamicFiltersContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+    
+    // Also clear the dynamic filters section
+    const section = document.getElementById('dynamicFiltersSection');
+    if (section) {
+        section.style.display = 'none';
+    }
+    
+    // Reset button state
+    const btn = document.getElementById('dynamicFiltersBtn');
+    if (btn) {
+        btn.classList.remove('active');
+        btn.classList.remove('btn-info');
+        btn.classList.add('btn-outline-light');
+    }
+}
+
+// Override the existing clearAllDynamicFilters function if it exists
+if (typeof clearAllDynamicFilters === 'undefined') {
+    window.clearAllDynamicFilters = clearAllDynamicFilters;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dynamic dropdown functionality
+    initializeDynamicDropdowns();
+    
+    // Initialize save filter functionality
+    initializeSaveFilter();
+    
+    // Initialize load saved filters functionality
+    initializeLoadSavedFilters();
+    
+    // Initialize column management functionality
+    initializeColumnManagement();
+    
+    // Initialize dynamic filters functionality
+    initializeDynamicFilters();
+    
+    const viewGridBtn = document.getElementById('viewGrid');
+    const viewTableBtn = document.getElementById('viewTable');
+    const tableView = document.getElementById('tableView');
+    const gridView = document.getElementById('gridView');
+    
+    viewGridBtn.addEventListener('click', function() {
+        tableView.style.display = 'none';
+        gridView.style.display = 'block';
+        viewGridBtn.classList.add('active');
+        viewTableBtn.classList.remove('active');
+    });
+    
+    viewTableBtn.addEventListener('click', function() {
+        gridView.style.display = 'none';
+        tableView.style.display = 'block';
+        viewTableBtn.classList.add('active');
+        viewGridBtn.classList.remove('active');
+    });
+
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const testCaseCheckboxes = document.querySelectorAll('.test-case-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        testCaseCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    
+    testCaseCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkActions();
+            updateSelectAllState();
+        });
+    });
+    
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = checkedBoxes.length;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+    
+    function updateSelectAllState() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        const totalBoxes = testCaseCheckboxes.length;
+        
+        if (checkedBoxes.length === 0) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = false;
+        } else if (checkedBoxes.length === totalBoxes) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+
+    document.getElementById('clearSelection').addEventListener('click', function() {
+        testCaseCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        updateBulkActions();
+    });
+
+    document.getElementById('bulkExecute').addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            if (confirm(`Execute ${checkedBoxes.length} test cases?`)) {
+                
+                console.log('Bulk execute:', Array.from(checkedBoxes).map(cb => cb.value));
+                alert('Bulk execution started!');
+            }
+        }
+    });
+
+    document.querySelectorAll('.execute-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            showExecuteModal(testId);
+        });
+    });
+    
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            showTestCaseDetails(testId);
+        });
+    });
+    
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const testId = this.getAttribute('data-id');
+            
+            console.log('Edit test case:', testId);
+            alert('Edit functionality coming soon!');
+        });
+    });
+    
+        function showExecuteModal(testId) {
+            
+            const testRow = document.querySelector(`tr[data-id="${testId}"]`);
+            if (testRow) {
+                const testCaseId = testRow.querySelector('td:nth-child(2) strong').textContent.trim();
+                const sourceFile = testRow.querySelector('td:nth-child(9) small').textContent.trim() + '.xlsx';
+
+                window.location.href = `{{ url_for('main.execute_test') }}?test_id=${encodeURIComponent(testCaseId)}&source_file=${encodeURIComponent(sourceFile)}`;
+            } else {
+                
+                const executeModal = new bootstrap.Modal(document.getElementById('executeModal'));
+                executeModal.show();
+                document.getElementById('confirmExecute').setAttribute('data-test-id', testId);
+            }
+        }
+    
+    function showTestCaseDetails(testId) {
+
+        const modalBody = document.getElementById('testCaseDetails');
+        modalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Test Case Information</h6>
+                    <p><strong>ID:</strong> TC-${testId}</p>
+                    <p><strong>Summary:</strong> Sample test case description</p>
+                    <p><strong>App:</strong> Sample App</p>
+                    <p><strong>Type:</strong> Functional</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Test Details</h6>
+                    <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
+                    <p><strong>Priority:</strong> <span class="badge badge-priority-medium">Medium</span></p>
+                    <p><strong>Feature:</strong> User Authentication</p>
+                </div>
+            </div>
+        `;
+        
+        const testCaseModal = new bootstrap.Modal(document.getElementById('testCaseModal'));
+        testCaseModal.show();
+    }
+
+    document.getElementById('confirmExecute').addEventListener('click', function() {
+        const testId = this.getAttribute('data-test-id');
+        const environment = document.getElementById('testEnvironment').value;
+        const testData = document.getElementById('testData').value;
+        const runInBackground = document.getElementById('runInBackground').checked;
+        
+        if (!environment) {
+            alert('Please select a test environment');
+            return;
+        }
+
+        console.log('Executing test:', {
+            testId: testId,
+            environment: environment,
+            testData: testData,
+            runInBackground: runInBackground
+        });
+        
+        alert(`Test case ${testId} execution started in ${environment} environment!`);
+
+        const executeModal = bootstrap.Modal.getInstance(document.getElementById('executeModal'));
+        executeModal.hide();
+    });
+
+        document.getElementById('executeFromModal').addEventListener('click', function() {
+            const testCaseModal = bootstrap.Modal.getInstance(document.getElementById('testCaseModal'));
+            testCaseModal.hide();
+
+            setTimeout(() => {
+                showExecuteModal('1'); 
+            }, 300);
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', function(e) {
+            const button = this;
+            const originalText = button.innerHTML;
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 5000);
+        });
+    });
+
+    function exportToCSV() {
+        window.location.href = "{{ url_for('main.export_test_cases_csv', **request.args) }}";
+    }
+
+    function exportSelected() {
+        const selectedCheckboxes = document.querySelectorAll('.test-case-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select test cases to export');
+            return;
+        }
+
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+        const currentUrl = new URL(window.location.href);
+        const exportUrl = "{{ url_for('main.export_test_cases') }}" + 
+                         "?" + currentUrl.searchParams.toString() + 
+                         "&selected_ids=" + selectedIds.join(',');
+        
+        window.location.href = exportUrl;
+    }
+});
+
+let filterCounter = 0;
+const usedColumns = new Set();
+
+function addDynamicFilter() {
+    const columnSelect = document.getElementById('filterColumn');
+    const selectedColumn = columnSelect.value;
+    
+    if (!selectedColumn || usedColumns.has(selectedColumn)) {
+        return;
+    }
+    
+    usedColumns.add(selectedColumn);
+    filterCounter++;
+    
+    const container = document.getElementById('dynamicFilterContainer');
+    const filterDiv = document.createElement('div');
+    filterDiv.className = 'col-md-3 mb-2 dynamic-filter-item';
+    filterDiv.id = `filter-${filterCounter}`;
+
+    const uniqueValues = getUniqueValuesForColumn(selectedColumn);
+    
+    filterDiv.innerHTML = `
+        <div class="d-flex align-items-end">
+            <div class="flex-grow-1 me-2">
+                <label class="form-label small">${selectedColumn}</label>
+                <select class="form-select form-select-sm" name="dynamic_${selectedColumn.toLowerCase().replace(' ', '_')}" id="dynamic_${filterCounter}">
+                    <option value="">All ${selectedColumn}</option>
+                    ${uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('')}
+                </select>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDynamicFilter(${filterCounter}, '${selectedColumn}')" title="Remove filter">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(filterDiv);
+
+    $(filterDiv).find('select').select2({
+        theme: 'bootstrap-5',
+        placeholder: function() {
+            return $(this).find('option:first').text();
+        },
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        multiple: function() {
+            return $(this).attr('multiple') !== undefined;
+        }
+    });
+
+    columnSelect.value = '';
+    updateAvailableColumns();
+}
+
+function removeDynamicFilter(filterId, column) {
+    const filterElement = document.getElementById(`filter-${filterId}`);
+    if (filterElement) {
+        
+        filterElement.classList.add('removing');
+        
+        setTimeout(() => {
+            filterElement.remove();
+            usedColumns.delete(column);
+            updateAvailableColumns();
+        }, 300);
+    }
+}
+
+function updateAvailableColumns() {
+    const columnSelect = document.getElementById('filterColumn');
+    const options = columnSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value && usedColumns.has(option.value)) {
+            option.style.display = 'none';
+            option.disabled = true;
+        } else {
+            option.style.display = 'block';
+            option.disabled = false;
+        }
+    });
+
+    const availableOptions = Array.from(options).filter(opt => opt.value && !opt.disabled);
+    if (availableOptions.length === 0) {
+        columnSelect.querySelector('option[value=""]').textContent = 'All columns selected';
+    } else {
+        columnSelect.querySelector('option[value=""]').textContent = 'Select column to filter...';
+    }
+}
+
+function getUniqueValuesForColumn(column) {
+    
+    const columnValues = {
+        'App': {{ apps | tojson }},
+        'Test Type': {{ test_types | tojson }},
+        'Feature': ['Login', 'Dashboard', 'Reports', 'Settings', 'User Management', 'Data Processing'], 
+        'Priority': {{ priorities | tojson }},
+        'Summary': ['Login Test', 'Data Validation', 'API Test', 'UI Test', 'Performance Test', 'Security Test'], 
+        'Test Case ID': ['TC-001', 'TC-002', 'TC-003', 'TC-004', 'Auto-Generated'] 
+    };
+    
+    return columnValues[column] || [];
+}
+
+function clearAllDynamicFilters() {
+    const container = document.getElementById('dynamicFilterContainer');
+    container.innerHTML = '';
+    usedColumns.clear();
+    filterCounter = 0;
+    updateAvailableColumns();
+}
+
+function initializeSmartMultiSelect() {
+    console.log('Initializing smart multi-select...');
+    const threshold = {{ multiselect_threshold }};
+    console.log('Threshold:', threshold);
+    
+    $('select[multiple]').each(function() {
+        const $select = $(this);
+        const options = $select.find('option').length - 1; 
+        console.log('Select element found with', options, 'options');
+        
+        if (options <= threshold) {
+            console.log('Using checkbox UI for', options, 'options');
+            
+            initializeCheckboxMultiSelect($select);
+        } else {
+            console.log('Using tag UI for', options, 'options');
+            
+            initializeTagMultiSelect($select);
+        }
+    });
+}
+
+function initializeCheckboxMultiSelect($select) {
+    
+    if ($select.hasClass('select2-hidden-accessible')) {
+        console.log('Select2 already initialized, destroying first...');
+        $select.select2('destroy');
+    }
+
+    const $container = $('<div class="checkbox-multiselect-container"></div>');
+    const $searchInput = $('<input type="text" class="form-control form-control-sm mb-2" placeholder="Search options..." />');
+    const $checkboxContainer = $('<div class="checkbox-options"></div>');
+
+    $container.append($searchInput);
+    $container.append($checkboxContainer);
+
+    $select.find('option').each(function() {
+        if ($(this).val() !== '') { 
+            const $checkbox = $(`
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${$(this).val()}" id="cb_${$(this).val()}" ${$(this).is(':selected') ? 'checked' : ''}>
+                    <label class="form-check-label" for="cb_${$(this).val()}">
+                        ${$(this).text()}
+                    </label>
+                </div>
+            `);
+            $checkboxContainer.append($checkbox);
+        }
+    });
+
+    $searchInput.on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $checkboxContainer.find('.form-check').each(function() {
+            const label = $(this).find('label').text().toLowerCase();
+            $(this).toggle(label.includes(searchTerm));
+        });
+    });
+
+    $checkboxContainer.on('change', 'input[type="checkbox"]', function() {
+        updateSelectFromCheckboxes($select, $checkboxContainer);
+    });
+
+    $select.hide().after($container);
+}
+
+function initializeTagMultiSelect($select) {
+    
+    if ($select.hasClass('select2-hidden-accessible')) {
+        console.log('Select2 already initialized, destroying first...');
+        $select.select2('destroy');
+    }
+
+    $select.select2({
+        theme: 'bootstrap-5',
+        placeholder: function() {
+            return $(this).find('option:first').text();
+        },
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        multiple: true,
+        tags: false,
+        tokenSeparators: [','],
+        
+        templateResult: function(data) {
+            if (data.loading) return data.text;
+            return $('<span class="select2-option">' + data.text + '</span>');
+        },
+        templateSelection: function(data) {
+            return $('<span class="select2-tag">' + data.text + '</span>');
+        }
+    });
+}
+
+function updateSelectFromCheckboxes($select, $checkboxContainer) {
+    const selectedValues = [];
+    $checkboxContainer.find('input[type="checkbox"]:checked').each(function() {
+        selectedValues.push($(this).val());
+    });
+
+    $select.val(selectedValues);
+    $select.trigger('change');
+}
+
+// Test Suite Preparation Functions
+function toggleTestSuite() {
+    const content = document.getElementById('testSuiteContent');
+    const toggle = document.getElementById('testSuiteToggle');
+    const icon = toggle.querySelector('i');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        content.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+
+function clearTestSuiteForm() {
+    document.getElementById('releaseDetailsForm').reset();
+    updateExportButton();
+}
+
+function updateExportButton() {
+    const releaseVersion = document.getElementById('releaseVersion').value.trim();
+    const selectedCases = document.querySelectorAll('.test-case-checkbox:checked').length;
+    const exportBtn = document.getElementById('exportSuiteBtn');
+    
+    if (releaseVersion && selectedCases > 0) {
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = `<i class="fas fa-download me-1"></i>Export Test Suite (${selectedCases} cases)`;
+    } else {
+        exportBtn.disabled = true;
+        exportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export Test Suite';
+    }
+}
+
+function exportTestSuite() {
+    const releaseVersion = document.getElementById('releaseVersion').value.trim();
+    const selectedCases = document.querySelectorAll('.test-case-checkbox:checked');
+    
+    if (!releaseVersion) {
+        alert('Please enter a release version');
+        return;
+    }
+    
+    if (selectedCases.length === 0) {
+        alert('Please select at least one test case');
+        return;
+    }
+    
+    // Collect form data
+    const formData = new FormData();
+    formData.append('releaseVersion', releaseVersion);
+    formData.append('sprint', document.getElementById('sprint').value);
+    formData.append('buildNumber', document.getElementById('buildNumber').value);
+    formData.append('environment', document.getElementById('environment').value);
+    formData.append('testSuiteName', document.getElementById('testSuiteName').value);
+    formData.append('testSuiteDescription', document.getElementById('testSuiteDescription').value);
+    
+    // Collect selected test case IDs
+    const selectedIds = Array.from(selectedCases).map(cb => cb.value);
+    formData.append('selectedTestCases', selectedIds.join(','));
+    
+    // Submit form
+    fetch('{{ url_for("main.export_test_suite") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Export failed');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `test_suite_${releaseVersion}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        alert('Failed to export test suite. Please try again.');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateAvailableColumns();
+    
+    // Add event listeners for test suite form
+    const releaseVersionInput = document.getElementById('releaseVersion');
+    if (releaseVersionInput) {
+        releaseVersionInput.addEventListener('input', updateExportButton);
+    }
+    
+    // Listen for checkbox changes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('test-case-checkbox')) {
+            updateExportButton();
+        }
+    });
+});
+</script>
+{% endblock %}

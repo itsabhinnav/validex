@@ -7,7 +7,6 @@ class Config:
     """Configuration management for Validex application - now using centralized config"""
     
     def __init__(self):
-        # Use centralized configuration
         self.config = config_manager.config
     
     def load_config(self):
@@ -57,6 +56,18 @@ class Config:
         """Check if admin section is enabled"""
         return config_manager.is_admin_enabled()
     
+    def is_sakura_enabled(self):
+        """Check if Sakura app is enabled"""
+        return config_manager.is_sakura_enabled()
+    
+    def is_auto_launch_browser_enabled(self):
+        """Check if auto-launch browser is enabled"""
+        return config_manager.is_auto_launch_browser_enabled()
+    
+    def get_startup_delay(self):
+        """Get startup delay in seconds"""
+        return config_manager.get_startup_delay()
+    
     def get_multiselect_threshold(self):
         """Get the multiselect threshold for UI switching"""
         return config_manager.get_multiselect_threshold()
@@ -93,7 +104,6 @@ class Config:
         else:
             return f"{base_url}/{repository}/{filename}"
 
-# Flask Configuration Classes
 class DevelopmentConfig:
     """Development configuration using centralized config"""
     DEBUG = config_manager.get('app.debug', True)
@@ -122,5 +132,4 @@ class TestingConfig:
     UPLOAD_FOLDER = config_manager.get_test_files_dir()
     REPORTS_FOLDER = config_manager.get_reports_dir()
 
-# Global config instance
 config = Config()

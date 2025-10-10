@@ -1,7 +1,4 @@
-/**
- * Advanced Search with Autocomplete and Suggestions
- * Enhanced search functionality with real-time suggestions
- */
+
 
 class AdvancedSearch {
     constructor() {
@@ -118,7 +115,6 @@ class AdvancedSearch {
             </div>
         `;
 
-        // Add styles
         const style = document.createElement('style');
         style.textContent = `
             .advanced-search-container {
@@ -246,13 +242,12 @@ class AdvancedSearch {
         `;
         document.head.appendChild(style);
 
-        // Insert search interface
         const targetElement = document.querySelector('.container') || document.body;
         targetElement.insertBefore(searchContainer, targetElement.firstChild);
     }
 
     buildSearchIndex() {
-        // Build search index from table data
+        
         const table = document.querySelector('table tbody');
         if (!table) return;
 
@@ -284,7 +279,6 @@ class AdvancedSearch {
         const searchInput = document.getElementById('advancedSearchInput');
         if (!searchInput) return;
 
-        // Input events
         searchInput.addEventListener('input', (e) => {
             this.handleSearchInput(e.target.value);
         });
@@ -301,7 +295,6 @@ class AdvancedSearch {
             setTimeout(() => this.hideSuggestions(), 200);
         });
 
-        // Search button
         document.querySelector('.search-btn').addEventListener('click', () => {
             this.performSearch();
         });
@@ -323,7 +316,6 @@ class AdvancedSearch {
         const suggestions = [];
         const queryLower = query.toLowerCase();
 
-        // Search in test case data
         this.searchIndex.forEach(item => {
             const searchText = item.searchableText;
             if (searchText.includes(queryLower)) {
@@ -336,7 +328,6 @@ class AdvancedSearch {
             }
         });
 
-        // Add common search terms
         const commonTerms = [
             'Critical', 'High', 'Medium', 'Low',
             'Passed', 'Failed', 'Pending', 'Blocked',
@@ -355,7 +346,6 @@ class AdvancedSearch {
             }
         });
 
-        // Add search history
         this.searchHistory.forEach(historyItem => {
             if (historyItem.toLowerCase().includes(queryLower)) {
                 suggestions.push({
@@ -367,7 +357,7 @@ class AdvancedSearch {
             }
         });
 
-        this.suggestions = suggestions.slice(0, 10); // Limit to 10 suggestions
+        this.suggestions = suggestions.slice(0, 10); 
     }
 
     highlightMatch(text) {
@@ -464,8 +454,7 @@ class AdvancedSearch {
         const filters = this.getActiveFilters();
         
         this.addToSearchHistory(query);
-        
-        // Perform search with filters
+
         const results = this.searchWithFilters(query, filters);
         this.displaySearchResults(results);
         this.updateSearchStats(results.length);
@@ -487,7 +476,6 @@ class AdvancedSearch {
     searchWithFilters(query, filters) {
         let results = this.searchIndex;
 
-        // Text search
         if (query) {
             const queryLower = filters.caseSensitive ? query : query.toLowerCase();
             results = results.filter(item => {
@@ -498,7 +486,6 @@ class AdvancedSearch {
             });
         }
 
-        // Apply filters
         if (filters.priority) {
             results = results.filter(item => item.data.Priority === filters.priority);
         }
@@ -516,17 +503,15 @@ class AdvancedSearch {
     }
 
     displaySearchResults(results) {
-        // Highlight matching rows in the table
+        
         const table = document.querySelector('table tbody');
         if (!table) return;
 
-        // Clear previous highlights
         table.querySelectorAll('tr').forEach(row => {
             row.classList.remove('search-highlight');
             row.style.display = '';
         });
 
-        // Highlight matching rows
         results.forEach(result => {
             const row = table.querySelector(`tr:nth-child(${result.id + 1})`);
             if (row) {
@@ -534,7 +519,6 @@ class AdvancedSearch {
             }
         });
 
-        // Hide non-matching rows if there are results
         if (results.length > 0) {
             table.querySelectorAll('tr').forEach((row, index) => {
                 const isMatch = results.some(result => result.id === index);
@@ -544,7 +528,7 @@ class AdvancedSearch {
     }
 
     updateSearchStats(count) {
-        // Create or update search stats display
+        
         let statsElement = document.querySelector('.search-stats');
         if (!statsElement) {
             statsElement = document.createElement('div');
@@ -570,8 +554,7 @@ class AdvancedSearch {
     clearSearch() {
         document.getElementById('advancedSearchInput').value = '';
         this.hideSuggestions();
-        
-        // Show all rows
+
         const table = document.querySelector('table tbody');
         if (table) {
             table.querySelectorAll('tr').forEach(row => {
@@ -580,7 +563,6 @@ class AdvancedSearch {
             });
         }
 
-        // Hide stats
         const statsElement = document.querySelector('.search-stats');
         if (statsElement) {
             statsElement.remove();
@@ -600,23 +582,18 @@ class AdvancedSearch {
 
     addToSearchHistory(query) {
         if (!query || query.length < 2) return;
-        
-        // Remove if already exists
+
         this.searchHistory = this.searchHistory.filter(item => item !== query);
-        
-        // Add to beginning
+
         this.searchHistory.unshift(query);
-        
-        // Keep only last 10
+
         this.searchHistory = this.searchHistory.slice(0, 10);
-        
-        // Save to localStorage
+
         localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
     }
 
     loadSearchHistory() {
-        // Populate search history in suggestions if needed
-        // This is handled in generateSuggestions method
+
     }
 
     saveSearch() {
@@ -645,7 +622,6 @@ class AdvancedSearch {
     }
 }
 
-// Initialize advanced search when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('table')) {
         window.advancedSearch = new AdvancedSearch();

@@ -45,20 +45,16 @@ class NetworkSecurityService:
             if not domain:
                 return False
                 
-            # Check if domain is explicitly blocked
             if domain in self.blocked_domains:
                 return False
                 
-            # Check if domain is in allowed list
             if domain in self.allowed_domains:
                 return True
                 
-            # Check if domain matches any allowed pattern
             for allowed_domain in self.allowed_domains:
                 if self._domain_matches_pattern(domain, allowed_domain):
                     return True
                     
-            # Check IP address if domain resolves to allowed IP
             try:
                 ip = socket.gethostbyname(domain)
                 if ip in self.allowed_ips:
@@ -75,7 +71,6 @@ class NetworkSecurityService:
     def _domain_matches_pattern(self, domain: str, pattern: str) -> bool:
         """Check if domain matches a pattern (supports wildcards)"""
         if '*' in pattern:
-            # Convert wildcard pattern to regex
             regex_pattern = pattern.replace('*', '.*')
             return re.match(f"^{regex_pattern}$", domain) is not None
         return domain == pattern
@@ -143,6 +138,5 @@ class NetworkSecurityService:
             
         return result
 
-# Global instance
 network_security_service = NetworkSecurityService()
 

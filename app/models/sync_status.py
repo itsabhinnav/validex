@@ -26,34 +26,28 @@ class SyncStrategy(Enum):
 class SyncStatus:
     """Sync status for tracking sync operations"""
     
-    # Primary fields
     sync_id: str
     strategy: SyncStrategy
     status: SyncStatusType
     
-    # Progress information
     total_files: int = 0
     processed_files: int = 0
     failed_files: int = 0
     total_test_cases: int = 0
     processed_test_cases: int = 0
     
-    # Timing information
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     duration: Optional[float] = None
     
-    # Configuration
     apps: Optional[List[str]] = None
     test_types: Optional[List[str]] = None
     priority_files: Optional[List[str]] = None
     
-    # Results
     success: bool = False
     error_message: Optional[str] = None
     warnings: Optional[List[str]] = None
     
-    # Metadata
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     

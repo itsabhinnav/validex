@@ -1,10 +1,9 @@
-// Text configuration for Validex application
-// Auto-generated from config/text_config.json
+
 
 window.textConfig = {
   "app": {
     "name": "Validex",
-    "tagline": "Professional Test Case Management Platform",
+    "tagline": " Test Case Management Platform",
     "description": "Quality Assurance Management System for testing workflows"
   },
   "roles": {
@@ -31,13 +30,9 @@ window.textConfig = {
   "landing_page": {
     "title": "Validex",
     "hero_title": "Welcome to Validex",
-    "hero_tagline": "Professional Test Case Management Platform",
+    "hero_tagline": " Test Case Management Platform",
     "hero_description": "Streamline your testing process with our comprehensive test case management system. Upload, organize, and execute test cases with ease.",
-    "get_started": "Get Started",
-    "features": {
-      "title": "What You Get",
-      "items": []
-    }
+    "get_started": "Get Started"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -177,7 +172,6 @@ window.textConfig = {
   }
 };
 
-// Helper function to get text by path
 window.getText = function(path, defaultValue = '') {
     const keys = path.split('.');
     let value = window.textConfig;

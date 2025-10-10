@@ -1,0 +1,356 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Sync Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">🔄 Sync Dashboard</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Sync Status</h5>
+                    <p class="card-text" id="sync-status">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Last Sync</h5>
+                    <p class="card-text" id="last-sync">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Next Sync</h5>
+                    <p class="card-text" id="next-sync">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Sync Interval</h5>
+                    <p class="card-text" id="sync-interval">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Sync Controls</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success" id="start-sync">
+                            <i class="fas fa-play"></i> Start Sync
+                        </button>
+                        <button type="button" class="btn btn-danger" id="stop-sync">
+                            <i class="fas fa-stop"></i> Stop Sync
+                        </button>
+                        <button type="button" class="btn btn-warning" id="force-sync">
+                            <i class="fas fa-sync"></i> Force Sync
+                        </button>
+                        <button type="button" class="btn btn-info" id="refresh-status">
+                            <i class="fas fa-refresh"></i> Refresh Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>File Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <p><strong>Total Files:</strong> <span id="total-files">-</span></p>
+                            <p><strong>Cached Files:</strong> <span id="cached-files">-</span></p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Changed Files:</strong> <span id="changed-files">-</span></p>
+                            <p><strong>Sync Efficiency:</strong> <span id="sync-efficiency">-</span>%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Case Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <p><strong>Total Test Cases:</strong> <span id="total-test-cases">-</span></p>
+                            <p><strong>Last Updated:</strong> <span id="last-updated">-</span></p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Database Size:</strong> <span id="db-size">-</span></p>
+                            <p><strong>Health Status:</strong> <span id="health-status">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Sync Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form id="sync-config-form">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="sync-interval">Sync Interval (seconds)</label>
+                                    <input type="number" class="form-control" id="sync-interval-input" 
+                                           value="300" min="60" max="3600">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="change-detection" checked>
+                                        <label class="form-check-label" for="change-detection">
+                                            Enable Change Detection
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Configuration
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Sync Log</h5>
+                </div>
+                <div class="card-body">
+                    <div id="sync-log" style="height: 300px; overflow-y: auto; background-color: #f8f9fa; padding: 10px; font-family: monospace;">
+                        <div class="text-muted">Sync log will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+let syncStatusInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadSyncStatus();
+    loadSyncStatistics();
+    setupEventListeners();
+
+    syncStatusInterval = setInterval(function() {
+        loadSyncStatus();
+        loadSyncStatistics();
+    }, 30000);
+});
+
+function setupEventListeners() {
+    
+    document.getElementById('start-sync').addEventListener('click', function() {
+        startSync();
+    });
+
+    document.getElementById('stop-sync').addEventListener('click', function() {
+        stopSync();
+    });
+
+    document.getElementById('force-sync').addEventListener('click', function() {
+        forceSync();
+    });
+
+    document.getElementById('refresh-status').addEventListener('click', function() {
+        loadSyncStatus();
+        loadSyncStatistics();
+    });
+
+    document.getElementById('sync-config-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveConfiguration();
+    });
+}
+
+function loadSyncStatus() {
+    fetch('/api/sync/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error loading sync status:', data.error);
+                return;
+            }
+
+            document.getElementById('sync-status').textContent = data.running ? 'Running' : 'Stopped';
+            document.getElementById('last-sync').textContent = data.last_sync_time ? 
+                new Date(data.last_sync_time).toLocaleString() : 'Never';
+            document.getElementById('sync-interval').textContent = data.sync_interval + ' seconds';
+
+            if (data.last_sync_time && data.sync_interval) {
+                const lastSync = new Date(data.last_sync_time);
+                const nextSync = new Date(lastSync.getTime() + (data.sync_interval * 1000));
+                document.getElementById('next-sync').textContent = nextSync.toLocaleString();
+            } else {
+                document.getElementById('next-sync').textContent = 'Unknown';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading sync status:', error);
+        });
+}
+
+function loadSyncStatistics() {
+    fetch('/api/sync/statistics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error loading sync statistics:', data.error);
+                return;
+            }
+
+            document.getElementById('total-files').textContent = data.total_files || 0;
+            document.getElementById('cached-files').textContent = data.cached_files || 0;
+            document.getElementById('changed-files').textContent = data.changed_files || 0;
+            document.getElementById('sync-efficiency').textContent = data.sync_efficiency || 0;
+            document.getElementById('total-test-cases').textContent = data.total_test_cases || 0;
+            document.getElementById('last-updated').textContent = data.last_sync ? 
+                new Date(data.last_sync).toLocaleString() : 'Never';
+        })
+        .catch(error => {
+            console.error('Error loading sync statistics:', error);
+        });
+}
+
+function startSync() {
+    fetch('/api/sync/start', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addLogMessage('✅ Background sync started');
+                loadSyncStatus();
+            } else {
+                addLogMessage('❌ Failed to start sync: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            addLogMessage('❌ Error starting sync: ' + error.message);
+        });
+}
+
+function stopSync() {
+    fetch('/api/sync/stop', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addLogMessage('⏹️ Background sync stopped');
+                loadSyncStatus();
+            } else {
+                addLogMessage('❌ Failed to stop sync: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            addLogMessage('❌ Error stopping sync: ' + error.message);
+        });
+}
+
+function forceSync() {
+    addLogMessage('🔄 Forcing immediate sync...');
+    fetch('/api/sync/force', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addLogMessage('✅ Force sync completed');
+                loadSyncStatus();
+                loadSyncStatistics();
+            } else {
+                addLogMessage('❌ Force sync failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            addLogMessage('❌ Error during force sync: ' + error.message);
+        });
+}
+
+function saveConfiguration() {
+    const syncInterval = document.getElementById('sync-interval-input').value;
+    const changeDetection = document.getElementById('change-detection').checked;
+    
+    const config = {
+        sync_interval_seconds: parseInt(syncInterval),
+        change_detection_enabled: changeDetection
+    };
+    
+    fetch('/api/sync/configure', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(config)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            addLogMessage('✅ Configuration saved');
+            loadSyncStatus();
+        } else {
+            addLogMessage('❌ Failed to save configuration: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        addLogMessage('❌ Error saving configuration: ' + error.message);
+    });
+}
+
+function addLogMessage(message) {
+    const logDiv = document.getElementById('sync-log');
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${message}`;
+    logDiv.appendChild(logEntry);
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+window.addEventListener('beforeunload', function() {
+    if (syncStatusInterval) {
+        clearInterval(syncStatusInterval);
+    }
+});
+</script>
+{% endblock %}
+

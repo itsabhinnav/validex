@@ -1,7 +1,4 @@
-/**
- * Bulk Operations for Test Cases
- * Advanced bulk editing, deletion, and export functionality
- */
+
 
 class BulkOperations {
     constructor() {
@@ -70,7 +67,6 @@ class BulkOperations {
             </div>
         `;
 
-        // Add styles for bulk buttons
         const style = document.createElement('style');
         style.textContent = `
             .bulk-btn {
@@ -107,7 +103,7 @@ class BulkOperations {
     }
 
     bindEvents() {
-        // Bulk action buttons
+        
         document.addEventListener('click', (e) => {
             if (e.target.closest('.bulk-btn')) {
                 const action = e.target.closest('.bulk-btn').dataset.action;
@@ -115,14 +111,12 @@ class BulkOperations {
             }
         });
 
-        // Individual item selection
         document.addEventListener('change', (e) => {
             if (e.target.type === 'checkbox' && e.target.dataset.itemId) {
                 this.toggleItemSelection(e.target.dataset.itemId, e.target.checked);
             }
         });
 
-        // Select all checkbox
         document.addEventListener('change', (e) => {
             if (e.target.id === 'select-all') {
                 this.toggleSelectAll(e.target.checked);
@@ -146,7 +140,6 @@ class BulkOperations {
         `;
         thead.insertBefore(checkbox, thead.firstChild);
 
-        // Add checkboxes to each row
         const tbody = table.querySelector('tbody');
         if (tbody) {
             tbody.querySelectorAll('tr').forEach((row, index) => {
@@ -237,8 +230,7 @@ class BulkOperations {
     showBulkEditModal() {
         const modal = this.createBulkEditModal();
         document.body.appendChild(modal);
-        
-        // Show modal
+
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
     }
@@ -332,7 +324,6 @@ class BulkOperations {
             comments: document.getElementById('bulk-comments').value
         };
 
-        // Filter out empty values
         const filteredChanges = Object.fromEntries(
             Object.entries(changes).filter(([key, value]) => value !== '')
         );
@@ -342,10 +333,8 @@ class BulkOperations {
             return;
         }
 
-        // Show loading state
         this.showLoadingState();
 
-        // Simulate API call
         setTimeout(() => {
             this.showSuccessMessage(`Successfully updated ${this.selectedItems.size} test cases.`);
             this.clearSelection();
@@ -361,10 +350,8 @@ class BulkOperations {
             return;
         }
 
-        // Create CSV content
         const csvContent = this.convertToCSV(selectedData);
-        
-        // Download file
+
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -440,9 +427,9 @@ class BulkOperations {
             if (row) {
                 const cells = row.querySelectorAll('td');
                 const data = {};
-                // Extract data from table cells (adjust based on your table structure)
+                
                 cells.forEach((cell, index) => {
-                    if (index > 0) { // Skip checkbox column
+                    if (index > 0) { 
                         const header = document.querySelector(`thead th:nth-child(${index + 1})`);
                         if (header) {
                             data[header.textContent.trim()] = cell.textContent.trim();
@@ -507,7 +494,6 @@ class BulkOperations {
     }
 }
 
-// Initialize bulk operations when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('table')) {
         window.bulkOperations = new BulkOperations();

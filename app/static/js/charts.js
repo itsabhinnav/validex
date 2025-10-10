@@ -1,7 +1,4 @@
-/**
- * Advanced Charts and Analytics for Validex
- * Real-time data visualization and analytics
- */
+
 
 class ValidexCharts {
     constructor() {
@@ -25,9 +22,6 @@ class ValidexCharts {
         };
     }
 
-    /**
-     * Create gradient background for charts
-     */
     createGradient(ctx, colorArray) {
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, colorArray[0]);
@@ -35,9 +29,6 @@ class ValidexCharts {
         return gradient;
     }
 
-    /**
-     * Initialize all dashboard charts
-     */
     initDashboardCharts() {
         this.initTestCasesOverview();
         this.initTestExecutionChart();
@@ -48,9 +39,6 @@ class ValidexCharts {
         this.initRecentActivity();
     }
 
-    /**
-     * Test Cases Overview - Doughnut Chart
-     */
     initTestCasesOverview() {
         const ctx = document.getElementById('testCasesOverview');
         if (!ctx) return;
@@ -115,9 +103,6 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * Test Execution Chart - Line Chart
-     */
     initTestExecutionChart() {
         const ctx = document.getElementById('testExecutionChart');
         if (!ctx) return;
@@ -216,9 +201,6 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * Feature Distribution - Bar Chart
-     */
     initFeatureDistribution() {
         const ctx = document.getElementById('featureDistribution');
         if (!ctx) return;
@@ -287,9 +269,6 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * Priority Breakdown - Polar Area Chart
-     */
     initPriorityBreakdown() {
         const ctx = document.getElementById('priorityBreakdown');
         if (!ctx) return;
@@ -353,9 +332,6 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * Test Status Trend - Area Chart
-     */
     initTestStatusTrend() {
         const ctx = document.getElementById('testStatusTrend');
         if (!ctx) return;
@@ -448,9 +424,6 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * App Coverage - Radar Chart
-     */
     initAppCoverage() {
         const ctx = document.getElementById('appCoverage');
         if (!ctx) return;
@@ -538,14 +511,10 @@ class ValidexCharts {
         });
     }
 
-    /**
-     * Recent Activity - Timeline Chart
-     */
     initRecentActivity() {
         const ctx = document.getElementById('recentActivity');
         if (!ctx) return;
 
-        // Create a simple activity timeline
         const activityData = [
             { time: '10:30 AM', action: 'Test Case Executed', user: 'John Doe', status: 'success' },
             { time: '10:15 AM', action: 'Test Case Failed', user: 'Jane Smith', status: 'danger' },
@@ -569,9 +538,6 @@ class ValidexCharts {
         }
     }
 
-    /**
-     * Update chart data dynamically
-     */
     updateChart(chartName, newData) {
         if (this.charts[chartName]) {
             this.charts[chartName].data = newData;
@@ -579,9 +545,6 @@ class ValidexCharts {
         }
     }
 
-    /**
-     * Destroy all charts
-     */
     destroyAllCharts() {
         Object.values(this.charts).forEach(chart => {
             if (chart) chart.destroy();
@@ -589,9 +552,6 @@ class ValidexCharts {
         this.charts = {};
     }
 
-    /**
-     * Resize all charts
-     */
     resizeAllCharts() {
         Object.values(this.charts).forEach(chart => {
             if (chart) chart.resize();
@@ -599,16 +559,13 @@ class ValidexCharts {
     }
 }
 
-// Initialize charts when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     window.validexCharts = new ValidexCharts();
-    
-    // Initialize charts if on dashboard
+
     if (document.getElementById('testCasesOverview')) {
         window.validexCharts.initDashboardCharts();
     }
-    
-    // Handle window resize
+
     window.addEventListener('resize', function() {
         if (window.validexCharts) {
             window.validexCharts.resizeAllCharts();

@@ -1,0 +1,111 @@
+{% extends "common/base.html" %}
+
+{% block title %}{% block validex_title %}{% endblock %} - Validex{% endblock %}
+
+{% block description %}Test Case Management System - Comprehensive test case management and validation platform{% endblock %}
+
+{% block theme_color %}#007bff{% endblock %}
+{% block tile_color %}#007bff{% endblock %}
+
+{% block app_title %}Validex{% endblock %}
+{% block brand_name %}Validex{% endblock %}
+{% block brand_icon %}fas fa-clipboard-check{% endblock %}
+{% block brand_url %}{{ url_for('main.dashboard') }}{% endblock %}
+
+{% block nav_items %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('main.test_cases') }}">
+        <i class="fas fa-list-alt me-1"></i>Test Suite
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('main.reports') }}">
+        <i class="fas fa-chart-bar me-1"></i>Reports
+    </a>
+</li>
+{% if current_role == 'admin' %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('main.admin') }}">
+        <i class="fas fa-cogs me-1"></i>Admin
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.test_cases' %}active{% endif %}" href="{{ url_for('main.test_cases') }}">
+            <i class="fas fa-list-alt me-2"></i>Test Suite
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.execute_test' %}active{% endif %}" href="{{ url_for('main.execute_test') }}">
+            <i class="fas fa-play me-2"></i>Execute Test
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.reports' %}active{% endif %}" href="{{ url_for('main.reports') }}">
+            <i class="fas fa-chart-bar me-2"></i>Reports
+        </a>
+    </li>
+    {% if current_role == 'admin' %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.admin' %}active{% endif %}" href="{{ url_for('main.admin') }}">
+            <i class="fas fa-cogs me-2"></i>Admin
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.jfrog_config' %}active{% endif %}" href="{{ url_for('main.jfrog_config') }}">
+            <i class="fas fa-server me-2"></i>JFrog Config
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.sync_dashboard' %}active{% endif %}" href="{{ url_for('main.sync_dashboard') }}">
+            <i class="fas fa-sync me-2"></i>Sync Dashboard
+        </a>
+    </li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block profile_url %}{{ url_for('main.dashboard') }}{% endblock %}
+{% block settings_url %}{{ url_for('main.setup') }}{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    .validex-theme {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+    }
+    
+    .navbar-brand {
+        color: var(--primary-color) !important;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .bg-primary {
+        background-color: var(--primary-color) !important;
+    }
+</style>
+{% endblock %}
+

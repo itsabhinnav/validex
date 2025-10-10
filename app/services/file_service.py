@@ -20,22 +20,18 @@ class FileService:
     def process_excel_file(self, file_path: str, base_dir: str = None) -> List[TestCase]:
         """Process an Excel file and return test cases"""
         try:
-            # Read Excel file
             df = pd.read_excel(file_path)
             
-            # Get relative path
             if base_dir:
                 relative_path = os.path.relpath(file_path, base_dir)
             else:
                 relative_path = os.path.basename(file_path)
             
-            # Extract path parts
             path_parts = relative_path.split(os.sep)
             app_name = path_parts[0] if len(path_parts) > 0 else 'Unknown'
             test_category = path_parts[1] if len(path_parts) > 1 else 'Unknown'
             directory_structure = '/'.join(path_parts[:-1]) if len(path_parts) > 1 else ''
             
-            # Convert to test cases
             test_cases = []
             for _, row in df.iterrows():
                 test_case = TestCase(
@@ -121,7 +117,6 @@ class FileService:
         try:
             df = pd.read_excel(file_path)
             
-            # Check for required columns
             required_columns = ['TC ID', 'Summary', 'Feature', 'Priority', 'Status']
             missing_columns = [col for col in required_columns if col not in df.columns]
             
@@ -129,7 +124,6 @@ class FileService:
                 print(f"Missing required columns: {missing_columns}")
                 return False
             
-            # Check if file has data
             if df.empty:
                 print("File is empty")
                 return False

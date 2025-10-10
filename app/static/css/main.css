@@ -1,6 +1,48 @@
-/* Main CSS for Validex Test Case Management System */
 
-/* Clean Black and White Landing Page Styles */
+
+/* Main content spacing */
+main {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+    min-height: calc(100vh - 200px); /* Ensure minimum height for better layout */
+}
+
+/* Responsive spacing adjustments */
+@media (max-width: 768px) {
+    main {
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+        padding-top: 0.5rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    main {
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        padding-top: 0.25rem;
+        padding-bottom: 1rem;
+    }
+}
+
+/* Additional spacing for better visual hierarchy */
+.container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .container-fluid {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
 .hero-section {
     background: #000000;
     padding: 5rem 0;
@@ -49,8 +91,6 @@
     transform: translateY(-3px);
 }
 
-
-/* Clean Black and White Feature list styling */
 .feature-list {
     list-style: none;
     padding: 0;
@@ -84,7 +124,6 @@
     color: #6c757d;
 }
 
-/* Clean Black and White Button styling */
 .btn-primary {
     background: #ffffff;
     border: 2px solid #ffffff;
@@ -109,7 +148,6 @@
     transform: translateY(0);
 }
 
-/* Clean Black and White Section backgrounds */
 .py-5 {
     background: #f8f9fa;
     border-top: 1px solid #e9ecef;
@@ -127,8 +165,6 @@
     font-size: 2rem;
 }
 
-
-/* Additional vibrant styling */
 .hero-section .btn-primary {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     color: #000000;
@@ -145,7 +181,6 @@
     box-shadow: 0 8px 25px rgba(255,255,255,0.3);
 }
 
-/* Feature section styling */
 .features-section {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     position: relative;
@@ -161,7 +196,6 @@
     background: linear-gradient(90deg, transparent 0%, #000000 50%, transparent 100%);
 }
 
-/* Enhanced text styling */
 .hero-content h1 {
     font-size: 3.5rem;
     line-height: 1.1;
@@ -174,15 +208,11 @@
     margin-bottom: 2rem;
 }
 
-/* Stats section enhancements */
 .stats-section {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border-top: 1px solid rgba(102, 126, 234, 0.1);
 }
 
-/* Clean Black and White - No Animations */
-
-/* Simplified Dashboard Styling */
 .dashboard-hero {
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border-bottom: 1px solid #e9ecef;
@@ -209,7 +239,6 @@
     font-weight: 600;
 }
 
-/* Disabled/Upcoming Feature Styling */
 .btn-secondary:disabled {
     background-color: #6c757d;
     border-color: #6c757d;
@@ -230,7 +259,6 @@
     color: #adb5bd;
 }
 
-/* Responsive improvements */
 @media (max-width: 768px) {
     .hero-content h1 {
         font-size: 2.5rem;
@@ -250,7 +278,6 @@
     }
 }
 
-/* Base Styles */
 .navbar-brand {
     font-weight: bold;
 }
@@ -268,7 +295,6 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Status Colors */
 .status-passed {
     color: #28a745;
 }
@@ -285,7 +311,6 @@
     color: #17a2b8;
 }
 
-/* Dashboard Styles */
 .dashboard-hero {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
@@ -325,7 +350,6 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-/* Test Cases Page Styles */
 .page-hero {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
@@ -345,7 +369,6 @@
     opacity: 0.3;
 }
 
-/* Enhanced Test Cases Styles */
 .content-card {
     background: white;
     border: none;
@@ -391,7 +414,6 @@
     }
 }
 
-/* Enhanced Badge Styles */
 .badge-status {
     padding: 6px 12px;
     border-radius: 20px;
@@ -450,7 +472,6 @@
     100% { opacity: 1; }
 }
 
-/* View Toggle Buttons */
 .btn-group .btn {
     transition: all 0.2s ease;
 }
@@ -461,7 +482,6 @@
     box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
-/* Enhanced Table Styles */
 .table th {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: none;
@@ -487,7 +507,6 @@
     background-color: #f8f9fa;
 }
 
-/* Modal Enhancements */
 .modal-content {
     border: none;
     border-radius: 20px;
@@ -506,7 +525,6 @@
     border-radius: 0 0 20px 20px;
 }
 
-/* Form Enhancements */
 .form-control, .form-select {
     border-radius: 10px;
     border: 2px solid #e9ecef;
@@ -518,7 +536,6 @@
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Button Enhancements */
 .btn {
     border-radius: 10px;
     font-weight: 500;
@@ -547,7 +564,6 @@
     transform: translateY(-1px);
 }
 
-/* Pagination Styles */
 .pagination {
     border-radius: 10px;
     overflow: hidden;
@@ -594,7 +610,6 @@
     color: #007bff;
 }
 
-/* Compact Text Display */
 .compact-text {
     max-height: 2.5em;
     line-height: 1.25em;
@@ -613,7 +628,6 @@
     white-space: nowrap;
 }
 
-/* Additional UI Improvements */
 .card-header.bg-light {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
     border-bottom: 1px solid #dee2e6 !important;
@@ -634,12 +648,10 @@
     padding: 0.35em 0.65em;
 }
 
-/* Compact spacing */
 .container {
     max-width: 1400px;
 }
 
-/* Better visual hierarchy */
 h6 {
     font-weight: 600;
     color: #495057;
@@ -650,7 +662,6 @@ h6 {
     color: #6c757d;
 }
 
-/* Responsive Grid */
 @media (max-width: 768px) {
     .test-case-card {
         margin-bottom: 1rem;
@@ -753,7 +764,6 @@ h6 {
     vertical-align: middle;
 }
 
-/* Badge Styles */
 .badge-status {
     padding: 6px 12px;
     border-radius: 20px;
@@ -796,7 +806,6 @@ h6 {
     color: #fff; 
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-hero,
     .page-hero {
@@ -812,7 +821,6 @@ h6 {
     }
 }
 
-/* Animation Classes */
 .fade-in {
     animation: fadeIn 0.5s ease-in;
 }
@@ -831,7 +839,6 @@ h6 {
     to { transform: translateX(0); }
 }
 
-/* Landing Page Styles */
 .hero-section {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     min-height: 25vh;
@@ -984,7 +991,6 @@ h6 {
     font-size: 1.2rem;
 }
 
-/* Utility Classes */
 .text-gradient {
     background: #ffffff;
     -webkit-background-clip: text;
@@ -1000,7 +1006,6 @@ h6 {
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-/* Role Selection Styles */
 .role-hero {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;

@@ -7,7 +7,6 @@ import json
 import os
 from typing import Dict, Any, Optional
 
-
 class TextConfig:
     """Centralized text configuration manager."""
     
@@ -124,10 +123,7 @@ class TextConfig:
         """
         return self._config.copy() if self._config else {}
 
-
-# Global instance
 text_config = TextConfig()
-
 
 def get_text(key_path: str, default: str = "") -> str:
     """Convenience function to get text values.
@@ -141,7 +137,6 @@ def get_text(key_path: str, default: str = "") -> str:
     """
     return text_config.get(key_path, default)
 
-
 def get_text_dict(key_path: str, default: Dict = None) -> Dict:
     """Convenience function to get dictionary values.
     
@@ -153,7 +148,6 @@ def get_text_dict(key_path: str, default: Dict = None) -> Dict:
         The dictionary value or default if not found
     """
     return text_config.get_dict(key_path, default)
-
 
 def get_text_list(key_path: str, default: list = None) -> list:
     """Convenience function to get list values.
@@ -167,13 +161,12 @@ def get_text_list(key_path: str, default: list = None) -> list:
     """
     return text_config.get_list(key_path, default)
 
-
-# Template context processor function
 def inject_text_config():
     """Template context processor to inject text configuration into templates."""
     return {
         'text': text_config,
         'get_text': get_text,
         'get_text_dict': get_text_dict,
-        'get_text_list': get_text_list
+        'get_text_list': get_text_list,
+        'app_name': text_config.get('app.name', 'Test Management Platform')
     }

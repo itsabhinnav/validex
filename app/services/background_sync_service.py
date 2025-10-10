@@ -21,12 +21,11 @@ class BackgroundSyncService:
         self.sync_service = sync_service
         self.sync_thread = None
         self.running = False
-        self.sync_interval = 300  # 5 minutes default
+        self.sync_interval = 300
         self.last_sync_time = None
         self.sync_status = None
         self.logger = logging.getLogger(__name__)
         
-        # Change detection settings
         self.enable_change_detection = True
         self.file_hash_cache = {}
         self.remote_file_metadata = {}
@@ -48,7 +47,6 @@ class BackgroundSyncService:
         self.sync_thread.start()
         self.logger.info("🔄 Background sync started")
         
-        # Create initial sync status
         self.sync_status = SyncStatus(
             sync_id=f"bg_sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             strategy=SyncStrategy.INCREMENTAL,
@@ -75,14 +73,11 @@ class BackgroundSyncService:
         
         while self.running:
             try:
-                # Perform sync cycle
                 self._perform_sync_cycle()
                 
             except Exception as e:
                 self.logger.error(f"❌ Background sync error: {e}")
-                # Continue running even if one cycle fails
                 
-            # Wait for next sync interval
             time.sleep(self.sync_interval)
         
         self.logger.info("🔄 Background sync loop ended")
@@ -93,27 +88,22 @@ class BackgroundSyncService:
         self.logger.info(f"🔄 Starting sync cycle at {cycle_start}")
         
         try:
-            # Step 1: Check for file changes
             if self.enable_change_detection:
                 changes_detected = self._detect_file_changes()
                 if not changes_detected:
                     self.logger.info("📊 No changes detected, skipping sync")
                     return
             
-            # Step 2: Perform incremental sync
             sync_result = self.sync_service.incremental_sync()
             
-            # Step 3: Update sync status
             if self.sync_status:
                 self.sync_status.update_progress(
                     processed_files=sync_result.get('changes_processed', 0),
                     processed_test_cases=sync_result.get('test_cases_updated', 0)
                 )
             
-            # Step 4: Update last sync time
             self.last_sync_time = datetime.now()
             
-            # Step 5: Log results
             changes_processed = sync_result.get('changes_processed', 0)
             test_cases_updated = sync_result.get('test_cases_updated', 0)
             
@@ -130,7 +120,6 @@ class BackgroundSyncService:
     def _detect_file_changes(self) -> bool:
         """Detect if any files have changed since last sync"""
         try:
-            # Get current file hashes
             current_hashes = {}
             files = self.file_service.scan_directory(self.file_service.upload_folder)
             
@@ -139,7 +128,6 @@ class BackgroundSyncService:
                 if file_hash:
                     current_hashes[file_path] = file_hash
             
-            # Compare with cached hashes
             changes_detected = False
             for file_path, current_hash in current_hashes.items():
                 cached_hash = self.file_hash_cache.get(file_path)
@@ -147,21 +135,17 @@ class BackgroundSyncService:
                     self.logger.info(f"📝 File changed detected: {file_path}")
                     changes_detected = True
                 
-                # Update cache
                 self.file_hash_cache[file_path] = current_hash
             
-            # Check for new files
             new_files = set(current_hashes.keys()) - set(self.file_hash_cache.keys())
             if new_files:
                 self.logger.info(f"📁 New files detected: {len(new_files)} files")
                 changes_detected = True
             
-            # Check for deleted files
             deleted_files = set(self.file_hash_cache.keys()) - set(current_hashes.keys())
             if deleted_files:
                 self.logger.info(f"🗑️ Deleted files detected: {len(deleted_files)} files")
                 changes_detected = True
-                # Remove from cache
                 for file_path in deleted_files:
                     self.file_hash_cache.pop(file_path, None)
             
@@ -169,14 +153,13 @@ class BackgroundSyncService:
             
         except Exception as e:
             self.logger.error(f"❌ Error detecting file changes: {e}")
-            return True  # Assume changes if detection fails
+            return True
     
     def force_sync(self) -> Dict[str, Any]:
         """Force immediate sync"""
         self.logger.info("🔄 Forcing immediate sync")
         
         try:
-            # Perform full sync
             result = self.sync_service.start_sync(
                 SyncStatus(
                     sync_id=f"force_sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -185,7 +168,6 @@ class BackgroundSyncService:
                 )
             )
             
-            # Update cache
             self._update_file_hash_cache()
             
             self.logger.info(f"✅ Force sync completed: {result}")
@@ -221,14 +203,11 @@ class BackgroundSyncService:
     def get_sync_statistics(self) -> Dict[str, Any]:
         """Get sync statistics"""
         try:
-            # Get database statistics
             db_stats = self.db_service.get_statistics()
             
-            # Get file statistics
             files = self.file_service.scan_directory(self.file_service.upload_folder)
             file_count = len(files)
             
-            # Calculate sync efficiency
             total_files = len(self.file_hash_cache)
             changed_files = 0
             for file_path, current_hash in self.file_hash_cache.items():
@@ -253,7 +232,6 @@ class BackgroundSyncService:
             self.logger.error(f"❌ Error getting sync statistics: {e}")
             return {'error': str(e)}
 
-# Global background sync service instance
 background_sync_service = None
 
 def initialize_background_sync(db_service: DatabaseService, file_service: FileService, sync_service: SyncService):

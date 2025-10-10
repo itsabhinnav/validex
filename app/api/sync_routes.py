@@ -6,7 +6,6 @@ from flask import Blueprint, request, jsonify, current_app
 from app.services.background_sync_service import get_background_sync_service
 import json
 
-# Create blueprint
 sync_bp = Blueprint('sync', __name__, url_prefix='/api/sync')
 
 @sync_bp.route('/status')
@@ -91,7 +90,6 @@ def configure_sync():
         if not background_sync:
             return jsonify({'error': 'Background sync service not available'}), 500
         
-        # Update configuration
         sync_interval = data.get('sync_interval_seconds', 300)
         change_detection = data.get('change_detection_enabled', True)
         
@@ -100,7 +98,6 @@ def configure_sync():
             enable_change_detection=change_detection
         )
         
-        # Update configuration file
         from app.utils.path_resolver import path_resolver
         config = path_resolver.load_config()
         

@@ -1,0 +1,496 @@
+{% extends "sakura/base.html" %}
+
+{% block title %}Edit {{ requirement.requirement_id }} - Sakura{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-edit me-2"></i>Edit Requirement
+                    </h2>
+                    <p class="text-muted mb-0">{{ requirement.requirement_id }} - {{ requirement.description[:100] }}{% if requirement.description|length > 100 %}...{% endif %}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('sakura.requirement_details', requirement_id=requirement.requirement_id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                    <a href="{{ url_for('sakura.browse_requirements') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Requirements
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Requirement Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Requirement Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('sakura.update_requirement', requirement_id=requirement.requirement_id) }}" id="requirementForm">
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="requirement_id" class="form-label">Requirement ID</label>
+                                <input type="text" class="form-control" id="requirement_id" name="requirement_id" 
+                                       value="{{ requirement.requirement_id }}" readonly>
+                                <div class="form-text">ID cannot be changed</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="screen_id" class="form-label">Screen ID</label>
+                                <input type="text" class="form-control" id="screen_id" name="screen_id" 
+                                       value="{{ requirement.screen_id or '' }}" placeholder="SCR-001">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Describe the requirement in detail..." required>{{ requirement.description or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Gherkin Scenario -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-code me-2"></i>Gherkin Scenario</h6>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="given" class="form-label">Given (Precondition)</label>
+                                <textarea class="form-control" id="given" name="given" rows="2" 
+                                          placeholder="Given the user is on the login page...">{{ requirement.given or '' }}</textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="when" class="form-label">When (Action)</label>
+                                <textarea class="form-control" id="when" name="when" rows="2" 
+                                          placeholder="When the user enters valid credentials...">{{ requirement.when or '' }}</textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="then" class="form-label">Then (Expected Result)</label>
+                                <textarea class="form-control" id="then" name="then" rows="2" 
+                                          placeholder="Then the user should be logged in successfully...">{{ requirement.then or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Classification -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-tags me-2"></i>Classification</h6>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="Draft" {% if requirement.status == 'Draft' %}selected{% endif %}>Draft</option>
+                                    <option value="Review" {% if requirement.status == 'Review' %}selected{% endif %}>Review</option>
+                                    <option value="Approved" {% if requirement.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                    <option value="In Progress" {% if requirement.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Completed" {% if requirement.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    <option value="Rejected" {% if requirement.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                    <option value="On Hold" {% if requirement.status == 'On Hold' %}selected{% endif %}>On Hold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="Low" {% if requirement.priority == 'Low' %}selected{% endif %}>Low</option>
+                                    <option value="Medium" {% if requirement.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                                    <option value="High" {% if requirement.priority == 'High' %}selected{% endif %}>High</option>
+                                    <option value="Critical" {% if requirement.priority == 'Critical' %}selected{% endif %}>Critical</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="Functional" {% if requirement.category == 'Functional' %}selected{% endif %}>Functional</option>
+                                    <option value="Non-Functional" {% if requirement.category == 'Non-Functional' %}selected{% endif %}>Non-Functional</option>
+                                    <option value="Business" {% if requirement.category == 'Business' %}selected{% endif %}>Business</option>
+                                    <option value="Technical" {% if requirement.category == 'Technical' %}selected{% endif %}>Technical</option>
+                                    <option value="Authentication" {% if requirement.category == 'Authentication' %}selected{% endif %}>Authentication</option>
+                                    <option value="Authorization" {% if requirement.category == 'Authorization' %}selected{% endif %}>Authorization</option>
+                                    <option value="Data Management" {% if requirement.category == 'Data Management' %}selected{% endif %}>Data Management</option>
+                                    <option value="UI/UX" {% if requirement.category == 'UI/UX' %}selected{% endif %}>UI/UX</option>
+                                    <option value="Performance" {% if requirement.category == 'Performance' %}selected{% endif %}>Performance</option>
+                                    <option value="Security" {% if requirement.category == 'Security' %}selected{% endif %}>Security</option>
+                                    <option value="Integration" {% if requirement.category == 'Integration' %}selected{% endif %}>Integration</option>
+                                    <option value="Reporting" {% if requirement.category == 'Reporting' %}selected{% endif %}>Reporting</option>
+                                    <option value="Analytics" {% if requirement.category == 'Analytics' %}selected{% endif %}>Analytics</option>
+                                    <option value="API" {% if requirement.category == 'API' %}selected{% endif %}>API</option>
+                                    <option value="Database" {% if requirement.category == 'Database' %}selected{% endif %}>Database</option>
+                                    <option value="Infrastructure" {% if requirement.category == 'Infrastructure' %}selected{% endif %}>Infrastructure</option>
+                                    <option value="Documentation" {% if requirement.category == 'Documentation' %}selected{% endif %}>Documentation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Assignment & Dates -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Assignment & Timeline</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assignee" class="form-label">Assignee</label>
+                                <input type="text" class="form-control" id="assignee" name="assignee" 
+                                       value="{{ requirement.assignee or '' }}" placeholder="John Doe">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="due_date" class="form-label">Due Date</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" 
+                                       value="{{ requirement.due_date or '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Tags & Additional Info -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-tag me-2"></i>Tags & Additional Information</h6>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="tags" class="form-label">Tags</label>
+                                <input type="text" class="form-control" id="tags" name="tags" 
+                                       value="{{ requirement.tags or '' }}" placeholder="authentication, security, login">
+                                <div class="form-text">Separate multiple tags with commas</div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="author" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="author" name="author" 
+                                       value="{{ requirement.author or '' }}" placeholder="Your name">
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Update Requirement
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                        <i class="fas fa-undo me-1"></i>Reset Changes
+                                    </button>
+                                    <a href="{{ url_for('sakura.requirement_details', requirement_id=requirement.requirement_id) }}" class="btn btn-outline-danger">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Live Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div id="previewContent">
+                        <div class="text-muted text-center">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>Changes will be reflected in the preview as you type.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change History -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-history me-2"></i>Change History</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Created</h6>
+                                <p class="timeline-text">{{ requirement.created_date or 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Last Updated</h6>
+                                <p class="timeline-text">{{ requirement.updated_date or 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Panel -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Editing Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <ul class="mb-0">
+                            <li>Update the description to be clear and specific</li>
+                            <li>Ensure Gherkin scenarios are testable</li>
+                            <li>Set appropriate priority and status</li>
+                            <li>Add relevant tags for better organization</li>
+                            <li>Update assignee and due date as needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #007bff;
+}
+
+.timeline-title {
+    margin: 0 0 5px 0;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.timeline-text {
+    margin: 0;
+    font-size: 0.8em;
+    color: #6c757d;
+}
+</style>
+
+<script>
+let originalFormData = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupFormValidation();
+    setupLivePreview();
+    saveOriginalFormData();
+});
+
+function setupFormValidation() {
+    const form = document.getElementById('requirementForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate required fields
+        const description = document.getElementById('description').value.trim();
+        if (!description) {
+            showAlert('Description is required', 'danger');
+            return;
+        }
+        
+        // If validation passes, submit the form
+        form.submit();
+    });
+}
+
+function setupLivePreview() {
+    const formFields = ['requirement_id', 'screen_id', 'description', 'given', 'when', 'then', 'status', 'priority', 'category', 'assignee', 'due_date', 'tags'];
+    
+    formFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updatePreview);
+        }
+    });
+    
+    // Initial preview update
+    updatePreview();
+}
+
+function saveOriginalFormData() {
+    const formFields = ['requirement_id', 'screen_id', 'description', 'given', 'when', 'then', 'status', 'priority', 'category', 'assignee', 'due_date', 'tags'];
+    
+    formFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            originalFormData[fieldId] = field.value;
+        }
+    });
+}
+
+function updatePreview() {
+    const previewContent = document.getElementById('previewContent');
+    
+    const requirementId = document.getElementById('requirement_id').value || 'REQ-XXX';
+    const screenId = document.getElementById('screen_id').value || 'N/A';
+    const description = document.getElementById('description').value || 'No description provided';
+    const given = document.getElementById('given').value;
+    const when = document.getElementById('when').value;
+    const then = document.getElementById('then').value;
+    const status = document.getElementById('status').value;
+    const priority = document.getElementById('priority').value;
+    const category = document.getElementById('category').value;
+    const assignee = document.getElementById('assignee').value || 'Unassigned';
+    const dueDate = document.getElementById('due_date').value;
+    const tags = document.getElementById('tags').value;
+    
+    let previewHtml = `
+        <div class="requirement-preview">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h6 class="mb-1">${requirementId}</h6>
+                    <small class="text-muted">Screen: ${screenId}</small>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-${getStatusColor(status)} me-1">${status}</span>
+                    <span class="badge bg-${getPriorityColor(priority)}">${priority}</span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <h6 class="text-primary mb-2">Description</h6>
+                <p class="mb-0">${description}</p>
+            </div>
+    `;
+    
+    if (given || when || then) {
+        previewHtml += `
+            <div class="mb-3">
+                <h6 class="text-primary mb-2">Gherkin Scenario</h6>
+                <div class="bg-light p-3 rounded">
+        `;
+        
+        if (given) previewHtml += `<div class="mb-1"><strong>Given:</strong> ${given}</div>`;
+        if (when) previewHtml += `<div class="mb-1"><strong>When:</strong> ${when}</div>`;
+        if (then) previewHtml += `<div class="mb-1"><strong>Then:</strong> ${then}</div>`;
+        
+        previewHtml += `
+                </div>
+            </div>
+        `;
+    }
+    
+    previewHtml += `
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted">
+                        <strong>Category:</strong><br>
+                        ${category}
+                    </small>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted">
+                        <strong>Assignee:</strong><br>
+                        ${assignee}
+                    </small>
+                </div>
+            </div>
+    `;
+    
+    if (dueDate) {
+        previewHtml += `
+            <div class="mt-2">
+                <small class="text-muted">
+                    <strong>Due Date:</strong> ${dueDate}
+                </small>
+            </div>
+        `;
+    }
+    
+    if (tags) {
+        const tagList = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+        if (tagList.length > 0) {
+            previewHtml += `
+                <div class="mt-3">
+                    <small class="text-muted d-block mb-1"><strong>Tags:</strong></small>
+                    ${tagList.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                </div>
+            `;
+        }
+    }
+    
+    previewHtml += `</div>`;
+    
+    previewContent.innerHTML = previewHtml;
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'Draft': 'secondary',
+        'Review': 'warning',
+        'Approved': 'info',
+        'In Progress': 'primary',
+        'Completed': 'success',
+        'Rejected': 'danger',
+        'On Hold': 'dark'
+    };
+    return colors[status] || 'secondary';
+}
+
+function getPriorityColor(priority) {
+    const colors = {
+        'Critical': 'danger',
+        'High': 'warning',
+        'Medium': 'info',
+        'Low': 'success'
+    };
+    return colors[priority] || 'info';
+}
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset all changes? This will restore the original values.')) {
+        Object.keys(originalFormData).forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = originalFormData[fieldId];
+            }
+        });
+        updatePreview();
+    }
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const form = document.getElementById('requirementForm');
+    form.insertBefore(alertDiv, form.firstChild);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

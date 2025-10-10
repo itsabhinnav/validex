@@ -22,23 +22,24 @@ class ConfigManager:
     def _get_default_config(self) -> Dict[str, Any]:
         """Get the complete default configuration"""
         return {
-            # Application Core Settings
             "app": {
                 "name": "Validex",
                 "version": "1.0.0",
-                "description": "Professional Test Case Management Platform",
+                "description": " Test Case Management Platform",
                 "tagline": "Quality Assurance Management System",
                 "debug": True,
                 "secret_key": "dev-secret-key-change-in-production",
                 "host": "127.0.0.1",
                 "port": 8000,
                 "admin_enabled": False,
+                "sakura_enabled": False,
                 "multiselect_threshold": 5,
                 "test_cases_per_page": 10,
-                "auto_refresh_interval": 30
+                "auto_refresh_interval": 30,
+                "auto_launch_browser": True,
+                "startup_delay": 2
             },
             
-            # Database Configuration
             "database": {
                 "type": "sqlite",
                 "path": "data/db/test_cases.db",
@@ -49,7 +50,6 @@ class ConfigManager:
                 "connection_timeout": 30
             },
             
-            # File System Configuration
             "filesystem": {
                 "test_files_dir": "data/excel_files",
                 "reports_dir": "data/reports",
@@ -60,7 +60,6 @@ class ConfigManager:
                 "max_file_size_mb": 50
             },
             
-            # JFrog Artifactory Integration
             "jfrog": {
                 "enabled": False,
                 "base_url": "https://your-artifactory.com",
@@ -73,7 +72,6 @@ class ConfigManager:
                 "retry_delay": 60
             },
             
-            # Network Security Configuration
             "network_security": {
                 "restricted_mode": True,
                 "allowed_domains": [
@@ -93,7 +91,6 @@ class ConfigManager:
                 "ssl_required": False
             },
             
-            # Background Sync Configuration
             "sync": {
                 "background_sync_enabled": True,
                 "sync_interval_seconds": 300,
@@ -107,7 +104,6 @@ class ConfigManager:
                 "concurrent_downloads": 3
             },
             
-            # Logging Configuration
             "logging": {
                 "level": "INFO",
                 "console_logging": True,
@@ -119,7 +115,6 @@ class ConfigManager:
                 "sync_log_file": "logs/sync.log"
             },
             
-            # UI/UX Configuration
             "ui": {
                 "theme": "light",
                 "language": "en",
@@ -141,10 +136,9 @@ class ConfigManager:
                 }
             },
             
-            # Text/Internationalization Configuration
             "text": {
                 "app_name": "Validex",
-                "tagline": "Professional Test Case Management Platform",
+                "tagline": " Test Case Management Platform",
                 "description": "Streamline your testing workflow with our powerful BDD-style test case management system.",
                 "navigation": {
                     "dashboard": "Dashboard",
@@ -180,7 +174,6 @@ class ConfigManager:
                 }
             },
             
-            # Column Definitions and Schema
             "columns": {
                 "primary_key": "TC ID",
                 "required_columns": ["TC ID", "Summary"],
@@ -244,7 +237,6 @@ class ConfigManager:
                 }
             },
             
-            # Export Configuration
             "export": {
                 "formats": ["excel", "csv", "pdf"],
                 "default_format": "excel",
@@ -253,7 +245,6 @@ class ConfigManager:
                 "max_export_records": 10000
             },
             
-            # Security Configuration
             "security": {
                 "session_timeout_minutes": 480,
                 "max_login_attempts": 5,
@@ -264,7 +255,6 @@ class ConfigManager:
                 "secure_cookies": False
             },
             
-            # Performance Configuration
             "performance": {
                 "cache_enabled": True,
                 "cache_ttl_seconds": 3600,
@@ -281,13 +271,11 @@ class ConfigManager:
             try:
                 with open(self.config_file, 'r', encoding='utf-8') as f:
                     config = json.load(f)
-                    # Merge with default config to ensure all keys exist
                     return self._merge_configs(self._get_default_config(), config)
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error loading config: {e}. Using default configuration.")
                 return self._get_default_config()
         else:
-            # Create default config file
             self._save_config(self._get_default_config())
             return self._get_default_config()
     
@@ -307,7 +295,6 @@ class ConfigManager:
             config = self.config
         
         try:
-            # Ensure directory exists
             self.config_file.parent.mkdir(parents=True, exist_ok=True)
             
             with open(self.config_file, 'w', encoding='utf-8') as f:
@@ -332,13 +319,11 @@ class ConfigManager:
         keys = key_path.split('.')
         config = self.config
         
-        # Navigate to the parent of the target key
         for key in keys[:-1]:
             if key not in config:
                 config[key] = {}
             config = config[key]
         
-        # Set the value
         config[keys[-1]] = value
         self._save_config()
     
@@ -358,12 +343,14 @@ class ConfigManager:
         """Reset configuration to defaults"""
         self.config = self._get_default_config()
         self._save_config()
-    
-    # Convenience methods for common configurations
-    
+
     def is_admin_enabled(self) -> bool:
         """Check if admin section is enabled"""
         return self.get('app.admin_enabled', False)
+    
+    def is_sakura_enabled(self) -> bool:
+        """Check if Sakura app is enabled"""
+        return self.get('app.sakura_enabled', False)
     
     def is_jfrog_enabled(self) -> bool:
         """Check if JFrog integration is enabled"""
@@ -438,11 +425,17 @@ class ConfigManager:
     def get_performance_config(self) -> Dict[str, Any]:
         """Get performance configuration"""
         return self.get_section('performance')
+    
+    def is_auto_launch_browser_enabled(self) -> bool:
+        """Check if auto-launch browser is enabled"""
+        return self.get('app.auto_launch_browser', True)
+    
+    def get_startup_delay(self) -> int:
+        """Get startup delay in seconds"""
+        return self.get('app.startup_delay', 2)
 
-# Global configuration instance
 config_manager = ConfigManager()
 
-# Backward compatibility functions
 def get_config():
     """Get the global configuration instance"""
     return config_manager

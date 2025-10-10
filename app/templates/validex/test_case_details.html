@@ -1,0 +1,508 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Test Case Details{% if test_case %} - {{ test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .test-case-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .test-case-card {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .test-case-card .card-header {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+    }
+    
+    .detail-row {
+        border-bottom: 1px solid #f1f3f4;
+        padding: 0.75rem 0;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 150px;
+    }
+    
+    .detail-value {
+        color: #212529;
+    }
+    
+    .status-badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .priority-badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .execution-history-item {
+        border-left: 4px solid #dee2e6;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .execution-history-item.passed {
+        border-left-color: #28a745;
+    }
+    
+    .execution-history-item.failed {
+        border-left-color: #dc3545;
+    }
+    
+    .related-case-item {
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .related-case-item:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+    }
+    
+    .action-buttons {
+        position: sticky;
+        top: 2rem;
+        z-index: 1000;
+    }
+    
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+    
+    .test-case-id {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #007bff;
+    }
+    
+    .summary-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #495057;
+    }
+    
+    .meta-info {
+        background: #f8f9fa;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .meta-item:last-child {
+        border-bottom: none;
+    }
+    
+    .meta-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+    
+    .meta-value {
+        color: #212529;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error_message %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h3 class="text-danger">Test Case Not Found</h3>
+                    <p class="text-muted">{{ error_message }}</p>
+                    <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Test Cases
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="test-case-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}" class="text-white-50">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.test_cases') }}" class="text-white-50">Test Cases</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Details</li>
+            </ol>
+        </nav>
+        
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="test-case-id mb-2">
+                    {{ test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) }}
+                </h1>
+                <p class="summary-text mb-0">
+                    {{ test_case.get('Summary', 'No summary available') }}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="action-buttons">
+                    <a href="{{ url_for('main.execute_test', test_id=test_case.get('Test Case ID', test_case.get('TC ID', '')), source_file=test_case.get('source_file', '')) }}" 
+                       class="btn btn-success btn-lg me-2">
+                        <i class="fas fa-play me-2"></i>Execute Test
+                    </a>
+                    <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Test Case Information -->
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Test Case Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Test Case ID:</div>
+                                <div class="detail-value">
+                                    <strong>{{ test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) }}</strong>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Application:</div>
+                                <div class="detail-value">
+                                    <span class="badge bg-info status-badge">{{ test_case.get('App', 'N/A') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Test Type:</div>
+                                <div class="detail-value">
+                                    <span class="badge bg-secondary status-badge">{{ test_case.get('Test Type', 'N/A') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Feature:</div>
+                                <div class="detail-value">
+                                    <span class="badge bg-success status-badge">{{ test_case.get('Feature', 'N/A') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Status:</div>
+                                <div class="detail-value">
+                                    {% set status = test_case.get('Status', 'Pending').lower() %}
+                                    {% if status == 'passed' %}
+                                        <span class="badge bg-success status-badge">Passed</span>
+                                    {% elif status == 'failed' %}
+                                        <span class="badge bg-danger status-badge">Failed</span>
+                                    {% elif status == 'running' %}
+                                        <span class="badge bg-warning status-badge">Running</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary status-badge">Pending</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Priority:</div>
+                                <div class="detail-value">
+                                    {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                    {% if priority == 'high' %}
+                                        <span class="badge bg-danger priority-badge">High</span>
+                                    {% elif priority == 'low' %}
+                                        <span class="badge bg-success priority-badge">Low</span>
+                                    {% else %}
+                                        <span class="badge bg-warning priority-badge">Medium</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Source File:</div>
+                                <div class="detail-value">
+                                    <small class="text-muted">{{ test_case.get('source_file', 'N/A') }}</small>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Created:</div>
+                                <div class="detail-value">
+                                    <small class="text-muted">{{ test_case.get('Created Date', 'N/A') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Steps -->
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Test Steps</h5>
+                </div>
+                <div class="card-body">
+                    {% if test_case.get('Test Steps') %}
+                        <div class="test-steps">
+                            {{ test_case.get('Test Steps') | replace('\n', '<br>') | safe }}
+                        </div>
+                    {% elif test_case.get('Steps') %}
+                        <div class="test-steps">
+                            {{ test_case.get('Steps') | replace('\n', '<br>') | safe }}
+                        </div>
+                    {% else %}
+                        <div class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i>No test steps defined for this test case.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Expected Results -->
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Expected Results</h5>
+                </div>
+                <div class="card-body">
+                    {% if test_case.get('Expected Results') %}
+                        <div class="expected-results">
+                            {{ test_case.get('Expected Results') | replace('\n', '<br>') | safe }}
+                        </div>
+                    {% elif test_case.get('Expected Behavior') %}
+                        <div class="expected-results">
+                            {{ test_case.get('Expected Behavior') | replace('\n', '<br>') | safe }}
+                        </div>
+                    {% else %}
+                        <div class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i>No expected results defined for this test case.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Test Data -->
+            {% if test_case.get('Test Data') or test_case.get('Input Data') %}
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>Test Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="test-data">
+                        {{ (test_case.get('Test Data') or test_case.get('Input Data')) | replace('\n', '<br>') | safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Prerequisites -->
+            {% if test_case.get('Prerequisites') or test_case.get('Pre-conditions') %}
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Prerequisites</h5>
+                </div>
+                <div class="card-body">
+                    <div class="prerequisites">
+                        {{ (test_case.get('Prerequisites') or test_case.get('Pre-conditions')) | replace('\n', '<br>') | safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.execute_test', test_id=test_case.get('Test Case ID', test_case.get('TC ID', '')), source_file=test_case.get('source_file', '')) }}" 
+                           class="btn btn-success">
+                            <i class="fas fa-play me-2"></i>Execute Test
+                        </a>
+                        <button class="btn btn-outline-primary" onclick="copyTestId()">
+                            <i class="fas fa-copy me-2"></i>Copy Test ID
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="printTestCase()">
+                            <i class="fas fa-print me-2"></i>Print Test Case
+                        </button>
+                        <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-dark">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Execution History -->
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Execution History</h5>
+                </div>
+                <div class="card-body">
+                    {% if execution_history %}
+                        {% for execution in execution_history %}
+                        <div class="execution-history-item {{ execution.result.lower() }}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-{{ 'success' if execution.result.lower() == 'passed' else 'danger' }} status-badge">
+                                    {{ execution.result }}
+                                </span>
+                                <small class="text-muted">{{ execution.date }}</small>
+                            </div>
+                            <div class="execution-details">
+                                <div><strong>Environment:</strong> {{ execution.environment }}</div>
+                                <div><strong>Duration:</strong> {{ execution.execution_time }}</div>
+                                <div><strong>Executed by:</strong> {{ execution.executed_by }}</div>
+                                {% if execution.comments %}
+                                <div class="mt-2">
+                                    <strong>Comments:</strong>
+                                    <div class="text-muted small">{{ execution.comments }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted text-center">
+                            <i class="fas fa-info-circle me-2"></i>No execution history available.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Related Test Cases -->
+            {% if related_cases %}
+            <div class="card test-case-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related Test Cases</h5>
+                </div>
+                <div class="card-body">
+                    {% for case in related_cases %}
+                    <div class="related-case-item">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong class="text-primary">
+                                {{ case.get('Test Case ID', case.get('TC ID', 'N/A')) }}
+                            </strong>
+                            <span class="badge bg-info">{{ case.get('App', 'N/A') }}</span>
+                        </div>
+                        <div class="related-case-summary mb-2">
+                            {{ case.get('Summary', 'No summary')[:100] }}{% if case.get('Summary', '')|length > 100 %}...{% endif %}
+                        </div>
+                        <div class="related-case-meta">
+                            <small class="text-muted">
+                                <strong>Type:</strong> {{ case.get('Test Type', 'N/A') }} | 
+                                <strong>Priority:</strong> {{ case.get('Priority', 'N/A') }}
+                            </small>
+                        </div>
+                        <div class="mt-2">
+                            <a href="{{ url_for('main.test_case_details', test_id=case.get('Test Case ID', case.get('TC ID', ''))) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyTestId() {
+    const testId = '{{ test_case.get("Test Case ID", test_case.get("TC ID", "N/A")) }}';
+    navigator.clipboard.writeText(testId).then(function() {
+        // Show success message
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-primary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy test ID to clipboard');
+    });
+}
+
+function printTestCase() {
+    window.print();
+}
+
+// Add print styles
+document.addEventListener('DOMContentLoaded', function() {
+    // Add print-specific styles
+    const printStyles = `
+        @media print {
+            .test-case-header {
+                background: #f8f9fa !important;
+                color: #000 !important;
+            }
+            .action-buttons, .btn {
+                display: none !important;
+            }
+            .card {
+                border: 1px solid #000 !important;
+                break-inside: avoid;
+            }
+            .execution-history-item {
+                break-inside: avoid;
+            }
+        }
+    `;
+    
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = printStyles;
+    document.head.appendChild(styleSheet);
+});
+</script>
+{% endblock %}

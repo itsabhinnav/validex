@@ -1,13 +1,9 @@
-/**
- * Service Worker for Validex PWA
- * Provides offline support and caching
- */
+
 
 const CACHE_NAME = 'validex-v1';
 const STATIC_CACHE = 'validex-static-v1';
 const DYNAMIC_CACHE = 'validex-dynamic-v1';
 
-// Files to cache immediately
 const STATIC_FILES = [
     '/',
     '/static/css/main.css',
@@ -21,7 +17,6 @@ const STATIC_FILES = [
     '/static/icons/icon-512x512.png'
 ];
 
-// Install event - cache static files
 self.addEventListener('install', event => {
     console.log('Service Worker installing...');
     
@@ -41,7 +36,6 @@ self.addEventListener('install', event => {
     );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', event => {
     console.log('Service Worker activating...');
     
@@ -64,17 +58,14 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
     const { request } = event;
     const url = new URL(request.url);
-    
-    // Skip non-GET requests
+
     if (request.method !== 'GET') {
         return;
     }
-    
-    // Skip external requests
+
     if (url.origin !== location.origin) {
         return;
     }
@@ -89,15 +80,13 @@ self.addEventListener('fetch', event => {
                 
                 return fetch(request)
                     .then(response => {
-                        // Don't cache non-successful responses
+                        
                         if (!response || response.status !== 200 || response.type !== 'basic') {
                             return response;
                         }
-                        
-                        // Clone the response
+
                         const responseToCache = response.clone();
-                        
-                        // Cache dynamic content
+
                         caches.open(DYNAMIC_CACHE)
                             .then(cache => {
                                 cache.put(request, responseToCache);
@@ -107,20 +96,17 @@ self.addEventListener('fetch', event => {
                     })
                     .catch(error => {
                         console.log('Network request failed:', request.url);
-                        
-                        // Return offline page for navigation requests
+
                         if (request.mode === 'navigate') {
                             return caches.match('/offline.html');
                         }
-                        
-                        // Return cached version for other requests
+
                         return caches.match(request);
                     });
             })
     );
 });
 
-// Background sync event
 self.addEventListener('sync', event => {
     console.log('Background sync triggered:', event.tag);
     
@@ -131,7 +117,6 @@ self.addEventListener('sync', event => {
     }
 });
 
-// Push notification event
 self.addEventListener('push', event => {
     console.log('Push notification received');
     
@@ -157,7 +142,6 @@ self.addEventListener('push', event => {
     );
 });
 
-// Notification click event
 self.addEventListener('notificationclick', event => {
     console.log('Notification clicked:', event.action);
     
@@ -170,7 +154,6 @@ self.addEventListener('notificationclick', event => {
     }
 });
 
-// Message event - handle messages from main thread
 self.addEventListener('message', event => {
     console.log('Message received in service worker:', event.data);
     
@@ -185,15 +168,12 @@ self.addEventListener('message', event => {
     }
 });
 
-// Helper function to sync offline data
 async function syncOfflineData() {
     try {
         console.log('Syncing offline data...');
-        
-        // Get offline data from IndexedDB or localStorage
+
         const offlineData = await getOfflineData();
-        
-        // Sync each item
+
         for (const item of offlineData) {
             try {
                 await fetch(item.url, item.options);
@@ -209,14 +189,11 @@ async function syncOfflineData() {
     }
 }
 
-// Helper function to get offline data
 async function getOfflineData() {
-    // This would typically get data from IndexedDB
-    // For now, return empty array
+
     return [];
 }
 
-// Helper function to cache URLs
 async function cacheUrls(urls) {
     const cache = await caches.open(DYNAMIC_CACHE);
     
@@ -233,7 +210,6 @@ async function cacheUrls(urls) {
     }
 }
 
-// Periodic background sync (if supported)
 if ('serviceWorker' in navigator && 'periodicSync' in window.ServiceWorkerRegistration.prototype) {
     self.addEventListener('periodicsync', event => {
         if (event.tag === 'validex-periodic-sync') {
@@ -244,12 +220,10 @@ if ('serviceWorker' in navigator && 'periodicSync' in window.ServiceWorkerRegist
     });
 }
 
-// Helper function for periodic sync
 async function performPeriodicSync() {
     try {
         console.log('Performing periodic sync...');
-        
-        // Sync data with server
+
         const response = await fetch('/api/sync');
         if (response.ok) {
             console.log('Periodic sync completed');

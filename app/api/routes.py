@@ -4,10 +4,7 @@ import pandas as pd
 from datetime import datetime
 from app import get_services
 
-# Create blueprint
 main_bp = Blueprint('main', __name__)
-
-# Role management is now handled entirely through session storage
 
 @main_bp.context_processor
 def inject_current_role():
@@ -15,7 +12,6 @@ def inject_current_role():
     role = session.get('current_role')
     return dict(current_role=role, min=min, max=max)
 
-# Global variable to store test cases data
 test_cases_data = {}
 
 def check_database_availability():
@@ -69,7 +65,6 @@ def load_test_files():
     
     test_cases_data = {}
     
-    # Simple file loading for now
     for root, dirs, files in os.walk(test_dir):
         for file in files:
             if file.endswith(('.xlsx', '.xls')):
@@ -77,38 +72,28 @@ def load_test_files():
                 try:
                     df = pd.read_excel(file_path)
                     if not df.empty:
-                        # Print column names for debugging
                         print(f"Columns in {file}: {list(df.columns)}")
                         
-                        # Add a Test Case ID if it doesn't exist
                         if 'Test Case ID' not in df.columns:
-                            # Try to find similar column names
                             id_columns = [col for col in df.columns if 'id' in col.lower() or 'case' in col.lower()]
                             if id_columns:
-                                # Use the first ID-like column
                                 df['Test Case ID'] = df[id_columns[0]]
                             else:
-                                # Generate sequential IDs
                                 df['Test Case ID'] = [f"TC-{i+1:03d}" for i in range(len(df))]
                         
-                        # Map actual columns to expected column names
                         if 'App' not in df.columns:
-                            # Try to find app-related columns or use file name
                             app_columns = [col for col in df.columns if 'app' in col.lower()]
                             if app_columns:
                                 df['App'] = df[app_columns[0]]
                             else:
-                                # Extract app name from file name
                                 app_name = file.replace('.xlsx', '').replace('.xls', '').split('_')[0].title()
                                 df['App'] = app_name
                         
                         if 'Test Type' not in df.columns:
-                            # Try to find test type columns
                             type_columns = [col for col in df.columns if 'type' in col.lower()]
                             if type_columns:
                                 df['Test Type'] = df[type_columns[0]]
                             else:
-                                # Extract test type from file name
                                 test_type = file.replace('.xlsx', '').replace('.xls', '').split('_')[1] if '_' in file else 'Functional'
                                 df['Test Type'] = test_type.title()
                         
@@ -122,19 +107,18 @@ def load_test_files():
 @main_bp.route('/')
 def index():
     """Main application selector page"""
-    return render_template('app_selector.html')
+    return render_template('common/app_selector.html')
 
 @main_bp.route('/app-selector')
 def app_selector():
     """Application selector page"""
-    return render_template('app_selector.html')
+    return render_template('common/app_selector.html')
 
 @main_bp.route('/select-app', methods=['POST'])
 def select_app():
     """Handle app selection and redirect to appropriate landing page"""
     selected_app = request.form.get('selected_app')
     
-    # Store the selected app in session
     session['current_app'] = selected_app
     
     if selected_app == 'validex':
@@ -142,7 +126,6 @@ def select_app():
     elif selected_app == 'sakura':
         return redirect(url_for('sakura.sakura_dashboard'))
     else:
-        # Default to validex if no valid selection
         session['current_app'] = 'validex'
         return redirect(url_for('main.landing', app='validex'))
 
@@ -150,12 +133,11 @@ def select_app():
 def landing():
     """Landing page with role selection"""
     app_name = request.args.get('app', 'validex')
-    return render_template('landing.html', app_name=app_name)
+    return render_template('common/landing.html', app_name=app_name)
 
 @main_bp.route('/app')
 def app_entry():
     """Application entry point - redirects based on role"""
-    # Check if role is selected, redirect to dashboard if yes, role selection if no
     role = session.get('current_role')
     if role:
         return redirect(url_for('main.dashboard'))
@@ -165,16 +147,14 @@ def app_entry():
 @main_bp.route('/role-selection')
 def role_selection():
     """Role selection page"""
-    # Load files to display stats on the role selection page
     load_test_files()
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
     
-    # Check admin status
     from config.settings import config
     admin_enabled = config.is_admin_enabled()
     
-    return render_template('role_selection.html', 
+    return render_template('auth/role_selection.html', 
                          file_count=file_count, 
                          total_cases=total_cases,
                          admin_enabled=admin_enabled)
@@ -182,22 +162,17 @@ def role_selection():
 @main_bp.route('/dashboard')
 def dashboard():
     """Dashboard page"""
-    # Check if role is selected, redirect to role selection if not
     role = session.get('current_role')
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Check database availability
     db_status = check_database_availability()
     
-    # Load files to display stats on the dashboard
     load_test_files()
     
-    # Calculate statistics
     file_count = len(test_cases_data)
     total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
     
-    # Get unique apps and test types
     apps = set()
     test_types = set()
     
@@ -208,10 +183,8 @@ def dashboard():
             if 'Test Type' in case:
                 test_types.add(case['Test Type'])
     
-    # Create app_stats object for template
     from collections import Counter
     
-    # Count by app
     app_counts = Counter()
     test_type_counts = Counter()
     directory_counts = Counter()
@@ -222,7 +195,6 @@ def dashboard():
                 app_counts[case['App']] += 1
             if 'Test Type' in case:
                 test_type_counts[case['Test Type']] += 1
-            # Extract directory from file path
             if 'File' in case:
                 directory = case['File'].split('/')[0] if '/' in case['File'] else 'root'
                 directory_counts[directory] += 1
@@ -240,7 +212,6 @@ def dashboard():
         'test_types': list(test_types)
     }
     
-    # Add database statistics if available
     db_stats = {}
     if db_status.get('available', False):
         try:
@@ -265,10 +236,8 @@ def dashboard():
 def test_cases():
     """Test cases page with filtering and search"""
     
-    # Load files
     load_test_files()
     
-    # Get filter parameters (handle both single values and arrays from multi-select)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
     test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
     priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
@@ -276,30 +245,24 @@ def test_cases():
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
     
-    # Remove empty strings from filter arrays
     app_filter = [f for f in app_filter if f]
     test_type_filter = [f for f in test_type_filter if f]
     priority_filter = [f for f in priority_filter if f]
     
-    # Get dynamic filter parameters
     dynamic_filters = {}
     for key, value in request.args.items():
         if key.startswith('dynamic_') and value:
             filter_column = key.replace('dynamic_', '').replace('_', ' ').title()
             dynamic_filters[filter_column] = value
     
-    # Get selected test case IDs (for selective export)
     selected_ids = request.args.get('selected_ids', '')
     selected_id_list = selected_ids.split(',') if selected_ids else []
     
-    # Filter test cases
     filtered_cases = []
     for file_name, file_data in test_cases_data.items():
         for case in file_data:
-            # Add source file information
             case['source_file'] = file_name
             
-            # Apply filters
             if app_filter and case.get('App', '') not in app_filter:
                 continue
             if test_type_filter and case.get('Test Type', '') not in test_type_filter:
@@ -311,28 +274,24 @@ def test_cases():
                 if search_query.lower() not in search_text:
                     continue
             
-            # Apply dynamic filters
             for filter_column, filter_value in dynamic_filters.items():
                 if case.get(filter_column, '') != filter_value:
                     continue
             
-            # Apply selected IDs filter (if specified)
-            if selected_id_list and selected_id_list[0]:  # Only if specific IDs are selected
+            if selected_id_list and selected_id_list[0]:
                 case_id = str(case.get('Test Case ID', case.get('TC ID', '')))
                 if case_id not in selected_id_list:
                     continue
             
             filtered_cases.append(case)
     
-    # Sort test cases
     if sort_by in ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Status', 'Priority']:
         try:
             reverse = sort_order.lower() == 'desc'
             filtered_cases.sort(key=lambda x: str(x.get(sort_by, '')).lower(), reverse=reverse)
         except:
-            pass  # Keep original order if sorting fails
+            pass
     
-    # Pagination
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 25))
     
@@ -342,12 +301,10 @@ def test_cases():
     
     paginated_cases = filtered_cases[start_idx:end_idx]
     
-    # Calculate pagination info
     total_pages = (total_cases + per_page - 1) // per_page
     has_prev = page > 1
     has_next = page < total_pages
     
-    # Get unique values for filters
     apps = set()
     test_types = set()
     priorities = set()
@@ -361,7 +318,6 @@ def test_cases():
             if 'Priority' in case:
                 priorities.add(case['Priority'])
     
-    # Get multiselect threshold from config
     from config.settings import config
     multiselect_threshold = config.get_multiselect_threshold()
     
@@ -378,7 +334,6 @@ def test_cases():
                          current_order=sort_order,
                          current_role=session.get('current_role'),
                          dynamic_filters=dynamic_filters,
-                         # Pagination info
                          page=page,
                          per_page=per_page,
                          total_cases=total_cases,
@@ -392,7 +347,6 @@ def admin():
     """Admin page"""
     role = session.get('current_role')
     
-    # Check if admin is enabled
     from config.settings import config
     if not config.is_admin_enabled():
         return redirect(url_for('main.role_selection'))
@@ -400,7 +354,6 @@ def admin():
     if role != 'admin':
         return redirect(url_for('main.role_selection'))
     
-    # Load files for admin stats
     load_test_files()
     
     file_count = len(test_cases_data)
@@ -420,7 +373,6 @@ def reports():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Load files for reports
     load_test_files()
     
     file_count = len(test_cases_data)
@@ -440,16 +392,13 @@ def execute_test():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Get test case ID from query parameters
     test_id = request.args.get('test_id')
     source_file = request.args.get('source_file')
     
-    # Load files to find the test case
     load_test_files()
     
     test_case = None
     if test_id and source_file:
-        # Find the specific test case
         for file_name, file_data in test_cases_data.items():
             if file_name == source_file:
                 for case in file_data:
@@ -460,7 +409,6 @@ def execute_test():
                         break
                 break
     
-    # If no specific test case, create a sample one
     if not test_case:
         test_case = {
             'Test Case ID': 'TC-SAMPLE-001',
@@ -486,17 +434,13 @@ def submit_test_execution():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Get form data
     test_id = request.form.get('test_id')
     source_file = request.form.get('source_file')
     result = request.form.get('result')
     execution_time = request.form.get('execution_time')
     environment = request.form.get('environment')
     comments = request.form.get('comments')
-    
-    # Here you would typically save the execution result to a database
-    # For now, we'll just redirect back to test cases with a success message
-    
+
     return redirect(url_for('main.test_cases', 
                            message=f'Test execution recorded successfully! Result: {result}'))
 
@@ -508,15 +452,12 @@ def export_test_cases():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Load files
     load_test_files()
     
-    # Get filter parameters (same as test_cases route)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
     test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
     priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
     
-    # Remove empty strings from filter arrays
     app_filter = [f for f in app_filter if f]
     test_type_filter = [f for f in test_type_filter if f]
     priority_filter = [f for f in priority_filter if f]
@@ -524,25 +465,20 @@ def export_test_cases():
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
     
-    # Get dynamic filter parameters
     dynamic_filters = {}
     for key, value in request.args.items():
         if key.startswith('dynamic_') and value:
             filter_column = key.replace('dynamic_', '').replace('_', ' ').title()
             dynamic_filters[filter_column] = value
     
-    # Get selected test case IDs (for selective export)
     selected_ids = request.args.get('selected_ids', '')
     selected_id_list = selected_ids.split(',') if selected_ids else []
     
-    # Filter test cases (same logic as test_cases route)
     filtered_cases = []
     for file_name, file_data in test_cases_data.items():
         for case in file_data:
-            # Add source file information
             case['source_file'] = file_name
             
-            # Apply filters
             if app_filter and case.get('App', '') not in app_filter:
                 continue
             if test_type_filter and case.get('Test Type', '') not in test_type_filter:
@@ -554,49 +490,41 @@ def export_test_cases():
                 if search_query.lower() not in search_text:
                     continue
             
-            # Apply dynamic filters
             for filter_column, filter_value in dynamic_filters.items():
                 if case.get(filter_column, '') != filter_value:
                     continue
             
-            # Apply selected IDs filter (if specified)
-            if selected_id_list and selected_id_list[0]:  # Only if specific IDs are selected
+            if selected_id_list and selected_id_list[0]:
                 case_id = str(case.get('Test Case ID', case.get('TC ID', '')))
                 if case_id not in selected_id_list:
                     continue
             
             filtered_cases.append(case)
     
-    # Sort test cases
     if sort_by in ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Status', 'Priority']:
         try:
             reverse = sort_order.lower() == 'desc'
             filtered_cases.sort(key=lambda x: str(x.get(sort_by, '')).lower(), reverse=reverse)
         except:
-            pass  # Keep original order if sorting fails
+            pass
     
-    # Create DataFrame
     if filtered_cases:
         df = pd.DataFrame(filtered_cases)
         
-        # Reorder columns for better readability
         column_order = ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Priority', 'Status', 'Expected Behavior', 'source_file']
         existing_columns = [col for col in column_order if col in df.columns]
         other_columns = [col for col in df.columns if col not in existing_columns]
         df = df[existing_columns + other_columns]
         
-        # Create file in memory
         from io import BytesIO
         output = BytesIO()
         
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, sheet_name='Test Cases', index=False)
             
-            # Get the workbook and worksheet
             workbook = writer.book
             worksheet = writer.sheets['Test Cases']
             
-            # Auto-adjust column widths
             for column in worksheet.columns:
                 max_length = 0
                 column_letter = column[0].column_letter
@@ -611,12 +539,10 @@ def export_test_cases():
         
         output.seek(0)
         
-        # Create filename with timestamp
         from datetime import datetime
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"test_cases_export_{timestamp}.xlsx"
         
-        # Return file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -634,15 +560,12 @@ def export_test_cases_csv():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Load files
     load_test_files()
     
-    # Get filter parameters (same as test_cases route)
     app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
     test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
     priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
     
-    # Remove empty strings from filter arrays
     app_filter = [f for f in app_filter if f]
     test_type_filter = [f for f in test_type_filter if f]
     priority_filter = [f for f in priority_filter if f]
@@ -650,25 +573,20 @@ def export_test_cases_csv():
     sort_by = request.args.get('sort', 'Test Case ID')
     sort_order = request.args.get('order', 'asc')
     
-    # Get dynamic filter parameters
     dynamic_filters = {}
     for key, value in request.args.items():
         if key.startswith('dynamic_') and value:
             filter_column = key.replace('dynamic_', '').replace('_', ' ').title()
             dynamic_filters[filter_column] = value
     
-    # Get selected test case IDs (for selective export)
     selected_ids = request.args.get('selected_ids', '')
     selected_id_list = selected_ids.split(',') if selected_ids else []
     
-    # Filter test cases (same logic as test_cases route)
     filtered_cases = []
     for file_name, file_data in test_cases_data.items():
         for case in file_data:
-            # Add source file information
             case['source_file'] = file_name
             
-            # Apply filters
             if app_filter and case.get('App', '') not in app_filter:
                 continue
             if test_type_filter and case.get('Test Type', '') not in test_type_filter:
@@ -680,49 +598,41 @@ def export_test_cases_csv():
                 if search_query.lower() not in search_text:
                     continue
             
-            # Apply dynamic filters
             for filter_column, filter_value in dynamic_filters.items():
                 if case.get(filter_column, '') != filter_value:
                     continue
             
-            # Apply selected IDs filter (if specified)
-            if selected_id_list and selected_id_list[0]:  # Only if specific IDs are selected
+            if selected_id_list and selected_id_list[0]:
                 case_id = str(case.get('Test Case ID', case.get('TC ID', '')))
                 if case_id not in selected_id_list:
                     continue
             
             filtered_cases.append(case)
     
-    # Sort test cases
     if sort_by in ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Status', 'Priority']:
         try:
             reverse = sort_order.lower() == 'desc'
             filtered_cases.sort(key=lambda x: str(x.get(sort_by, '')).lower(), reverse=reverse)
         except:
-            pass  # Keep original order if sorting fails
+            pass
     
-    # Create DataFrame
     if filtered_cases:
         df = pd.DataFrame(filtered_cases)
         
-        # Reorder columns for better readability
         column_order = ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Priority', 'Status', 'Expected Behavior', 'source_file']
         existing_columns = [col for col in column_order if col in df.columns]
         other_columns = [col for col in df.columns if col not in existing_columns]
         df = df[existing_columns + other_columns]
         
-        # Create CSV file in memory
         from io import StringIO
         output = StringIO()
         df.to_csv(output, index=False)
         output.seek(0)
         
-        # Create filename with timestamp
         from datetime import datetime
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"test_cases_export_{timestamp}.csv"
         
-        # Return CSV file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -735,14 +645,13 @@ def export_test_cases_csv():
 @main_bp.route('/setup')
 def setup():
     """Setup page"""
-    return render_template('setup.html')
+    return render_template('auth/setup.html')
 
 @main_bp.route('/jfrog-config')
 def jfrog_config():
     """JFrog configuration page"""
     role = session.get('current_role')
     
-    # Check if admin is enabled
     from config.settings import config
     if not config.is_admin_enabled():
         return redirect(url_for('main.role_selection'))
@@ -750,7 +659,6 @@ def jfrog_config():
     if role != 'admin':
         return redirect(url_for('main.role_selection'))
     
-    # Create a default JFrog config object
     jfrog_config = {
         'base_url': '',
         'username': '',
@@ -766,13 +674,11 @@ def set_role():
     """Set user role"""
     role = request.form.get('role')
     
-    # Check if admin is enabled when trying to select admin role
     if role == 'admin':
         from config.settings import config
         if not config.is_admin_enabled():
             return redirect(url_for('main.role_selection'))
     
-    # Store role in session only (no global variable)
     session['current_role'] = role
     
     if role == 'admin':
@@ -782,68 +688,8 @@ def set_role():
 
 @main_bp.route('/prepare-test-suite')
 def prepare_test_suite():
-    """Prepare test suite page with release details"""
-    role = session.get('current_role')
-    
-    if not role:
-        return redirect(url_for('main.role_selection'))
-    
-    # Load files to get available options
-    load_test_files()
-    
-    # Get unique values for filters
-    apps = set()
-    test_types = set()
-    priorities = set()
-    
-    for file_data in test_cases_data.values():
-        for case in file_data:
-            if 'App' in case:
-                apps.add(case['App'])
-            if 'Test Type' in case:
-                test_types.add(case['Test Type'])
-            if 'Priority' in case:
-                priorities.add(case['Priority'])
-    
-    # Handle filtering - show all test cases by default, filter if parameters provided
-    filtered_cases = []
-    
-    # Get filter parameters
-    app_filter = request.args.get('app', '')
-    test_type_filter = request.args.get('testType', '')
-    priority_filter = request.args.get('priority', '')
-    search_query = request.args.get('search', '')
-    
-    # Filter test cases
-    for file_name, file_data in test_cases_data.items():
-        for case in file_data:
-            # Apply filters
-            if app_filter and case.get('App', '') != app_filter:
-                continue
-            if test_type_filter and case.get('Test Type', '') != test_type_filter:
-                continue
-            if priority_filter and case.get('Priority', '') != priority_filter:
-                continue
-            if search_query and search_query.lower() not in case.get('Summary', '').lower():
-                continue
-            
-            # Add file information to case
-            case_with_file = case.copy()
-            case_with_file['File'] = file_name
-            filtered_cases.append(case_with_file)
-    
-    # Get multiselect threshold from config
-    from config.settings import config
-    multiselect_threshold = config.get_multiselect_threshold()
-    
-    return render_template('prepare_test_suite.html', 
-                         current_role=role,
-                         apps=sorted(apps),
-                         test_types=sorted(test_types),
-                         priorities=sorted(priorities),
-                         test_cases=filtered_cases,
-                         total_cases=len(filtered_cases),
-                         multiselect_threshold=multiselect_threshold)
+    """Redirect to test cases page (merged functionality)"""
+    return redirect(url_for('main.test_cases'))
 
 @main_bp.route('/export-test-suite')
 def export_test_suite():
@@ -853,12 +699,10 @@ def export_test_suite():
     if not role:
         return redirect(url_for('main.role_selection'))
     
-    # Get export parameters
     export_format = request.args.get('export_format', 'file')
     include_release_details = request.args.get('include_release_details', 'true').lower() == 'true'
     selected_indices = request.args.get('selected_indices', '')
     
-    # Get release details
     release_details = {
         'release_version': request.args.get('releaseVersion', ''),
         'sprint': request.args.get('sprint', ''),
@@ -871,23 +715,18 @@ def export_test_suite():
         'notes': request.args.get('notes', '')
     }
     
-    # Load test cases
     load_test_files()
     
-    # Filter test cases based on request parameters
     filtered_cases = []
     for file_name, file_data in test_cases_data.items():
         for case in file_data:
-            # Add source file information
             case['source_file'] = file_name
             
-            # Apply filters (same logic as test_cases route)
             app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
             test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
             priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
             search_query = request.args.get('search', '')
             
-            # Remove empty strings from filter arrays
             app_filter = [f for f in app_filter if f]
             test_type_filter = [f for f in test_type_filter if f]
             priority_filter = [f for f in priority_filter if f]
@@ -905,51 +744,43 @@ def export_test_suite():
             
             filtered_cases.append(case)
     
-    # Apply selected indices filter if specified
     if selected_indices:
         try:
             indices = [int(i) for i in selected_indices.split(',') if i]
             filtered_cases = [filtered_cases[i] for i in indices if i < len(filtered_cases)]
         except (ValueError, IndexError):
-            pass  # Use all filtered cases if indices are invalid
+            pass
     
     if not filtered_cases:
-        return redirect(url_for('main.prepare_test_suite', message='No test cases found to export'))
+        return redirect(url_for('main.test_cases', message='No test cases found to export'))
     
-    # Create DataFrame
     df = pd.DataFrame(filtered_cases)
     
-    # Add release details if requested
     if include_release_details:
         for key, value in release_details.items():
             if value:
                 df[f'Release_{key.replace("_", " ").title()}'] = value
     
-    # Reorder columns for better readability
     column_order = ['Test Case ID', 'Summary', 'App', 'Test Type', 'Feature', 'Priority', 'Status', 'Expected Behavior', 'source_file']
     existing_columns = [col for col in column_order if col in df.columns]
     other_columns = [col for col in df.columns if col not in existing_columns]
     df = df[existing_columns + other_columns]
     
-    # Create filename with release version and timestamp
     from datetime import datetime
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     release_version = release_details['release_version'] or 'Unknown'
     filename = f"test_suite_{release_version}_{timestamp}"
     
     if export_format == 'file':
-        # Create file in memory
         from io import BytesIO
         output = BytesIO()
         
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, sheet_name='Test Suite', index=False)
             
-            # Get the workbook and worksheet
             workbook = writer.book
             worksheet = writer.sheets['Test Suite']
             
-            # Auto-adjust column widths
             for column in worksheet.columns:
                 max_length = 0
                 column_letter = column[0].column_letter
@@ -964,7 +795,6 @@ def export_test_suite():
         
         output.seek(0)
         
-        # Return file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -972,14 +802,12 @@ def export_test_suite():
             headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'}
         )
     
-    else:  # CSV format
-        # Create CSV file in memory
+    else:
         from io import StringIO
         output = StringIO()
         df.to_csv(output, index=False)
         output.seek(0)
         
-        # Return CSV file
         from flask import Response
         return Response(
             output.getvalue(),
@@ -992,7 +820,6 @@ def sync_dashboard():
     """Sync management dashboard"""
     role = session.get('current_role')
     
-    # Check if admin is enabled
     from config.settings import config
     if not config.is_admin_enabled():
         return redirect(url_for('main.role_selection'))
@@ -1011,9 +838,9 @@ def logout():
 @main_bp.errorhandler(404)
 def not_found(error):
     """Handle 404 errors"""
-    return render_template('404.html'), 404
+    return render_template('errors/404.html'), 404
 
 @main_bp.errorhandler(500)
 def internal_error(error):
     """Handle 500 errors"""
-    return render_template('500.html'), 500
+    return render_template('errors/500.html'), 500

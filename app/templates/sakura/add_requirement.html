@@ -1,22 +1,20 @@
-{% extends "sakura_base.html" %}
+{% extends "sakura/base.html" %}
 
 {% block title %}Add Requirement - Sakura{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Header Section -->
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="mb-1">
-                        <i class="fas fa-plus me-2" style="color: #ff69b4;"></i>Add New Requirement
-                    </h1>
-                    <p class="text-muted mb-0">Create a new requirement for your project</p>
+                    <h2 class="mb-1"><i class="fas fa-plus me-2"></i>Add New Requirement</h2>
+                    <p class="text-muted mb-0">Create a new requirement with detailed specifications</p>
                 </div>
                 <div>
-                    <a href="{{ url_for('sakura.sakura_dashboard') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    <a href="{{ url_for('sakura.browse_requirements') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Requirements
                     </a>
                 </div>
             </div>
@@ -28,103 +26,237 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Requirement Details</h5>
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Requirement Details</h5>
                 </div>
                 <div class="card-body">
-                    <form id="requirement-form">
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Requirement Title *</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                    <form method="POST" action="{{ url_for('sakura.create_requirement') }}" id="requirementForm">
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="requirement_id" class="form-label">Requirement ID <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="requirement_id" name="requirement_id" 
+                                       placeholder="REQ-001" required>
+                                <div class="form-text">Leave empty to auto-generate</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="screen_id" class="form-label">Screen ID</label>
+                                <input type="text" class="form-control" id="screen_id" name="screen_id" 
+                                       placeholder="SCR-001">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Describe the requirement in detail..." required></textarea>
+                            </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description *</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+
+                        <!-- Gherkin Scenario -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-code me-2"></i>Gherkin Scenario</h6>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="given" class="form-label">Given (Precondition)</label>
+                                <textarea class="form-control" id="given" name="given" rows="2" 
+                                          placeholder="Given the user is on the login page..."></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="when" class="form-label">When (Action)</label>
+                                <textarea class="form-control" id="when" name="when" rows="2" 
+                                          placeholder="When the user enters valid credentials..."></textarea>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="then" class="form-label">Then (Expected Result)</label>
+                                <textarea class="form-control" id="then" name="then" rows="2" 
+                                          placeholder="Then the user should be logged in successfully..."></textarea>
+                            </div>
                         </div>
-                        
+
+                        <!-- Classification -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-tags me-2"></i>Classification</h6>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="Draft" selected>Draft</option>
+                                    <option value="Review">Review</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Rejected">Rejected</option>
+                                    <option value="On Hold">On Hold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="Functional" selected>Functional</option>
+                                    <option value="Non-Functional">Non-Functional</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Authentication">Authentication</option>
+                                    <option value="Authorization">Authorization</option>
+                                    <option value="Data Management">Data Management</option>
+                                    <option value="UI/UX">UI/UX</option>
+                                    <option value="Performance">Performance</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Integration">Integration</option>
+                                    <option value="Reporting">Reporting</option>
+                                    <option value="Analytics">Analytics</option>
+                                    <option value="API">API</option>
+                                    <option value="Database">Database</option>
+                                    <option value="Infrastructure">Infrastructure</option>
+                                    <option value="Documentation">Documentation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Assignment & Dates -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Assignment & Timeline</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assignee" class="form-label">Assignee</label>
+                                <input type="text" class="form-control" id="assignee" name="assignee" 
+                                       placeholder="John Doe">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="due_date" class="form-label">Due Date</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date">
+                            </div>
+                        </div>
+
+                        <!-- Tags & Additional Info -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3"><i class="fas fa-tag me-2"></i>Tags & Additional Information</h6>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="tags" class="form-label">Tags</label>
+                                <input type="text" class="form-control" id="tags" name="tags" 
+                                       placeholder="authentication, security, login">
+                                <div class="form-text">Separate multiple tags with commas</div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="author" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="author" name="author" 
+                                       placeholder="Your name">
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="priority" class="form-label">Priority</label>
-                                    <select class="form-select" id="priority" name="priority">
-                                        <option value="High">High</option>
-                                        <option value="Medium" selected>Medium</option>
-                                        <option value="Low">Low</option>
-                                    </select>
+                            <div class="col-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>Create Requirement
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                        <i class="fas fa-undo me-1"></i>Reset Form
+                                    </button>
+                                    <a href="{{ url_for('sakura.browse_requirements') }}" class="btn btn-outline-danger">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </a>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="category" class="form-label">Category</label>
-                                    <select class="form-select" id="category" name="category">
-                                        <option value="Functional">Functional</option>
-                                        <option value="Non-Functional">Non-Functional</option>
-                                        <option value="Security">Security</option>
-                                        <option value="Performance">Performance</option>
-                                        <option value="UI/UX">UI/UX</option>
-                                        <option value="Integration">Integration</option>
-                                        <option value="Database">Database</option>
-                                        <option value="Documentation">Documentation</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="assignee" class="form-label">Assignee</label>
-                                    <input type="text" class="form-control" id="assignee" name="assignee">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="due-date" class="form-label">Due Date</label>
-                                    <input type="date" class="form-control" id="due-date" name="due_date">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="tags" class="form-label">Tags</label>
-                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Enter tags separated by commas">
-                            <div class="form-text">Separate multiple tags with commas</div>
-                        </div>
-                        
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Save Requirement
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
-                                <i class="fas fa-undo me-2"></i>Reset
-                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        
-        <!-- Help Section -->
+
+        <!-- Preview Panel -->
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Help & Guidelines</h5>
+                    <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Live Preview</h6>
                 </div>
                 <div class="card-body">
-                    <h6>Writing Good Requirements</h6>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Be specific and clear</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Use action verbs</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Include acceptance criteria</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Make them testable</li>
-                    </ul>
-                    
-                    <h6 class="mt-3">Priority Levels</h6>
-                    <ul class="list-unstyled">
-                        <li><span class="badge bg-danger me-2">High</span>Critical for project success</li>
-                        <li><span class="badge bg-warning me-2">Medium</span>Important but not critical</li>
-                        <li><span class="badge bg-info me-2">Low</span>Nice to have features</li>
-                    </ul>
+                    <div id="previewContent">
+                        <div class="text-muted text-center">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>Start filling the form to see a live preview of your requirement.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Panel -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Help & Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    Writing Good Requirements
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li>Be clear and specific</li>
+                                        <li>Use active voice</li>
+                                        <li>Avoid ambiguous terms</li>
+                                        <li>Include acceptance criteria</li>
+                                        <li>Make them testable</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    Gherkin Best Practices
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li><strong>Given:</strong> Set up the initial state</li>
+                                        <li><strong>When:</strong> Describe the action</li>
+                                        <li><strong>Then:</strong> Define expected outcome</li>
+                                        <li>Use business language</li>
+                                        <li>Keep scenarios focused</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    Priority Guidelines
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <ul class="mb-0">
+                                        <li><strong>Critical:</strong> System-breaking issues</li>
+                                        <li><strong>High:</strong> Important features</li>
+                                        <li><strong>Medium:</strong> Standard features</li>
+                                        <li><strong>Low:</strong> Nice-to-have features</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,93 +265,199 @@
 {% endblock %}
 
 {% block scripts %}
-<style>
-.card {
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-control:focus {
-    border-color: #ff69b4;
-    box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.25);
-}
-
-.btn-primary {
-    background-color: #ff69b4;
-    border-color: #ff69b4;
-}
-
-.btn-primary:hover {
-    background-color: #ff1493;
-    border-color: #ff1493;
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     setupFormValidation();
+    setupLivePreview();
+    setupAutoGeneration();
 });
 
 function setupFormValidation() {
-    const form = document.getElementById('requirement-form');
-    form.addEventListener('submit', handleFormSubmit);
+    const form = document.getElementById('requirementForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate required fields
+        const description = document.getElementById('description').value.trim();
+        if (!description) {
+            showAlert('Description is required', 'danger');
+            return;
+        }
+        
+        // If validation passes, submit the form
+        form.submit();
+    });
 }
 
-function handleFormSubmit(event) {
-    event.preventDefault();
+function setupLivePreview() {
+    const formFields = ['requirement_id', 'screen_id', 'description', 'given', 'when', 'then', 'status', 'priority', 'category', 'assignee', 'due_date', 'tags'];
     
-    const formData = new FormData(event.target);
-    const requirement = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        priority: formData.get('priority'),
-        category: formData.get('category'),
-        assignee: formData.get('assignee'),
-        due_date: formData.get('due_date'),
-        tags: formData.get('tags')
+    formFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updatePreview);
+        }
+    });
+}
+
+function updatePreview() {
+    const previewContent = document.getElementById('previewContent');
+    
+    const requirementId = document.getElementById('requirement_id').value || 'REQ-XXX';
+    const screenId = document.getElementById('screen_id').value || 'N/A';
+    const description = document.getElementById('description').value || 'No description provided';
+    const given = document.getElementById('given').value;
+    const when = document.getElementById('when').value;
+    const then = document.getElementById('then').value;
+    const status = document.getElementById('status').value;
+    const priority = document.getElementById('priority').value;
+    const category = document.getElementById('category').value;
+    const assignee = document.getElementById('assignee').value || 'Unassigned';
+    const dueDate = document.getElementById('due_date').value;
+    const tags = document.getElementById('tags').value;
+    
+    let previewHtml = `
+        <div class="requirement-preview">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h6 class="mb-1">${requirementId}</h6>
+                    <small class="text-muted">Screen: ${screenId}</small>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-${getStatusColor(status)} me-1">${status}</span>
+                    <span class="badge bg-${getPriorityColor(priority)}">${priority}</span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <h6 class="text-primary mb-2">Description</h6>
+                <p class="mb-0">${description}</p>
+            </div>
+    `;
+    
+    if (given || when || then) {
+        previewHtml += `
+            <div class="mb-3">
+                <h6 class="text-primary mb-2">Gherkin Scenario</h6>
+                <div class="bg-light p-3 rounded">
+        `;
+        
+        if (given) previewHtml += `<div class="mb-1"><strong>Given:</strong> ${given}</div>`;
+        if (when) previewHtml += `<div class="mb-1"><strong>When:</strong> ${when}</div>`;
+        if (then) previewHtml += `<div class="mb-1"><strong>Then:</strong> ${then}</div>`;
+        
+        previewHtml += `
+                </div>
+            </div>
+        `;
+    }
+    
+    previewHtml += `
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted">
+                        <strong>Category:</strong><br>
+                        ${category}
+                    </small>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted">
+                        <strong>Assignee:</strong><br>
+                        ${assignee}
+                    </small>
+                </div>
+            </div>
+    `;
+    
+    if (dueDate) {
+        previewHtml += `
+            <div class="mt-2">
+                <small class="text-muted">
+                    <strong>Due Date:</strong> ${dueDate}
+                </small>
+            </div>
+        `;
+    }
+    
+    if (tags) {
+        const tagList = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+        if (tagList.length > 0) {
+            previewHtml += `
+                <div class="mt-3">
+                    <small class="text-muted d-block mb-1"><strong>Tags:</strong></small>
+                    ${tagList.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                </div>
+            `;
+        }
+    }
+    
+    previewHtml += `</div>`;
+    
+    previewContent.innerHTML = previewHtml;
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'Draft': 'secondary',
+        'Review': 'warning',
+        'Approved': 'info',
+        'In Progress': 'primary',
+        'Completed': 'success',
+        'Rejected': 'danger',
+        'On Hold': 'dark'
     };
-    
-    // Validate required fields
-    if (!requirement.title.trim()) {
-        alert('Please enter a requirement title');
-        return;
-    }
-    
-    if (!requirement.description.trim()) {
-        alert('Please enter a requirement description');
-        return;
-    }
-    
-    // Simulate saving requirement
-    saveRequirement(requirement);
+    return colors[status] || 'secondary';
 }
 
-function saveRequirement(requirement) {
-    // Show loading state
-    const submitBtn = document.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-    submitBtn.disabled = true;
+function getPriorityColor(priority) {
+    const colors = {
+        'Critical': 'danger',
+        'High': 'warning',
+        'Medium': 'info',
+        'Low': 'success'
+    };
+    return colors[priority] || 'info';
+}
+
+function setupAutoGeneration() {
+    const descriptionField = document.getElementById('description');
+    const idField = document.getElementById('requirement_id');
     
-    // Simulate API call
-    setTimeout(() => {
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        
-        // Show success message
-        alert(`Requirement "${requirement.title}" has been saved successfully!`);
-        
-        // Reset form
-        resetForm();
-        
-        // In a real implementation, you would redirect to the requirements list
-        // window.location.href = "{{ url_for('sakura.browse_requirements') }}";
-    }, 1500);
+    descriptionField.addEventListener('blur', function() {
+        if (!idField.value && this.value) {
+            // Auto-generate ID based on description
+            const words = this.value.toLowerCase().split(' ').slice(0, 3);
+            const id = 'REQ-' + words.map(word => word.charAt(0).toUpperCase()).join('') + '-' + Date.now().toString().slice(-3);
+            idField.value = id;
+            updatePreview();
+        }
+    });
 }
 
 function resetForm() {
-    document.getElementById('requirement-form').reset();
+    if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+        document.getElementById('requirementForm').reset();
+        updatePreview();
+    }
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const form = document.getElementById('requirementForm');
+    form.insertBefore(alertDiv, form.firstChild);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
 }
 </script>
 {% endblock %}

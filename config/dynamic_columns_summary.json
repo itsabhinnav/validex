@@ -1,0 +1,1759 @@
+{
+  "generated_at": "2025-10-10T01:21:01.775832",
+  "apps": {
+    "validex": {
+      "app_name": "validex",
+      "total_files": 18,
+      "total_columns": 8,
+      "required_columns": [
+        "Expected Behavior",
+        "Feature",
+        "Priority",
+        "Screen ID",
+        "Status",
+        "Summary",
+        "TC ID",
+        "type"
+      ],
+      "optional_columns": [],
+      "column_definitions": {
+        "Screen ID": {
+          "display_name": "Screen ID",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Unique identifier",
+          "sample_values": [
+            "LOGIN_001",
+            "HOME_001",
+            "LOGOUT_001",
+            "SEARCH_002",
+            "LOGIN_STRESS_001"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "Status": {
+          "display_name": "Status",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Current status",
+          "sample_values": [
+            "Pending"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "Summary": {
+          "display_name": "Summary",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Brief description or title",
+          "sample_values": [
+            "Report Scheduling",
+            "High Load User Login",
+            "Report Generation",
+            "Database Connection Failure",
+            "Search History"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "Expected Behavior": {
+          "display_name": "Expected Behavior",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Expected result or behavior",
+          "sample_values": [
+            "Database should handle 10000 queries per minute",
+            "System should handle 1000 concurrent logins",
+            "Reports should be exportable in multiple formats",
+            "User should be able to logout successfully",
+            "User should be able to schedule automatic reports"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "type": {
+          "display_name": "type",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Type or category",
+          "sample_values": [
+            "FMEA",
+            "Smoke",
+            "Sanity",
+            "Stress",
+            "Functional"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "Priority": {
+          "display_name": "Priority",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Priority level",
+          "sample_values": [
+            "Critical",
+            "Low",
+            "High",
+            "Medium"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "TC ID": {
+          "display_name": "TC ID",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Unique identifier",
+          "sample_values": [
+            "FMEA005",
+            "SMK004",
+            "STR004",
+            "SF1002",
+            "FMEA004"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        },
+        "Feature": {
+          "display_name": "Feature",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Feature or component",
+          "sample_values": [
+            "Navigation",
+            "Session",
+            "Reporting",
+            "Network",
+            "Authentication"
+          ],
+          "frequency": 18,
+          "frequency_percentage": 100.0
+        }
+      },
+      "mappings": {
+        "id": [
+          "Screen ID",
+          "TC ID"
+        ],
+        "summary": [
+          "Summary"
+        ],
+        "feature": [
+          "Feature"
+        ],
+        "priority": [
+          "Priority"
+        ],
+        "status": [
+          "Status"
+        ],
+        "screen": [
+          "Screen ID"
+        ],
+        "type": [
+          "type"
+        ],
+        "expected": [
+          "Expected Behavior"
+        ]
+      },
+      "file_analyses": [
+        {
+          "file_path": "data/excel_files/validex\\App1\\FMEA\\app1_fmea_tests.xlsx",
+          "file_name": "app1_fmea_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 5,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "FMEA001",
+              "FMEA002",
+              "FMEA003",
+              "FMEA004",
+              "FMEA005"
+            ],
+            "Summary": [
+              "Login Failure Analysis",
+              "Data Loss Prevention",
+              "Network Timeout Handling",
+              "Memory Leak Detection",
+              "Database Connection Failure"
+            ],
+            "Feature": [
+              "Authentication",
+              "Data Management",
+              "Network",
+              "Performance",
+              "Database"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "DATA_001",
+              "NET_001",
+              "PERF_001",
+              "DB_001"
+            ],
+            "type": [
+              "FMEA"
+            ],
+            "Expected Behavior": [
+              "System should handle login failures gracefully",
+              "System should prevent data loss during failures",
+              "System should handle network timeouts properly",
+              "System should not have memory leaks",
+              "System should handle database connection failures"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.442742"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App1\\Sanity\\app1_sanity_tests.xlsx",
+          "file_name": "app1_sanity_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SAN001",
+              "SAN002",
+              "SAN003",
+              "SAN004"
+            ],
+            "Summary": [
+              "Basic Login Functionality",
+              "Home Page Load",
+              "User Profile Display",
+              "Logout Functionality"
+            ],
+            "Feature": [
+              "Authentication",
+              "Navigation",
+              "User Management"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "HOME_001",
+              "PROFILE_001",
+              "LOGOUT_001"
+            ],
+            "type": [
+              "Sanity"
+            ],
+            "Expected Behavior": [
+              "User should be able to login with valid credentials",
+              "Home page should load successfully",
+              "User profile should display correctly",
+              "User should be able to logout successfully"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.466201"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App1\\Smoke\\app1_smoke_tests.xlsx",
+          "file_name": "app1_smoke_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SMK001",
+              "SMK002",
+              "SMK003",
+              "SMK004"
+            ],
+            "Summary": [
+              "Application Startup",
+              "Database Connection",
+              "API Endpoint Availability",
+              "User Session Management"
+            ],
+            "Feature": [
+              "System",
+              "Database",
+              "API",
+              "Session"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "STARTUP_001",
+              "DB_CONN_001",
+              "API_001",
+              "SESSION_001"
+            ],
+            "type": [
+              "Smoke"
+            ],
+            "Expected Behavior": [
+              "Application should start without errors",
+              "Database connection should be established",
+              "All critical API endpoints should be available",
+              "User sessions should be managed properly"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.487563"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App1\\Stress\\app1_stress_tests.xlsx",
+          "file_name": "app1_stress_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "STR001",
+              "STR002",
+              "STR003",
+              "STR004"
+            ],
+            "Summary": [
+              "High Load User Login",
+              "Database Query Performance",
+              "Memory Usage Under Load",
+              "API Response Time"
+            ],
+            "Feature": [
+              "Authentication",
+              "Database",
+              "Performance",
+              "API"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_STRESS_001",
+              "DB_STRESS_001",
+              "MEM_STRESS_001",
+              "API_STRESS_001"
+            ],
+            "type": [
+              "Stress"
+            ],
+            "Expected Behavior": [
+              "System should handle 1000 concurrent logins",
+              "Database should handle 10000 queries per minute",
+              "Memory usage should remain stable under load",
+              "API response time should be under 2 seconds under load"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.500815"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App1\\SubFeature1\\app1_subfeature1_tests.xlsx",
+          "file_name": "app1_subfeature1_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF1001",
+              "SF1002",
+              "SF1003"
+            ],
+            "Summary": [
+              "Advanced Search Functionality",
+              "Search Results Sorting",
+              "Search History"
+            ],
+            "Feature": [
+              "Search"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "SEARCH_001",
+              "SEARCH_002",
+              "SEARCH_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "Advanced search should work with multiple filters",
+              "Search results should be sortable by different criteria",
+              "User should be able to view search history"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.519180"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App1\\SubFeature2\\app1_subfeature2_tests.xlsx",
+          "file_name": "app1_subfeature2_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF2001",
+              "SF2002",
+              "SF2003"
+            ],
+            "Summary": [
+              "Report Generation",
+              "Report Export",
+              "Report Scheduling"
+            ],
+            "Feature": [
+              "Reporting"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "REPORT_001",
+              "REPORT_002",
+              "REPORT_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "User should be able to generate reports",
+              "Reports should be exportable in multiple formats",
+              "User should be able to schedule automatic reports"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.533852"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\FMEA\\app2_fmea_tests.xlsx",
+          "file_name": "app2_fmea_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 5,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "FMEA001",
+              "FMEA002",
+              "FMEA003",
+              "FMEA004",
+              "FMEA005"
+            ],
+            "Summary": [
+              "Login Failure Analysis",
+              "Data Loss Prevention",
+              "Network Timeout Handling",
+              "Memory Leak Detection",
+              "Database Connection Failure"
+            ],
+            "Feature": [
+              "Authentication",
+              "Data Management",
+              "Network",
+              "Performance",
+              "Database"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "DATA_001",
+              "NET_001",
+              "PERF_001",
+              "DB_001"
+            ],
+            "type": [
+              "FMEA"
+            ],
+            "Expected Behavior": [
+              "System should handle login failures gracefully",
+              "System should prevent data loss during failures",
+              "System should handle network timeouts properly",
+              "System should not have memory leaks",
+              "System should handle database connection failures"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.548892"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\Sanity\\app2_sanity_tests.xlsx",
+          "file_name": "app2_sanity_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SAN001",
+              "SAN002",
+              "SAN003",
+              "SAN004"
+            ],
+            "Summary": [
+              "Basic Login Functionality",
+              "Home Page Load",
+              "User Profile Display",
+              "Logout Functionality"
+            ],
+            "Feature": [
+              "Authentication",
+              "Navigation",
+              "User Management"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "HOME_001",
+              "PROFILE_001",
+              "LOGOUT_001"
+            ],
+            "type": [
+              "Sanity"
+            ],
+            "Expected Behavior": [
+              "User should be able to login with valid credentials",
+              "Home page should load successfully",
+              "User profile should display correctly",
+              "User should be able to logout successfully"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.564484"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\Smoke\\app2_smoke_tests.xlsx",
+          "file_name": "app2_smoke_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SMK001",
+              "SMK002",
+              "SMK003",
+              "SMK004"
+            ],
+            "Summary": [
+              "Application Startup",
+              "Database Connection",
+              "API Endpoint Availability",
+              "User Session Management"
+            ],
+            "Feature": [
+              "System",
+              "Database",
+              "API",
+              "Session"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "STARTUP_001",
+              "DB_CONN_001",
+              "API_001",
+              "SESSION_001"
+            ],
+            "type": [
+              "Smoke"
+            ],
+            "Expected Behavior": [
+              "Application should start without errors",
+              "Database connection should be established",
+              "All critical API endpoints should be available",
+              "User sessions should be managed properly"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.575903"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\Stress\\app2_stress_tests.xlsx",
+          "file_name": "app2_stress_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "STR001",
+              "STR002",
+              "STR003",
+              "STR004"
+            ],
+            "Summary": [
+              "High Load User Login",
+              "Database Query Performance",
+              "Memory Usage Under Load",
+              "API Response Time"
+            ],
+            "Feature": [
+              "Authentication",
+              "Database",
+              "Performance",
+              "API"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_STRESS_001",
+              "DB_STRESS_001",
+              "MEM_STRESS_001",
+              "API_STRESS_001"
+            ],
+            "type": [
+              "Stress"
+            ],
+            "Expected Behavior": [
+              "System should handle 1000 concurrent logins",
+              "Database should handle 10000 queries per minute",
+              "Memory usage should remain stable under load",
+              "API response time should be under 2 seconds under load"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.591395"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\SubFeature1\\app2_subfeature1_tests.xlsx",
+          "file_name": "app2_subfeature1_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF1001",
+              "SF1002",
+              "SF1003"
+            ],
+            "Summary": [
+              "Advanced Search Functionality",
+              "Search Results Sorting",
+              "Search History"
+            ],
+            "Feature": [
+              "Search"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "SEARCH_001",
+              "SEARCH_002",
+              "SEARCH_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "Advanced search should work with multiple filters",
+              "Search results should be sortable by different criteria",
+              "User should be able to view search history"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.607580"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App2\\SubFeature2\\app2_subfeature2_tests.xlsx",
+          "file_name": "app2_subfeature2_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF2001",
+              "SF2002",
+              "SF2003"
+            ],
+            "Summary": [
+              "Report Generation",
+              "Report Export",
+              "Report Scheduling"
+            ],
+            "Feature": [
+              "Reporting"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "REPORT_001",
+              "REPORT_002",
+              "REPORT_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "User should be able to generate reports",
+              "Reports should be exportable in multiple formats",
+              "User should be able to schedule automatic reports"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.623821"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\FMEA\\app3_fmea_tests.xlsx",
+          "file_name": "app3_fmea_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 5,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "FMEA001",
+              "FMEA002",
+              "FMEA003",
+              "FMEA004",
+              "FMEA005"
+            ],
+            "Summary": [
+              "Login Failure Analysis",
+              "Data Loss Prevention",
+              "Network Timeout Handling",
+              "Memory Leak Detection",
+              "Database Connection Failure"
+            ],
+            "Feature": [
+              "Authentication",
+              "Data Management",
+              "Network",
+              "Performance",
+              "Database"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "DATA_001",
+              "NET_001",
+              "PERF_001",
+              "DB_001"
+            ],
+            "type": [
+              "FMEA"
+            ],
+            "Expected Behavior": [
+              "System should handle login failures gracefully",
+              "System should prevent data loss during failures",
+              "System should handle network timeouts properly",
+              "System should not have memory leaks",
+              "System should handle database connection failures"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.648243"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\Sanity\\app3_sanity_tests.xlsx",
+          "file_name": "app3_sanity_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SAN001",
+              "SAN002",
+              "SAN003",
+              "SAN004"
+            ],
+            "Summary": [
+              "Basic Login Functionality",
+              "Home Page Load",
+              "User Profile Display",
+              "Logout Functionality"
+            ],
+            "Feature": [
+              "Authentication",
+              "Navigation",
+              "User Management"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_001",
+              "HOME_001",
+              "PROFILE_001",
+              "LOGOUT_001"
+            ],
+            "type": [
+              "Sanity"
+            ],
+            "Expected Behavior": [
+              "User should be able to login with valid credentials",
+              "Home page should load successfully",
+              "User profile should display correctly",
+              "User should be able to logout successfully"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.670846"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\Smoke\\app3_smoke_tests.xlsx",
+          "file_name": "app3_smoke_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SMK001",
+              "SMK002",
+              "SMK003",
+              "SMK004"
+            ],
+            "Summary": [
+              "Application Startup",
+              "Database Connection",
+              "API Endpoint Availability",
+              "User Session Management"
+            ],
+            "Feature": [
+              "System",
+              "Database",
+              "API",
+              "Session"
+            ],
+            "Priority": [
+              "Critical",
+              "High"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "STARTUP_001",
+              "DB_CONN_001",
+              "API_001",
+              "SESSION_001"
+            ],
+            "type": [
+              "Smoke"
+            ],
+            "Expected Behavior": [
+              "Application should start without errors",
+              "Database connection should be established",
+              "All critical API endpoints should be available",
+              "User sessions should be managed properly"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.690006"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\Stress\\app3_stress_tests.xlsx",
+          "file_name": "app3_stress_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 4,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "STR001",
+              "STR002",
+              "STR003",
+              "STR004"
+            ],
+            "Summary": [
+              "High Load User Login",
+              "Database Query Performance",
+              "Memory Usage Under Load",
+              "API Response Time"
+            ],
+            "Feature": [
+              "Authentication",
+              "Database",
+              "Performance",
+              "API"
+            ],
+            "Priority": [
+              "High",
+              "Medium"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "LOGIN_STRESS_001",
+              "DB_STRESS_001",
+              "MEM_STRESS_001",
+              "API_STRESS_001"
+            ],
+            "type": [
+              "Stress"
+            ],
+            "Expected Behavior": [
+              "System should handle 1000 concurrent logins",
+              "Database should handle 10000 queries per minute",
+              "Memory usage should remain stable under load",
+              "API response time should be under 2 seconds under load"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.712527"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\SubFeature1\\app3_subfeature1_tests.xlsx",
+          "file_name": "app3_subfeature1_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF1001",
+              "SF1002",
+              "SF1003"
+            ],
+            "Summary": [
+              "Advanced Search Functionality",
+              "Search Results Sorting",
+              "Search History"
+            ],
+            "Feature": [
+              "Search"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "SEARCH_001",
+              "SEARCH_002",
+              "SEARCH_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "Advanced search should work with multiple filters",
+              "Search results should be sortable by different criteria",
+              "User should be able to view search history"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.731325"
+        },
+        {
+          "file_path": "data/excel_files/validex\\App3\\SubFeature2\\app3_subfeature2_tests.xlsx",
+          "file_name": "app3_subfeature2_tests.xlsx",
+          "columns": [
+            "TC ID",
+            "Summary",
+            "Feature",
+            "Priority",
+            "Status",
+            "Screen ID",
+            "type",
+            "Expected Behavior"
+          ],
+          "row_count": 3,
+          "column_types": {
+            "TC ID": "string",
+            "Summary": "string",
+            "Feature": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Screen ID": "string",
+            "type": "string",
+            "Expected Behavior": "string"
+          },
+          "sample_data": {
+            "TC ID": [
+              "SF2001",
+              "SF2002",
+              "SF2003"
+            ],
+            "Summary": [
+              "Report Generation",
+              "Report Export",
+              "Report Scheduling"
+            ],
+            "Feature": [
+              "Reporting"
+            ],
+            "Priority": [
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Pending"
+            ],
+            "Screen ID": [
+              "REPORT_001",
+              "REPORT_002",
+              "REPORT_003"
+            ],
+            "type": [
+              "Functional"
+            ],
+            "Expected Behavior": [
+              "User should be able to generate reports",
+              "Reports should be exportable in multiple formats",
+              "User should be able to schedule automatic reports"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.748416"
+        }
+      ],
+      "generated_at": "2025-10-10T01:21:01.750421"
+    },
+    "sakura": {
+      "app_name": "sakura",
+      "total_files": 1,
+      "total_columns": 13,
+      "required_columns": [
+        "Assignee",
+        "Category",
+        "Created Date",
+        "Description",
+        "Due Date",
+        "Given",
+        "Priority",
+        "Requirement ID",
+        "Screen ID",
+        "Status",
+        "Tags",
+        "Then",
+        "When"
+      ],
+      "optional_columns": [],
+      "column_definitions": {
+        "Screen ID": {
+          "display_name": "Screen ID",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Unique identifier",
+          "sample_values": [
+            "SCR-001",
+            "SCR-003",
+            "SCR-006",
+            "SCR-002",
+            "SCR-005"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Due Date": {
+          "display_name": "Due Date",
+          "type": "date",
+          "required": true,
+          "unique": true,
+          "description": "Date field",
+          "sample_values": [
+            "2024-02-15",
+            "2024-02-14",
+            "2024-01-20",
+            "2024-02-08",
+            "2024-02-16"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Status": {
+          "display_name": "Status",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Current status",
+          "sample_values": [
+            "Active",
+            "Completed",
+            "Pending"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Requirement ID": {
+          "display_name": "Requirement ID",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Unique identifier",
+          "sample_values": [
+            "REQ-003",
+            "REQ-006",
+            "REQ-002",
+            "REQ-005",
+            "REQ-004"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "When": {
+          "display_name": "When",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "When condition",
+          "sample_values": [
+            "Developer accesses API",
+            "Data is stored/retrieved",
+            "User initiates payment",
+            "User enters credentials",
+            "System is accessed"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Category": {
+          "display_name": "Category",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Text field",
+          "sample_values": [
+            "Security",
+            "Integration",
+            "Database",
+            "UI/UX",
+            "Documentation"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Given": {
+          "display_name": "Given",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Given condition",
+          "sample_values": [
+            "User wants to access the system",
+            "Users need intuitive interface",
+            "System needs data storage",
+            "Developers need API documentation",
+            "User needs to process payments"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Tags": {
+          "display_name": "Tags",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Text field",
+          "sample_values": [
+            "ui,ux,design",
+            "docs,api",
+            "database,schema",
+            "payment,integration",
+            "security,access"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Assignee": {
+          "display_name": "Assignee",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Text field",
+          "sample_values": [
+            "Jane Smith",
+            "David Brown",
+            "John Doe",
+            "Mike Johnson",
+            "Sarah Wilson"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Description": {
+          "display_name": "Description",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Detailed description",
+          "sample_values": [
+            "User Authentication System",
+            "Database Schema Design",
+            "User Interface Guidelines",
+            "API Documentation Standards",
+            "Payment Gateway Integration"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Priority": {
+          "display_name": "Priority",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Priority level",
+          "sample_values": [
+            "High",
+            "Low",
+            "Medium"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Then": {
+          "display_name": "Then",
+          "type": "string",
+          "required": true,
+          "unique": true,
+          "description": "Then condition",
+          "sample_values": [
+            "Data should be stored efficiently",
+            "Payment should be processed securely",
+            "Clear documentation should be provided",
+            "Interface should be user-friendly",
+            "System should be secure"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        },
+        "Created Date": {
+          "display_name": "Created Date",
+          "type": "date",
+          "required": true,
+          "unique": true,
+          "description": "Date field",
+          "sample_values": [
+            "2024-01-16",
+            "2024-01-15",
+            "2024-01-08",
+            "2024-01-14",
+            "2024-01-10"
+          ],
+          "frequency": 1,
+          "frequency_percentage": 100.0
+        }
+      },
+      "mappings": {
+        "id": [
+          "Screen ID",
+          "Requirement ID"
+        ],
+        "summary": [
+          "Description"
+        ],
+        "priority": [
+          "Priority"
+        ],
+        "status": [
+          "Status"
+        ],
+        "screen": [
+          "Screen ID"
+        ],
+        "type": [
+          "Category"
+        ]
+      },
+      "file_analyses": [
+        {
+          "file_path": "data/excel_files/requirements\\sample_requirements.xlsx",
+          "file_name": "sample_requirements.xlsx",
+          "columns": [
+            "Requirement ID",
+            "Screen ID",
+            "Description",
+            "Given",
+            "When",
+            "Then",
+            "Priority",
+            "Status",
+            "Category",
+            "Assignee",
+            "Created Date",
+            "Due Date",
+            "Tags"
+          ],
+          "row_count": 6,
+          "column_types": {
+            "Requirement ID": "string",
+            "Screen ID": "string",
+            "Description": "string",
+            "Given": "string",
+            "When": "string",
+            "Then": "string",
+            "Priority": "string",
+            "Status": "string",
+            "Category": "string",
+            "Assignee": "string",
+            "Created Date": "date",
+            "Due Date": "date",
+            "Tags": "string"
+          },
+          "sample_data": {
+            "Requirement ID": [
+              "REQ-001",
+              "REQ-002",
+              "REQ-003",
+              "REQ-004",
+              "REQ-005",
+              "REQ-006"
+            ],
+            "Screen ID": [
+              "SCR-001",
+              "SCR-002",
+              "SCR-003",
+              "SCR-004",
+              "SCR-005",
+              "SCR-006"
+            ],
+            "Description": [
+              "User Authentication System",
+              "Payment Gateway Integration",
+              "API Documentation Standards",
+              "Database Schema Design",
+              "Security Requirements",
+              "User Interface Guidelines"
+            ],
+            "Given": [
+              "User wants to access the system",
+              "User needs to process payments",
+              "Developers need API documentation",
+              "System needs data storage",
+              "System needs security measures",
+              "Users need intuitive interface"
+            ],
+            "When": [
+              "User enters credentials",
+              "User initiates payment",
+              "Developer accesses API",
+              "Data is stored/retrieved",
+              "System is accessed",
+              "User interacts with system"
+            ],
+            "Then": [
+              "System should authenticate user",
+              "Payment should be processed securely",
+              "Clear documentation should be provided",
+              "Data should be stored efficiently",
+              "System should be secure",
+              "Interface should be user-friendly"
+            ],
+            "Priority": [
+              "High",
+              "Medium",
+              "Low"
+            ],
+            "Status": [
+              "Active",
+              "Completed",
+              "Pending"
+            ],
+            "Category": [
+              "Security",
+              "Integration",
+              "Documentation",
+              "Database",
+              "UI/UX"
+            ],
+            "Assignee": [
+              "John Doe",
+              "Jane Smith",
+              "Mike Johnson",
+              "Sarah Wilson",
+              "David Brown",
+              "Lisa Davis"
+            ],
+            "Created Date": [
+              "2024-01-15",
+              "2024-01-14",
+              "2024-01-10",
+              "2024-01-12",
+              "2024-01-08",
+              "2024-01-16"
+            ],
+            "Due Date": [
+              "2024-02-15",
+              "2024-02-14",
+              "2024-01-20",
+              "2024-02-12",
+              "2024-02-08",
+              "2024-02-16"
+            ],
+            "Tags": [
+              "auth,security",
+              "payment,integration",
+              "docs,api",
+              "database,schema",
+              "security,access",
+              "ui,ux,design"
+            ]
+          },
+          "analysis_timestamp": "2025-10-10T01:21:01.766226"
+        }
+      ],
+      "generated_at": "2025-10-10T01:21:01.773197"
+    }
+  },
+  "total_apps": 2,
+  "total_files": 19,
+  "total_columns": 21
+}

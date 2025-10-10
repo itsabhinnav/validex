@@ -19,7 +19,6 @@ class DatabaseService:
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path or str(path_resolver.get_database_path())
         self._local = threading.local()
-        # Ensure the data directory exists
         self._ensure_data_directory()
     
     def _get_connection(self):
@@ -56,13 +55,10 @@ class DatabaseService:
     def initialize(self):
         """Initialize database connection and create tables"""
         try:
-            # Ensure data directory exists
             self._ensure_data_directory()
             
-            # Get thread-local connection
             connection = self._get_connection()
             
-            # Create tables and indexes
             self.create_tables()
             self.migrate_schema()
             self.create_indexes()
@@ -72,7 +68,6 @@ class DatabaseService:
             
         except Exception as e:
             print(f"Database initialization error: {e}")
-            # Try to create a basic database file
             try:
                 self._create_basic_database()
                 print("Basic database created as fallback")
@@ -85,16 +80,12 @@ class DatabaseService:
     def _create_basic_database(self):
         """Create a basic database file with minimal structure"""
         try:
-            # Ensure data directory exists
             self._ensure_data_directory()
             
-            # Create a basic SQLite database
             connection = self._get_connection()
             
-            # Create minimal tables
             cursor = connection.cursor()
             
-            # Test cases table (minimal structure)
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS test_cases (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,7 +100,6 @@ class DatabaseService:
                 )
             ''')
             
-            # File metadata table (minimal structure)
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS file_metadata (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +124,6 @@ class DatabaseService:
                 )
             ''')
             
-            # Sync status table (minimal structure)
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS sync_status (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,7 +161,6 @@ class DatabaseService:
         connection = self._get_connection()
         cursor = connection.cursor()
         
-        # Test cases table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS test_cases (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -197,7 +185,6 @@ class DatabaseService:
             )
         ''')
         
-        # File metadata table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS file_metadata (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -222,7 +209,6 @@ class DatabaseService:
             )
         ''')
         
-        # Sync status table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS sync_status (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -256,23 +242,19 @@ class DatabaseService:
             connection = self._get_connection()
             cursor = connection.cursor()
             
-            # Check if file_id column exists in test_cases table
             cursor.execute("PRAGMA table_info(test_cases)")
             columns = [column[1] for column in cursor.fetchall()]
             
-            # Add file_id column if it doesn't exist
             if 'file_id' not in columns:
                 print("🔄 Adding file_id column to test_cases table...")
                 cursor.execute("ALTER TABLE test_cases ADD COLUMN file_id TEXT")
                 print("✅ file_id column added")
             
-            # Add local_version column if it doesn't exist
             if 'local_version' not in columns:
                 print("🔄 Adding local_version column to test_cases table...")
                 cursor.execute("ALTER TABLE test_cases ADD COLUMN local_version TEXT")
                 print("✅ local_version column added")
             
-            # Add other missing columns that might be needed
             missing_columns = [
                 ('screen_id', 'TEXT'),
                 ('expected_behavior', 'TEXT'),
@@ -292,7 +274,6 @@ class DatabaseService:
             
         except Exception as e:
             print(f"⚠️ Schema migration warning: {e}")
-            # Continue even if migration fails
             pass
     
     def create_indexes(self):
@@ -300,7 +281,6 @@ class DatabaseService:
         connection = self._get_connection()
         cursor = connection.cursor()
         
-        # Test cases indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_tc_id ON test_cases(tc_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_feature ON test_cases(feature)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_status ON test_cases(status)')
@@ -309,7 +289,6 @@ class DatabaseService:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_test_type ON test_cases(test_type)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_directory ON test_cases(directory_structure)')
         
-        # Check if file_id column exists before creating index
         try:
             cursor.execute("PRAGMA table_info(test_cases)")
             columns = [column[1] for column in cursor.fetchall()]
@@ -320,12 +299,10 @@ class DatabaseService:
         except Exception as e:
             print(f"Warning: Could not create file_id index: {e}")
         
-        # File metadata indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_file_metadata_file_id ON file_metadata(file_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_file_metadata_path ON file_metadata(file_path)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_file_metadata_sync_status ON file_metadata(sync_status)')
         
-        # Sync status indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_sync_status_id ON sync_status(sync_id)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_sync_status_status ON sync_status(status)')
         
@@ -336,7 +313,6 @@ class DatabaseService:
         connection = self._get_connection()
         cursor = connection.cursor()
         
-        # Build WHERE clause
         where_conditions = []
         params = []
         
@@ -348,11 +324,9 @@ class DatabaseService:
         
         where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
         
-        # Get total count
         cursor.execute(f"SELECT COUNT(*) FROM test_cases WHERE {where_clause}", params)
         total_count = cursor.fetchone()[0]
         
-        # Get paginated results
         query = f"""
             SELECT tc_id, summary, feature, priority, status, screen_id, test_type,
                    expected_behavior, procedure, preconditions, file_path, 
@@ -382,31 +356,24 @@ class DatabaseService:
         
         stats = {}
         
-        # Total count
         cursor.execute("SELECT COUNT(*) FROM test_cases")
         stats['total_cases'] = cursor.fetchone()[0]
         
-        # By status
         cursor.execute("SELECT status, COUNT(*) FROM test_cases GROUP BY status")
         stats['by_status'] = dict(cursor.fetchall())
         
-        # By priority
         cursor.execute("SELECT priority, COUNT(*) FROM test_cases GROUP BY priority")
         stats['by_priority'] = dict(cursor.fetchall())
         
-        # By feature
         cursor.execute("SELECT feature, COUNT(*) FROM test_cases GROUP BY feature")
         stats['by_feature'] = dict(cursor.fetchall())
         
-        # By app
         cursor.execute("SELECT app_name, COUNT(*) FROM test_cases GROUP BY app_name")
         stats['by_app'] = dict(cursor.fetchall())
         
-        # By test type
         cursor.execute("SELECT test_type, COUNT(*) FROM test_cases GROUP BY test_type")
         stats['by_test_type'] = dict(cursor.fetchall())
         
-        # By directory
         cursor.execute("SELECT directory_structure, COUNT(*) FROM test_cases GROUP BY directory_structure")
         stats['by_directory'] = dict(cursor.fetchall())
         
@@ -419,7 +386,6 @@ class DatabaseService:
         
         options = {}
         
-        # Get unique values for each filterable column
         columns = ['feature', 'status', 'priority', 'app_name', 'test_type', 'directory_structure']
         
         for column in columns:
@@ -480,7 +446,6 @@ class DatabaseService:
     def is_initialized(self) -> bool:
         """Check if database is properly initialized"""
         try:
-            # Test connection by running a simple query
             connection = self._get_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='test_cases'")
@@ -502,7 +467,6 @@ class DatabaseService:
                     'exists': os.path.exists(self.db_path)
                 }
             
-            # Test connection
             connection = self._get_connection()
             cursor = connection.cursor()
             cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")

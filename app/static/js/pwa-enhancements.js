@@ -1,7 +1,4 @@
-/**
- * PWA Enhancements for Validex
- * Mobile responsiveness, offline support, and app-like experience
- */
+
 
 class PWAEnhancements {
     constructor() {
@@ -35,10 +32,9 @@ class PWAEnhancements {
     }
 
     setupOfflineSupport() {
-        // Cache critical resources
-        this.cacheCriticalResources();
         
-        // Handle online/offline events
+        this.cacheCriticalResources();
+
         window.addEventListener('online', () => {
             this.isOnline = true;
             this.showOnlineStatus();
@@ -50,7 +46,6 @@ class PWAEnhancements {
             this.showOfflineStatus();
         });
 
-        // Intercept fetch requests for offline support
         this.setupFetchInterception();
     }
 
@@ -88,7 +83,7 @@ class PWAEnhancements {
     }
 
     async handleOfflineRequest(url, options) {
-        // Check if we have cached data
+        
         const cache = await caches.open('validex-data-v1');
         const cachedResponse = await cache.match(url);
         
@@ -96,10 +91,8 @@ class PWAEnhancements {
             return cachedResponse;
         }
 
-        // Store request for later sync
         this.syncQueue.push({ url, options, timestamp: Date.now() });
-        
-        // Return offline response
+
         return new Response(JSON.stringify({
             offline: true,
             message: 'You are offline. Data will sync when connection is restored.',
@@ -127,7 +120,6 @@ class PWAEnhancements {
             </div>
         `;
 
-        // Add toast styles
         if (!document.querySelector('#toast-styles')) {
             const style = document.createElement('style');
             style.id = 'toast-styles';
@@ -161,7 +153,6 @@ class PWAEnhancements {
 
         document.body.appendChild(toast);
 
-        // Auto remove after 3 seconds
         setTimeout(() => {
             toast.style.animation = 'slideInRight 0.3s ease reverse';
             setTimeout(() => toast.remove(), 300);
@@ -169,16 +160,13 @@ class PWAEnhancements {
     }
 
     enhanceMobileExperience() {
-        // Add mobile-specific styles
+        
         this.addMobileStyles();
-        
-        // Enhance touch interactions
+
         this.enhanceTouchInteractions();
-        
-        // Add pull-to-refresh
+
         this.addPullToRefresh();
-        
-        // Optimize for mobile viewport
+
         this.optimizeViewport();
     }
 
@@ -211,7 +199,7 @@ class PWAEnhancements {
                 }
                 
                 .search-input {
-                    font-size: 16px; /* Prevents zoom on iOS */
+                    font-size: 16px; 
                 }
                 
                 .floating-actions {
@@ -286,7 +274,7 @@ class PWAEnhancements {
     }
 
     enhanceTouchInteractions() {
-        // Add touch feedback to buttons
+        
         document.addEventListener('touchstart', (e) => {
             if (e.target.matches('.btn, .card, .floating-btn, .bulk-btn')) {
                 e.target.style.transform = 'scale(0.95)';
@@ -301,7 +289,6 @@ class PWAEnhancements {
             }
         });
 
-        // Add swipe gestures
         this.addSwipeGestures();
     }
 
@@ -319,15 +306,13 @@ class PWAEnhancements {
             
             const deltaX = endX - startX;
             const deltaY = endY - startY;
-            
-            // Swipe right - go back
+
             if (deltaX > 100 && Math.abs(deltaY) < 100) {
                 if (window.history.length > 1) {
                     window.history.back();
                 }
             }
-            
-            // Swipe left - refresh
+
             if (deltaX < -100 && Math.abs(deltaY) < 100) {
                 this.refreshData();
             }
@@ -419,7 +404,7 @@ class PWAEnhancements {
     }
 
     async refreshData() {
-        // Refresh data from server
+        
         try {
             const response = await fetch('/api/refresh-data');
             if (response.ok) {
@@ -431,7 +416,7 @@ class PWAEnhancements {
     }
 
     optimizeViewport() {
-        // Add viewport meta tag if not present
+        
         if (!document.querySelector('meta[name="viewport"]')) {
             const viewport = document.createElement('meta');
             viewport.name = 'viewport';
@@ -439,7 +424,6 @@ class PWAEnhancements {
             document.head.appendChild(viewport);
         }
 
-        // Prevent zoom on input focus (iOS)
         const inputs = document.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             input.addEventListener('focus', () => {
@@ -481,7 +465,7 @@ class PWAEnhancements {
     setupBackgroundSync() {
         if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
             navigator.serviceWorker.ready.then(registration => {
-                // Register background sync for offline actions
+                
                 registration.sync.register('validex-sync');
             });
         }
@@ -490,8 +474,7 @@ class PWAEnhancements {
     syncOfflineData() {
         if (this.syncQueue.length > 0) {
             this.showToast('Syncing offline data...', 'info');
-            
-            // Process sync queue
+
             this.syncQueue.forEach(async (item) => {
                 try {
                     await fetch(item.url, item.options);
@@ -506,7 +489,7 @@ class PWAEnhancements {
     }
 
     addTouchGestures() {
-        // Add touch gesture support for better mobile experience
+        
         this.addLongPressGesture();
         this.addDoubleTapGesture();
     }
@@ -583,14 +566,14 @@ class PWAEnhancements {
     }
 
     optimizeForMobile() {
-        // Add mobile-specific optimizations
+        
         this.optimizeImages();
         this.optimizeTables();
         this.addMobileNavigation();
     }
 
     optimizeImages() {
-        // Lazy load images
+        
         const images = document.querySelectorAll('img[data-src]');
         const imageObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -607,7 +590,7 @@ class PWAEnhancements {
     }
 
     optimizeTables() {
-        // Make tables more mobile-friendly
+        
         const tables = document.querySelectorAll('table');
         tables.forEach(table => {
             if (window.innerWidth < 768) {
@@ -617,7 +600,7 @@ class PWAEnhancements {
     }
 
     addMobileNavigation() {
-        // Add mobile navigation enhancements
+        
         const navbar = document.querySelector('.navbar');
         if (navbar && window.innerWidth < 768) {
             navbar.classList.add('navbar-mobile');
@@ -625,12 +608,10 @@ class PWAEnhancements {
     }
 }
 
-// Initialize PWA enhancements when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     window.pwaEnhancements = new PWAEnhancements();
 });
 
-// Add mobile-specific styles
 const mobileStyles = document.createElement('style');
 mobileStyles.textContent = `
     .pull-to-refresh {
