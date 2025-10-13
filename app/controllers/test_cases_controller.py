@@ -189,6 +189,7 @@ class TestCasesController(BaseController):
             'filter_options': service.get_filter_options(test_cases_data),
             'available_columns': service.get_available_columns(test_cases_data),
             'column_statistics': service.get_column_statistics(test_cases_data),
+            'column_mappings': service.get_column_mappings(test_cases_data),
             'filter_types': list(service._get_filter_types().keys())
         }
     

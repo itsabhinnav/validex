@@ -1981,7 +1981,13 @@ function showColumnUpdateMessage(message) {
     }, 3000);
 }
 
-// Dynamic Filters Functionality
+<!-- TEMPLATE TEST - THIS SHOULD APPEAR IN BROWSER -->
+<script>
+console.log("TEMPLATE TEST - validex/test_cases.html is being rendered!");
+</script>
+
+<script>
+// Dynamic Filters Functionality - UPDATED VERSION
 function initializeDynamicFilters() {
     const dynamicFiltersBtn = document.getElementById('dynamicFiltersBtn');
     if (!dynamicFiltersBtn) {
@@ -1995,6 +2001,15 @@ function initializeDynamicFilters() {
     
     // Load available columns for dynamic filters
     loadAvailableColumns();
+    
+    // Add event listeners to app checkboxes to update columns dynamically
+    const appCheckboxes = document.querySelectorAll('input[name="app"]');
+    appCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            console.log('App selection changed, updating available columns...');
+            loadAvailableColumns();
+        });
+    });
     
     console.log('Dynamic filters functionality initialized');
 }
@@ -2018,11 +2033,29 @@ function toggleDynamicFilters() {
 
 function loadAvailableColumns() {
     // Get available columns from the API
-    fetch('/api/filter-options')
+    const selectedApps = getSelectedApps();
+    let url = '/api/filter-options';
+    if (selectedApps.length > 0) {
+        url += '?' + selectedApps.map(app => `apps=${encodeURIComponent(app)}`).join('&');
+    }
+    
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             window.availableColumns = data.available_columns || [];
+            window.columnMappings = data.column_mappings || {};
+            window.columnStatistics = data.column_statistics || {};
+            
             console.log('Available columns loaded:', window.availableColumns);
+            console.log('Column mappings:', window.columnMappings);
+            
+            // Update dynamic filter column dropdown
+            updateDynamicFilterColumns();
+            
+            // Update column manager modal if it exists
+            if (document.getElementById('columnManagerModal')) {
+                updateColumnManagerModal();
+            }
         })
         .catch(error => {
             console.error('Error loading available columns:', error);
@@ -2033,6 +2066,142 @@ function loadAvailableColumns() {
                 'Screen ID', 'Assignee', 'Category', 'Created Date', 'Due Date'
             ];
         });
+}
+
+function getSelectedApps() {
+    // Get selected apps from the app filter
+    const appCheckboxes = document.querySelectorAll('input[name="app"]:checked');
+    return Array.from(appCheckboxes).map(cb => cb.value).filter(v => v);
+}
+
+function updateDynamicFilterColumns() {
+    const columnSelect = document.getElementById('filterColumn');
+    if (!columnSelect) return;
+    
+    // Clear existing options except the first one
+    const firstOption = columnSelect.querySelector('option[value=""]');
+    columnSelect.innerHTML = '';
+    if (firstOption) {
+        columnSelect.appendChild(firstOption);
+    }
+    
+    // Add available columns
+    if (window.availableColumns && window.availableColumns.length > 0) {
+        window.availableColumns.forEach(column => {
+            const option = document.createElement('option');
+            option.value = column;
+            option.textContent = column;
+            
+            // Add confidence indicator if available
+            if (window.columnMappings) {
+                const confidence = getColumnConfidence(column);
+                if (confidence > 0.8) {
+                    option.textContent += ' ✓';
+                } else if (confidence > 0.5) {
+                    option.textContent += ' ~';
+                }
+            }
+            
+            columnSelect.appendChild(option);
+        });
+    }
+    
+    // Update available columns for existing filters
+    updateAvailableColumns();
+}
+
+function getColumnConfidence(column) {
+    if (!window.columnMappings) return 0;
+    
+    for (const [pattern, matches] of Object.entries(window.columnMappings)) {
+        for (const match of matches) {
+            if (match.column === column) {
+                return match.confidence || 0;
+            }
+        }
+    }
+    return 0;
+}
+
+function updateColumnManagerModal() {
+    const columnCheckboxes = document.getElementById('columnCheckboxes');
+    const columnOrder = document.getElementById('columnOrder');
+    
+    if (!columnCheckboxes || !columnOrder) return;
+    
+    // Get current column preferences
+    const preferences = getColumnPreferences();
+    
+    // Clear existing content
+    columnCheckboxes.innerHTML = '';
+    columnOrder.innerHTML = '';
+    
+    // Use available columns instead of hardcoded ones
+    const availableColumns = window.availableColumns || [];
+    
+    // Define column configuration based on available columns
+    const columns = availableColumns.map(col => ({
+        key: col.toLowerCase().replace(/\s+/g, '_'),
+        name: col,
+        required: isRequiredColumn(col)
+    }));
+    
+    // Populate checkboxes
+    columns.forEach(column => {
+        const isVisible = preferences.visible[column.key] !== false;
+        const isRequired = column.required;
+        
+        const checkboxItem = document.createElement('div');
+        checkboxItem.className = 'form-check';
+        checkboxItem.innerHTML = `
+            <input class="form-check-input" type="checkbox" 
+                   id="col_${column.key}" 
+                   data-column="${column.key}"
+                   ${isVisible ? 'checked' : ''}
+                   ${isRequired ? 'disabled' : ''}>
+            <label class="form-check-label" for="col_${column.key}">
+                ${column.name}
+                ${isRequired ? '<small class="text-muted"> (Required)</small>' : ''}
+                ${getColumnConfidenceIndicator(column.name)}
+            </label>
+        `;
+        columnCheckboxes.appendChild(checkboxItem);
+    });
+    
+    // Populate order (only visible columns)
+    const visibleColumns = columns.filter(col => preferences.visible[col.key] !== false);
+    visibleColumns.forEach((column, index) => {
+        const orderItem = document.createElement('div');
+        orderItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+        orderItem.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-grip-vertical text-muted me-2"></i>
+                <span>${column.name}</span>
+                ${getColumnConfidenceIndicator(column.name)}
+            </div>
+            <small class="text-muted">${index + 1}</small>
+        `;
+        columnOrder.appendChild(orderItem);
+    });
+}
+
+function isRequiredColumn(columnName) {
+    // Define required columns
+    const requiredColumns = ['TC ID', 'Test Case ID', 'Summary', 'Description'];
+    return requiredColumns.some(req => 
+        req.toLowerCase() === columnName.toLowerCase() || 
+        columnName.toLowerCase().includes(req.toLowerCase())
+    );
+}
+
+function getColumnConfidenceIndicator(columnName) {
+    const confidence = getColumnConfidence(columnName);
+    if (confidence > 0.8) {
+        return '<span class="badge bg-success ms-1" title="High confidence mapping">✓</span>';
+    } else if (confidence > 0.5) {
+        return '<span class="badge bg-warning ms-1" title="Medium confidence mapping">~</span>';
+    }
+    return '';
 }
 
 function addDynamicFilter() {

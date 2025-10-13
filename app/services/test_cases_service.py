@@ -210,6 +210,113 @@ class TestCasesService:
                 columns.update(case.keys())
         return sorted(list(columns))
     
+    def get_column_mappings(self, test_cases_data: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Dict[str, Any]]:
+        """Get column mappings and suggestions based on available data"""
+        all_columns = self.get_available_columns(test_cases_data)
+        column_stats = self.get_column_statistics(test_cases_data)
+        
+        # Define standard column patterns
+        standard_patterns = {
+            'id': ['TC ID', 'Test Case ID', 'Test ID', 'ID', 'Id', 'test_case_id', 'requirement_id'],
+            'summary': ['Summary', 'Description', 'Title', 'Name', 'Test Summary'],
+            'feature': ['Feature', 'Component', 'Module', 'Area', 'Function'],
+            'priority': ['Priority', 'Level', 'Importance', 'Severity'],
+            'status': ['Status', 'State', 'Condition', 'Result'],
+            'screen': ['Screen ID', 'Screen', 'Page', 'Page ID'],
+            'type': ['Test Type', 'Type', 'Category', 'Kind', 'Test Category'],
+            'expected': ['Expected Behavior', 'Expected Result', 'Expected', 'Outcome', 'Expected Outcome'],
+            'assignee': ['Assignee', 'Tester', 'Owner', 'Responsible'],
+            'environment': ['Environment', 'Env', 'Deployment'],
+            'build': ['Build Version', 'Build', 'Version', 'Release'],
+            'automated': ['Automated', 'Auto', 'Manual', 'Execution Type']
+        }
+        
+        mappings = {}
+        
+        # For each standard pattern, find matching columns
+        for pattern, variations in standard_patterns.items():
+            matches = []
+            for col in all_columns:
+                for variation in variations:
+                    if variation.lower() in col.lower() or col.lower() in variation.lower():
+                        confidence = self._calculate_column_confidence(col, variation, column_stats.get(col, {}))
+                        matches.append({
+                            'column': col,
+                            'confidence': confidence,
+                            'sample_values': self._get_sample_values_for_column(test_cases_data, col)
+                        })
+                        break
+            
+            if matches:
+                # Sort by confidence
+                matches.sort(key=lambda x: x['confidence'], reverse=True)
+                mappings[pattern] = matches
+        
+        # Add unmapped columns
+        mapped_columns = set()
+        for pattern_matches in mappings.values():
+            for match in pattern_matches:
+                mapped_columns.add(match['column'])
+        
+        unmapped = []
+        for col in all_columns:
+            if col not in mapped_columns:
+                unmapped.append({
+                    'column': col,
+                    'confidence': 0.5,  # Default confidence for unmapped columns
+                    'sample_values': self._get_sample_values_for_column(test_cases_data, col)
+                })
+        
+        if unmapped:
+            mappings['other'] = unmapped
+        
+        return mappings
+    
+    def _calculate_column_confidence(self, column_name: str, pattern: str, stats: Dict[str, Any]) -> float:
+        """Calculate confidence score for column mapping"""
+        confidence = 0.0
+        
+        # Exact match gets highest confidence
+        if pattern.lower() == column_name.lower():
+            confidence += 0.9
+        # Partial match gets medium confidence
+        elif pattern.lower() in column_name.lower() or column_name.lower() in pattern.lower():
+            confidence += 0.7
+        # Similar words get lower confidence
+        elif any(word in column_name.lower() for word in pattern.lower().split()):
+            confidence += 0.5
+        
+        # Boost confidence based on data completeness
+        completeness = stats.get('completeness', 0)
+        if completeness > 80:
+            confidence += 0.1
+        elif completeness > 50:
+            confidence += 0.05
+        
+        # Boost confidence based on unique values (indicates it's a meaningful field)
+        unique_count = stats.get('unique_count', 0)
+        if unique_count > 1:
+            confidence += min(0.1, unique_count / 100)
+        
+        return min(1.0, confidence)
+    
+    def _get_sample_values_for_column(self, test_cases_data: Dict[str, List[Dict[str, Any]]], column: str) -> List[str]:
+        """Get sample values for a column"""
+        samples = set()
+        count = 0
+        
+        for file_data in test_cases_data.values():
+            for case in file_data:
+                if column in case and case[column] and str(case[column]).strip():
+                    samples.add(str(case[column]).strip())
+                    count += 1
+                    if count >= 5:  # Limit to 5 samples
+                        break
+            if count >= 5:
+                break
+        
+        return list(samples)
+    
     def get_column_statistics(self, test_cases_data: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Dict[str, Any]]:
         """Get statistics for each column"""
         stats = {}

@@ -297,7 +297,9 @@ def get_filter_options():
             'apps': sorted(apps),
             'test_types': sorted(test_types),
             'priorities': sorted(priorities),
-            'available_columns': enhanced_data.get('available_columns', [])
+            'available_columns': enhanced_data.get('available_columns', []),
+            'column_mappings': enhanced_data.get('column_mappings', {}),
+            'column_statistics': enhanced_data.get('column_statistics', {})
         })
     
     # Filter data based on selected apps
@@ -317,7 +319,9 @@ def get_filter_options():
         'apps': sorted(apps),
         'test_types': sorted(test_types),
         'priorities': sorted(priorities),
-        'available_columns': enhanced_data.get('available_columns', [])
+        'available_columns': enhanced_data.get('available_columns', []),
+        'column_mappings': enhanced_data.get('column_mappings', {}),
+        'column_statistics': enhanced_data.get('column_statistics', {})
     })
 
 @main_bp.errorhandler(404)
