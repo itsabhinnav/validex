@@ -45,7 +45,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-12">
         <div class="card">
             <div class="card-body text-center">
                 <h5 class="card-title">Test Suite</h5>
@@ -59,57 +59,6 @@
 </div>
 
 {% if app_stats %}
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Test Cases by Application</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <canvas id="appPieChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        {% for app, count in app_stats.by_app.items() %}
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ app }}</span>
-                            <span class="badge bg-primary">{{ count }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Test Cases by Type</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <canvas id="typePieChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        {% for test_type, count in app_stats.by_test_type.items() %}
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ test_type }}</span>
-                            <span class="badge bg-success">{{ count }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Additional pie chart for directory stats if available -->
 {% if app_stats.by_directory %}
 <div class="row mt-4">
@@ -213,61 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Color palettes for different charts
-    const appColors = [
-        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', 
-        '#20c997', '#fd7e14', '#e83e8c', '#6c757d', '#17a2b8'
-    ];
-    
-    const typeColors = [
-        '#28a745', '#007bff', '#ffc107', '#dc3545', '#6f42c1',
-        '#20c997', '#fd7e14', '#e83e8c', '#6c757d', '#17a2b8'
-    ];
-    
     const directoryColors = [
         '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14', '#6c757d',
         '#20c997', '#dc3545', '#ffc107', '#007bff', '#28a745'
     ];
-
-    // Application Pie Chart
-    {% if app_stats and app_stats.by_app %}
-    const appCtx = document.getElementById('appPieChart').getContext('2d');
-    const appData = {
-        labels: [{% for app, count in app_stats.by_app.items() %}'{{ app }}'{% if not loop.last %},{% endif %}{% endfor %}],
-        datasets: [{
-            data: [{% for app, count in app_stats.by_app.items() %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
-            backgroundColor: appColors.slice(0, {{ app_stats.by_app|length }}),
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    };
-    
-    new Chart(appCtx, {
-        type: 'pie',
-        data: appData,
-        options: chartOptions
-    });
-    {% endif %}
-
-    // Test Type Pie Chart
-    {% if app_stats and app_stats.by_test_type %}
-    const typeCtx = document.getElementById('typePieChart').getContext('2d');
-    const typeData = {
-        labels: [{% for test_type, count in app_stats.by_test_type.items() %}'{{ test_type }}'{% if not loop.last %},{% endif %}{% endfor %}],
-        datasets: [{
-            data: [{% for test_type, count in app_stats.by_test_type.items() %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
-            backgroundColor: typeColors.slice(0, {{ app_stats.by_test_type|length }}),
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    };
-    
-    new Chart(typeCtx, {
-        type: 'pie',
-        data: typeData,
-        options: chartOptions
-    });
-    {% endif %}
 
     // Directory Pie Chart
     {% if app_stats and app_stats.by_directory %}

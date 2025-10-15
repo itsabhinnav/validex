@@ -376,6 +376,10 @@ class ConfigManager:
         """Get the multiselect threshold for UI switching"""
         return self.get('app.multiselect_threshold', 5)
     
+    def get_test_cases_per_page(self) -> int:
+        """Get the default number of test cases per page"""
+        return self.get('app.test_cases_per_page', 100)
+    
     def get_allowed_domains(self) -> List[str]:
         """Get list of allowed domains"""
         return self.get('network_security.allowed_domains', [])

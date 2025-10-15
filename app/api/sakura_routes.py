@@ -9,22 +9,8 @@ sakura_bp = Blueprint('sakura', __name__)
 
 @sakura_bp.route('/sakura')
 def sakura_dashboard():
-    """Sakura dashboard - main entry point for Sakura app"""
-    try:
-        controller = RequirementsController()
-        dashboard_data = controller.get_requirements_dashboard()
-        
-        return render_template('sakura/dashboard.html', 
-                             summary=dashboard_data['summary'],
-                             recent_requirements=dashboard_data['recent_requirements'],
-                             success=dashboard_data['success'])
-    except Exception as e:
-        current_app.logger.error(f"Error in sakura dashboard: {e}")
-        return render_template('sakura/dashboard.html', 
-                             summary={'total': 0, 'by_status': {}, 'by_priority': {}, 'by_category': {}, 'by_assignee': {}, 'overdue': 0, 'due_soon': 0},
-                             recent_requirements=[],
-                             success=False,
-                             error=str(e))
+    """Sakura dashboard - redirect to browse requirements since dashboard template is missing"""
+    return redirect(url_for('sakura.browse_requirements'))
 
 @sakura_bp.route('/sakura/browse-requirements')
 def browse_requirements():
@@ -237,20 +223,20 @@ def api_requirement_details(requirement_id):
 # Legacy routes for backward compatibility
 @sakura_bp.route('/sakura/automation')
 def automation():
-    """Test automation management"""
-    return render_template('sakura/automation.html')
+    """Test automation management - redirect to browse requirements"""
+    return redirect(url_for('sakura.browse_requirements'))
 
 @sakura_bp.route('/sakura/orchestration')
 def orchestration():
-    """Test orchestration and scheduling"""
-    return render_template('sakura/orchestration.html')
+    """Test orchestration and scheduling - redirect to browse requirements"""
+    return redirect(url_for('sakura.browse_requirements'))
 
 @sakura_bp.route('/sakura/monitoring')
 def monitoring():
-    """Real-time test monitoring"""
-    return render_template('sakura/monitoring.html')
+    """Real-time test monitoring - redirect to browse requirements"""
+    return redirect(url_for('sakura.browse_requirements'))
 
 @sakura_bp.route('/sakura/insights')
 def insights():
-    """AI-powered insights and analytics"""
-    return render_template('sakura/insights.html')
+    """AI-powered insights and analytics - redirect to browse requirements"""
+    return redirect(url_for('sakura.browse_requirements'))

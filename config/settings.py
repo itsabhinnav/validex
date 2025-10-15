@@ -72,6 +72,10 @@ class Config:
         """Get the multiselect threshold for UI switching"""
         return config_manager.get_multiselect_threshold()
     
+    def get_test_cases_per_page(self):
+        """Get the default number of test cases per page"""
+        return config_manager.get_test_cases_per_page()
+    
     def get_network_security_config(self):
         """Get network security configuration"""
         return config_manager.get_section('network_security')

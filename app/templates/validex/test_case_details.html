@@ -85,6 +85,17 @@
         z-index: 1000;
     }
     
+    .multiline-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        border: 1px solid #e9ecef;
+    }
+    
     .breadcrumb {
         background: transparent;
         padding: 0;
@@ -169,19 +180,15 @@
         
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="test-case-id mb-2">
+                <h1 class="test-case-id mb-2 text-white">
                     {{ test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) }}
                 </h1>
-                <p class="summary-text mb-0">
-                    {{ test_case.get('Summary', 'No summary available') }}
-                </p>
             </div>
             <div class="col-md-4 text-md-end">
                 <div class="action-buttons">
-                    <a href="{{ url_for('main.execute_test', test_id=test_case.get('Test Case ID', test_case.get('TC ID', '')), source_file=test_case.get('source_file', '')) }}" 
-                       class="btn btn-success btn-lg me-2">
+                    <button class="btn btn-success btn-lg me-2" disabled>
                         <i class="fas fa-play me-2"></i>Execute Test
-                    </a>
+                    </button>
                     <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-light btn-lg">
                         <i class="fas fa-arrow-left me-2"></i>Back to List
                     </a>
@@ -204,69 +211,140 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="detail-row">
-                                <div class="detail-label">Test Case ID:</div>
+                                <div class="detail-label">Reference Document:</div>
                                 <div class="detail-value">
-                                    <strong>{{ test_case.get('Test Case ID', test_case.get('TC ID', 'N/A')) }}</strong>
+                                    <span class="text-primary">{{ test_case.get('Reference_Document', 'Not Available') }}</span>
                                 </div>
                             </div>
                             <div class="detail-row">
-                                <div class="detail-label">Application:</div>
+                                <div class="detail-label">TC ID:</div>
                                 <div class="detail-value">
-                                    <span class="badge bg-info status-badge">{{ test_case.get('App', 'N/A') }}</span>
+                                    <strong class="text-white bg-primary px-2 py-1 rounded">{{ test_case.get('TC ID', 'Not Available') }}</strong>
                                 </div>
                             </div>
                             <div class="detail-row">
-                                <div class="detail-label">Test Type:</div>
+                                <div class="detail-label">Associated Requirements:</div>
                                 <div class="detail-value">
-                                    <span class="badge bg-secondary status-badge">{{ test_case.get('Test Type', 'N/A') }}</span>
+                                    <div class="multiline-text">{{ test_case.get('Associated Requirements', 'Not Available') | replace('\n', '<br>') | safe }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Screen ID:</div>
+                                <div class="detail-value">
+                                    <span class="badge bg-info text-white">{{ test_case.get('Screen ID', 'Not Available') }}</span>
                                 </div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Feature:</div>
                                 <div class="detail-value">
-                                    <span class="badge bg-success status-badge">{{ test_case.get('Feature', 'N/A') }}</span>
+                                    <span class="badge bg-success text-white">{{ test_case.get('Feature', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">DR Applicable Screens:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('DR Applicable Screens', 'Not Available') | replace('\n', '<br>') | safe }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">DR ID:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('DR ID', 'Not Available') | replace('\n', '<br>') | safe }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Test Objective:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('Test Objective', 'Not Available') }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Preconditions:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('Preconditions', 'Not Available') | replace('\n', '<br>') | safe }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Procedure:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('Procedure', 'Not Available') | replace('\n', '<br>') | safe }}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Expected Behavior:</div>
+                                <div class="detail-value">
+                                    <div class="multiline-text">{{ test_case.get('Expected Behavior', 'Not Available') | replace('\n', '<br>') | safe }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-row">
-                                <div class="detail-label">Status:</div>
+                                <div class="detail-label">Test Type:</div>
                                 <div class="detail-value">
-                                    {% set status = test_case.get('Status', 'Pending').lower() %}
-                                    {% if status == 'passed' %}
-                                        <span class="badge bg-success status-badge">Passed</span>
-                                    {% elif status == 'failed' %}
-                                        <span class="badge bg-danger status-badge">Failed</span>
-                                    {% elif status == 'running' %}
-                                        <span class="badge bg-warning status-badge">Running</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary status-badge">Pending</span>
-                                    {% endif %}
+                                    <span class="badge bg-secondary text-white">{{ test_case.get('Test Type', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Region:</div>
+                                <div class="detail-value">
+                                    <span class="text-info">{{ test_case.get('Region', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Brand:</div>
+                                <div class="detail-value">
+                                    <span class="text-warning">{{ test_case.get('Brand', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Vehicle Variant:</div>
+                                <div class="detail-value">
+                                    <span class="text-success">{{ test_case.get('Vehicle Variant', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Vehicle Specification:</div>
+                                <div class="detail-value">
+                                    <span class="text-primary">{{ test_case.get('Vehicle Specification', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Env Dependancy:</div>
+                                <div class="detail-value">
+                                    <span class="text-secondary">{{ test_case.get('Env Dependancy', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Requirement Type:</div>
+                                <div class="detail-value">
+                                    <span class="badge bg-primary text-white">{{ test_case.get('Requirement Type', 'Not Available') }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Regulation:</div>
+                                <div class="detail-value">
+                                    <span class="text-danger">{{ test_case.get('Regulation', 'Not Available') }}</span>
                                 </div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Priority:</div>
                                 <div class="detail-value">
-                                    {% set priority = test_case.get('Priority', 'Medium').lower() %}
-                                    {% if priority == 'high' %}
-                                        <span class="badge bg-danger priority-badge">High</span>
-                                    {% elif priority == 'low' %}
-                                        <span class="badge bg-success priority-badge">Low</span>
+                                    {% set priority = test_case.get('Priority', 'Not Available') %}
+                                    {% if priority == 'P1' or priority == 'High' %}
+                                        <span class="badge bg-danger text-white">{{ priority }}</span>
+                                    {% elif priority == 'P2' or priority == 'Medium' %}
+                                        <span class="badge bg-warning text-dark">{{ priority }}</span>
+                                    {% elif priority == 'P3' or priority == 'Low' %}
+                                        <span class="badge bg-success text-white">{{ priority }}</span>
                                     {% else %}
-                                        <span class="badge bg-warning priority-badge">Medium</span>
+                                        <span class="badge bg-secondary text-white">{{ priority }}</span>
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="detail-row">
-                                <div class="detail-label">Source File:</div>
+                                <div class="detail-label">TestSuite Type:</div>
                                 <div class="detail-value">
-                                    <small class="text-muted">{{ test_case.get('source_file', 'N/A') }}</small>
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Created:</div>
-                                <div class="detail-value">
-                                    <small class="text-muted">{{ test_case.get('Created Date', 'N/A') }}</small>
+                                    <span class="badge bg-info text-white">{{ test_case.get('TestSuite Type', 'Not Available') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -274,7 +352,8 @@
                 </div>
             </div>
 
-            <!-- Test Steps -->
+            <!-- Test Steps - DISABLED -->
+            <!--
             <div class="card test-case-card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Test Steps</h5>
@@ -295,8 +374,10 @@
                     {% endif %}
                 </div>
             </div>
+            -->
 
-            <!-- Expected Results -->
+            <!-- Expected Results - DISABLED -->
+            <!--
             <div class="card test-case-card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Expected Results</h5>
@@ -317,6 +398,7 @@
                     {% endif %}
                 </div>
             </div>
+            -->
 
             <!-- Test Data -->
             {% if test_case.get('Test Data') or test_case.get('Input Data') %}
@@ -356,15 +438,8 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('main.execute_test', test_id=test_case.get('Test Case ID', test_case.get('TC ID', '')), source_file=test_case.get('source_file', '')) }}" 
-                           class="btn btn-success">
+                        <button class="btn btn-success" disabled>
                             <i class="fas fa-play me-2"></i>Execute Test
-                        </a>
-                        <button class="btn btn-outline-primary" onclick="copyTestId()">
-                            <i class="fas fa-copy me-2"></i>Copy Test ID
-                        </button>
-                        <button class="btn btn-outline-secondary" onclick="printTestCase()">
-                            <i class="fas fa-print me-2"></i>Print Test Case
                         </button>
                         <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-dark">
                             <i class="fas fa-arrow-left me-2"></i>Back to List
@@ -373,7 +448,8 @@
                 </div>
             </div>
 
-            <!-- Execution History -->
+            <!-- Execution History - DISABLED -->
+            <!--
             <div class="card test-case-card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-history me-2"></i>Execution History</h5>
@@ -408,8 +484,10 @@
                     {% endif %}
                 </div>
             </div>
+            -->
 
-            <!-- Related Test Cases -->
+            <!-- Related Test Cases - DISABLED -->
+            <!--
             {% if related_cases %}
             <div class="card test-case-card">
                 <div class="card-header">
@@ -444,6 +522,7 @@
                 </div>
             </div>
             {% endif %}
+            -->
         </div>
     </div>
 </div>
@@ -452,31 +531,6 @@
 
 {% block extra_js %}
 <script>
-function copyTestId() {
-    const testId = '{{ test_case.get("Test Case ID", test_case.get("TC ID", "N/A")) }}';
-    navigator.clipboard.writeText(testId).then(function() {
-        // Show success message
-        const btn = event.target.closest('button');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
-        btn.classList.remove('btn-outline-primary');
-        btn.classList.add('btn-success');
-        
-        setTimeout(function() {
-            btn.innerHTML = originalText;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-primary');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-        alert('Failed to copy test ID to clipboard');
-    });
-}
-
-function printTestCase() {
-    window.print();
-}
-
 // Add print styles
 document.addEventListener('DOMContentLoaded', function() {
     // Add print-specific styles

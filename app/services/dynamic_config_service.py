@@ -354,7 +354,7 @@ class DynamicConfigService:
             config['columns'] = {
                 'required': validex_config['required_columns'],
                 'optional': validex_config['optional_columns'],
-                'mappings': validex_config['mappings']
+                'mappings': {}
             }
             
             # Add dynamic column definitions
@@ -381,7 +381,7 @@ class DynamicConfigService:
             'columns': {
                 'required': sakura_config['required_columns'],
                 'optional': sakura_config['optional_columns'],
-                'mappings': sakura_config['mappings']
+                'mappings': {}
             },
             'dynamic_columns': sakura_config['column_definitions'],
             'last_auto_update': datetime.now().isoformat()

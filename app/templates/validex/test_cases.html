@@ -5,76 +5,6 @@
 {% block content %}
 <div class="container mt-3">
     
-    <!-- Test Suite Preparation Section -->
-    <div class="card content-card mb-4 shadow-sm">
-        <div class="card-header bg-success text-white" style="border-radius: 15px 15px 0 0;">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-cogs me-2"></i>
-                    Test Suite Preparation
-                </h5>
-                <button class="btn btn-light btn-sm" type="button" onclick="toggleTestSuite()" id="testSuiteToggle">
-                    <i class="fas fa-chevron-up"></i>
-                </button>
-            </div>
-        </div>
-        <div class="card-body bg-light" id="testSuiteContent">
-            <form id="releaseDetailsForm">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-3">
-                        <label for="releaseVersion" class="form-label">Release Version *</label>
-                        <input type="text" class="form-control" id="releaseVersion" name="releaseVersion" 
-                               placeholder="e.g., v2.1.0" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="sprint" class="form-label">Sprint</label>
-                        <input type="text" class="form-control" id="sprint" name="sprint" 
-                               placeholder="e.g., Sprint 15">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="buildNumber" class="form-label">Build Number</label>
-                        <input type="text" class="form-control" id="buildNumber" name="buildNumber" 
-                               placeholder="e.g., Build 1234">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="environment" class="form-label">Environment</label>
-                        <select class="form-select" id="environment" name="environment">
-                            <option value="">Select Environment</option>
-                            <option value="DEV">Development</option>
-                            <option value="QA">QA</option>
-                            <option value="UAT">UAT</option>
-                            <option value="PROD">Production</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="testSuiteName" class="form-label">Test Suite Name</label>
-                        <input type="text" class="form-control" id="testSuiteName" name="testSuiteName" 
-                               placeholder="e.g., Regression Suite v2.1.0">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="testSuiteDescription" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="testSuiteDescription" name="testSuiteDescription" 
-                               placeholder="Brief description of the test suite">
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted">
-                        <small><i class="fas fa-info-circle me-1"></i>Select test cases below and configure release details to prepare your test suite</small>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-primary" onclick="clearTestSuiteForm()">
-                            <i class="fas fa-eraser me-1"></i>Clear
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="exportTestSuite()" id="exportSuiteBtn" disabled>
-                            <i class="fas fa-download me-1"></i>Export Test Suite
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <div class="advanced-search-container mb-4">
         
@@ -87,29 +17,6 @@
                     <i class="fas fa-search me-2"></i>
                     Advanced Filters & Search
                 </h5>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-light btn-sm" type="button" onclick="toggleFilters()" id="filterToggle">
-                        <i class="fas fa-chevron-up"></i>
-                    </button>
-                    <button class="btn btn-outline-light btn-sm" id="saveFilterBtn" title="Save current filters">
-                        <i class="fas fa-bookmark"></i>
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="loadFilterDropdown" data-bs-toggle="dropdown" title="Load saved filters">
-                            <i class="fas fa-folder-open"></i>
-                        </button>
-                        <ul class="dropdown-menu" id="savedFiltersList">
-                            <li><h6 class="dropdown-header">Saved Filters</h6></li>
-                            <li><span class="dropdown-item-text text-muted">No saved filters</span></li>
-                        </ul>
-                    </div>
-                    <button class="btn btn-outline-light btn-sm" id="columnManagerBtn" title="Manage table columns">
-                        <i class="fas fa-columns"></i>
-                    </button>
-                    <button class="btn btn-outline-light btn-sm" id="dynamicFiltersBtn" title="Add additional column filters">
-                        <i class="fas fa-filter"></i>
-                    </button>
-                </div>
             </div>
         </div>
         <div class="card-body bg-light" id="filterContent">
@@ -135,17 +42,35 @@
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-0 text-primary">
-                                    <i class="fas fa-mobile-alt me-2"></i>Applications
+                                    <i class="fas fa-star me-2"></i>Feature
                                 </h6>
                             </div>
                             <div class="card-body p-3">
-                                <select class="form-select modern-select" id="app" name="app" multiple>
-                                    <option value="">All Applications</option>
-                                    {% for app in apps %}
-                                        <option value="{{ app }}" {% if app in current_app_filter %}selected{% endif %}>{{ app }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="text-muted">Select one or more applications</small>
+                                <div class="multiselect-container" data-field="feature">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search features..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for feature in features %}
+                                                <div class="multiselect-option" data-value="{{ feature }}">
+                                                    <input type="checkbox" id="feature_{{ loop.index }}" value="{{ feature }}" {% if feature in current_feature_filter %}checked{% endif %}>
+                                                    <label for="feature_{{ loop.index }}">{{ feature }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="feature" multiple style="display: none;">
+                                        {% for feature in features %}
+                                            <option value="{{ feature }}" {% if feature in current_feature_filter %}selected{% endif %}>{{ feature }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Select one or more features</small>
                             </div>
                         </div>
                     </div>
@@ -154,17 +79,35 @@
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-0 text-success">
-                                    <i class="fas fa-vial me-2"></i>Test Types
+                                    <i class="fas fa-desktop me-2"></i>Screen ID
                                 </h6>
                             </div>
                             <div class="card-body p-3">
-                                <select class="form-select modern-select" id="test_type" name="test_type" multiple>
-                                    <option value="">All Test Types</option>
-                                    {% for test_type in test_types %}
-                                        <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>{{ test_type }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="text-muted">Choose test categories</small>
+                                <div class="multiselect-container" data-field="screen_id">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search screen IDs..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for screen_id in screen_ids %}
+                                                <div class="multiselect-option" data-value="{{ screen_id }}">
+                                                    <input type="checkbox" id="screen_id_{{ loop.index }}" value="{{ screen_id }}" {% if screen_id in current_screen_id_filter %}checked{% endif %}>
+                                                    <label for="screen_id_{{ loop.index }}">{{ screen_id }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="screen_id" multiple style="display: none;">
+                                        {% for screen_id in screen_ids %}
+                                            <option value="{{ screen_id }}" {% if screen_id in current_screen_id_filter %}selected{% endif %}>{{ screen_id }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Choose screen identifiers</small>
                             </div>
                         </div>
                     </div>
@@ -173,17 +116,35 @@
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-0 text-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>Priority
+                                    <i class="fas fa-vial me-2"></i>Test Type
                                 </h6>
                             </div>
                             <div class="card-body p-3">
-                                <select class="form-select modern-select" id="priority" name="priority" multiple>
-                                    <option value="">All Priorities</option>
-                                    {% for priority in priorities %}
-                                        <option value="{{ priority }}" {% if priority in current_priority_filter %}selected{% endif %}>{{ priority }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="text-muted">Filter by priority level</small>
+                                <div class="multiselect-container" data-field="test_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search test types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for test_type in test_types %}
+                                                <div class="multiselect-option" data-value="{{ test_type }}">
+                                                    <input type="checkbox" id="test_type_{{ loop.index }}" value="{{ test_type }}" {% if test_type in current_test_type_filter %}checked{% endif %}>
+                                                    <label for="test_type_{{ loop.index }}">{{ test_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="test_type" multiple style="display: none;">
+                                        {% for test_type in test_types %}
+                                            <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>{{ test_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Filter by test type</small>
                             </div>
                         </div>
                     </div>
@@ -192,16 +153,92 @@
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-0 text-info">
-                                    <i class="fas fa-sort me-2"></i>Sort & Options
+                                    <i class="fas fa-layer-group me-2"></i>Test Suite Type
                                 </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="test_suite_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search test suite types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for test_suite_type in test_suite_types %}
+                                                <div class="multiselect-option" data-value="{{ test_suite_type }}">
+                                                    <input type="checkbox" id="test_suite_type_{{ loop.index }}" value="{{ test_suite_type }}" {% if test_suite_type in current_test_suite_type_filter %}checked{% endif %}>
+                                                    <label for="test_suite_type_{{ loop.index }}">{{ test_suite_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="test_suite_type" multiple style="display: none;">
+                                        {% for test_suite_type in test_suite_types %}
+                                            <option value="{{ test_suite_type }}" {% if test_suite_type in current_test_suite_type_filter %}selected{% endif %}>{{ test_suite_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Choose test suite categories</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="mb-0 text-danger">
+                                    <i class="fas fa-clipboard-list me-2"></i>Requirement Type
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="requirement_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search requirement types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for requirement_type in requirement_types %}
+                                                <div class="multiselect-option" data-value="{{ requirement_type }}">
+                                                    <input type="checkbox" id="requirement_type_{{ loop.index }}" value="{{ requirement_type }}" {% if requirement_type in current_requirement_type_filter %}checked{% endif %}>
+                                                    <label for="requirement_type_{{ loop.index }}">{{ requirement_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="requirement_type" multiple style="display: none;">
+                                        {% for requirement_type in requirement_types %}
+                                            <option value="{{ requirement_type }}" {% if requirement_type in current_requirement_type_filter %}selected{% endif %}>{{ requirement_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Filter by requirement type</small>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                    <h6 class="mb-0 text-secondary">
+                                    <i class="fas fa-sort me-2"></i>Sort & Options
+                                    </h6>
                             </div>
                             <div class="card-body p-3">
                                 <select class="form-select mb-2" id="sort" name="sort">
                                     <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
                                     <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
-                                    <option value="App" {% if current_sort == 'App' %}selected{% endif %}>Application</option>
-                                    <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
                                     <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
+                                    <option value="Screen ID" {% if current_sort == 'Screen ID' %}selected{% endif %}>Screen ID</option>
+                                    <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
+                                    <option value="Test Suite Type" {% if current_sort == 'Test Suite Type' %}selected{% endif %}>Test Suite Type</option>
+                                    <option value="Requirement Type" {% if current_sort == 'Requirement Type' %}selected{% endif %}>Requirement Type</option>
                                     <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
                                     <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
                                 </select>
@@ -246,40 +283,15 @@
                 <div class="row mt-4">
                     <div class="col-12">
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-search me-1"></i>Apply Filters
                             </button>
-                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary" onclick="clearAllDynamicFilters()">
+                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-outline-secondary btn-lg" onclick="clearAllDynamicFilters()">
                                 <i class="fas fa-times me-1"></i>Clear All
                             </a>
-                            <div class="btn-group" role="group">
-                                <a href="{{ url_for('main.export_test_cases', **request.args) }}" class="btn btn-outline-success" id="exportBtn">
-                                    <i class="fas fa-download me-1"></i>Export Results
-                                </a>
-                                <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ url_for('main.export_test_cases', **request.args) }}"><i class="fas fa-file-excel me-2"></i>Export to Excel</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" onclick="exportSelected()"><i class="fas fa-check-square me-2"></i>Export Selected Only</a></li>
-                                </ul>
-                            </div>
-                            <button type="button" class="btn btn-outline-info" id="saveSearchBtn">
-                                <i class="fas fa-bookmark me-1"></i>Save Search
-                            </button>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-history me-1"></i>Saved Searches
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" id="loadSearch1">Recent Search 1</a></li>
-                                    <li><a class="dropdown-item" href="#" id="loadSearch2">Recent Search 2</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" id="manageSearches">Manage Saved Searches</a></li>
-                                </ul>
-                            </div>
+                            <a href="/export-test-suite" class="btn btn-success btn-lg" id="exportBtn">
+                                <i class="fas fa-download me-1"></i>Export
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -333,14 +345,12 @@
                             <th data-column="select" class="column-select">
                                 <input type="checkbox" id="selectAll" class="form-check-input">
                             </th>
-                            <th data-column="test_case_id" class="column-test_case_id">Test Case ID</th>
-                            <th data-column="summary" class="column-summary">Summary</th>
-                            <th data-column="app" class="column-app">App</th>
-                            <th data-column="test_type" class="column-test_type">Test Type</th>
                             <th data-column="feature" class="column-feature">Feature</th>
-                            <th data-column="status" class="column-status">Status</th>
+                            <th data-column="tc_id" class="column-tc_id">TC ID</th>
+                            <th data-column="screen_id" class="column-screen_id">Screen ID</th>
+                            <th data-column="test_objective" class="column-test_objective">Test Objective</th>
+                            <th data-column="test_type" class="column-test_type">Test Type</th>
                             <th data-column="priority" class="column-priority">Priority</th>
-                            <th data-column="source_file" class="column-source_file">Source File</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -349,8 +359,16 @@
                             <td data-column="select" class="column-select">
                                 <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
                             </td>
-                            <td data-column="test_case_id" class="column-test_case_id">
-                                {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                            <td data-column="feature" class="column-feature">
+                                {% set feature_value = test_case.get('Feature', 'N/A') %}
+                                {% if feature_value and feature_value != 'N/A' %}
+                                    <span class="badge bg-success text-white">{{ feature_value }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">No Feature</span>
+                                {% endif %}
+                            </td>
+                            <td data-column="tc_id" class="column-tc_id">
+                                {% set test_id = test_case.get('TC ID', test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A')))) %}
                                 {% if test_id == 'N/A' %}
                                     <span class="badge bg-warning">Auto-Generated</span>
                                 {% else %}
@@ -360,31 +378,16 @@
                                     </a>
                                 {% endif %}
                             </td>
-                            <td data-column="summary" class="column-summary">
-                                <div class="compact-text" style="max-width: 200px;" title="{{ test_case.get('Summary', 'N/A') }}">
-                                    {{ test_case.get('Summary', 'N/A') }}
-                                </div>
+                            <td data-column="screen_id" class="column-screen_id">
+                                <span class="badge bg-info">{{ test_case.get('Screen ID', 'N/A') }}</span>
                             </td>
-                            <td data-column="app" class="column-app">
-                                <span class="badge bg-info">{{ test_case.get('App', 'N/A') }}</span>
+                            <td data-column="test_objective" class="column-test_objective">
+                                <div class="compact-text" style="max-width: 250px;" title="{{ test_case.get('Test Objective', 'N/A') }}">
+                                    {{ test_case.get('Test Objective', 'N/A') }}
+                                </div>
                             </td>
                             <td data-column="test_type" class="column-test_type">
                                 <span class="badge bg-secondary">{{ test_case.get('Test Type', 'N/A') }}</span>
-                            </td>
-                            <td data-column="feature" class="column-feature">
-                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
-                            </td>
-                            <td data-column="status" class="column-status">
-                                {% set status = test_case.get('Status', 'N/A').lower() %}
-                                {% if status == 'passed' %}
-                                    <span class="badge badge-status badge-passed">Passed</span>
-                                {% elif status == 'failed' %}
-                                    <span class="badge badge-status badge-failed">Failed</span>
-                                {% elif status == 'running' %}
-                                    <span class="badge badge-status badge-running">Running</span>
-                                {% else %}
-                                    <span class="badge badge-status badge-pending">Pending</span>
-                                {% endif %}
                             </td>
                             <td data-column="priority" class="column-priority">
                                 {% set priority = test_case.get('Priority', 'Medium').lower() %}
@@ -395,9 +398,6 @@
                                 {% else %}
                                     <span class="badge badge-priority-medium">Medium</span>
                                 {% endif %}
-                            </td>
-                            <td data-column="source_file" class="column-source_file">
-                                <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
                             </td>
                         </tr>
                         {% endfor %}
@@ -410,7 +410,7 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card test-case-card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            {% set test_id = test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A'))) %}
+                            {% set test_id = test_case.get('TC ID', test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A')))) %}
                             {% if test_id == 'N/A' %}
                                 <span class="badge bg-warning">Auto-Generated</span>
                             {% else %}
@@ -421,23 +421,18 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <h6 class="card-title compact-text">{{ test_case.get('Summary', 'N/A') }}</h6>
+                            <h6 class="card-title compact-text">{{ test_case.get('Test Objective', 'N/A') }}</h6>
                             <div class="mb-2">
-                                <span class="badge bg-info me-1">{{ test_case.get('App', 'N/A') }}</span>
-                                <span class="badge bg-secondary me-1">{{ test_case.get('Test Type', 'N/A') }}</span>
-                                <span class="badge bg-success">{{ test_case.get('Feature', 'N/A') }}</span>
+                                {% set feature_value = test_case.get('Feature', 'N/A') %}
+                                {% if feature_value and feature_value != 'N/A' %}
+                                    <span class="badge bg-success text-white me-1">{{ feature_value }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark me-1">No Feature</span>
+                                {% endif %}
+                                <span class="badge bg-info text-white me-1">{{ test_case.get('Screen ID', 'N/A') }}</span>
+                                <span class="badge bg-secondary text-white me-1">{{ test_case.get('Test Type', 'N/A') }}</span>
                             </div>
                             <div class="mb-2">
-                                {% set status = test_case.get('Status', 'N/A').lower() %}
-                                {% if status == 'passed' %}
-                                    <span class="badge badge-status badge-passed">Passed</span>
-                                {% elif status == 'failed' %}
-                                    <span class="badge badge-status badge-failed">Failed</span>
-                                {% elif status == 'running' %}
-                                    <span class="badge badge-status badge-running">Running</span>
-                                {% else %}
-                                    <span class="badge badge-status badge-pending">Pending</span>
-                                {% endif %}
                                 {% set priority = test_case.get('Priority', 'Medium').lower() %}
                                 {% if priority == 'high' %}
                                     <span class="badge badge-priority-high">High</span>
@@ -447,7 +442,6 @@
                                     <span class="badge badge-priority-medium">Medium</span>
                                 {% endif %}
                             </div>
-                            <small class="text-muted">{{ test_case.get('source_file', 'N/A').replace('.xlsx', '').replace('.xls', '') }}</small>
                         </div>
                     </div>
                 </div>
@@ -604,8 +598,202 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_css %}
 <style>
+/* Multi-select Container Styles */
+.multiselect-container {
+    position: relative;
+    width: 100%;
+}
+
+.multiselect-input {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    min-height: 38px;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.multiselect-input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.selected-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: #007bff;
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    gap: 4px;
+}
+
+.chip-remove {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.chip-remove:hover {
+    color: #ffcccc;
+}
+
+.multiselect-search {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    padding: 0;
+    background: transparent;
+}
+
+.multiselect-search::placeholder {
+    color: #6c757d;
+}
+
+.multiselect-arrow {
+    color: #6c757d;
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.multiselect-container.open .multiselect-arrow {
+    transform: rotate(180deg);
+}
+
+.multiselect-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.multiselect-container.open .multiselect-dropdown {
+    display: block;
+}
+
+.multiselect-options {
+    padding: 4px 0;
+}
+
+.multiselect-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.multiselect-option:hover {
+    background-color: #f8f9fa;
+}
+
+.multiselect-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.multiselect-option label {
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+}
+
+.multiselect-option.hidden {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .multiselect-input {
+        min-height: 42px;
+    }
+    
+    .chip {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+.multiselect-arrow {
+    transition: transform 0.2s ease;
+}
+
+.multiselect-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.multiselect-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.multiselect-option:hover {
+    background: #f8f9fa;
+}
+
+.multiselect-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.multiselect-option label {
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+}
+
+/* Hide original select */
+.multiselect {
+    display: none !important;
+}
+
 /* Test Case Link Styling */
 .test-case-link {
     transition: all 0.2s ease;
@@ -1064,6 +1252,422 @@
 }
 </style>
 <script>
+// Modern Multi-Select Implementation with Search and Chips
+class ModernMultiSelect {
+    constructor(container) {
+        this.container = container;
+        this.input = container.querySelector('.multiselect-input');
+        this.searchInput = container.querySelector('.multiselect-search');
+        this.dropdown = container.querySelector('.multiselect-dropdown');
+        this.options = container.querySelectorAll('.multiselect-option');
+        this.hiddenSelect = container.querySelector('select[name]');
+        this.selectedValues = new Set();
+        this.fieldName = container.dataset.field;
+        
+        this.init();
+    }
+    
+    init() {
+        this.loadInitialValues();
+        this.bindEvents();
+        this.updateDisplay();
+    }
+    
+    loadInitialValues() {
+        this.options.forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            if (checkbox.checked) {
+                this.selectedValues.add(checkbox.value);
+            }
+        });
+    }
+    
+    bindEvents() {
+        // Input click to toggle dropdown
+        this.input.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggle();
+        });
+        
+        // Search functionality
+        this.searchInput.addEventListener('input', (e) => {
+            this.filterOptions(e.target.value);
+        });
+        
+        // Option clicks
+        this.options.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.toggleOption(checkbox.value, checkbox.checked);
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            this.close();
+        });
+        
+        // Prevent dropdown from closing when clicking inside
+        this.dropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    toggle() {
+        if (this.container.classList.contains('open')) {
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+    
+    open() {
+        this.container.classList.add('open');
+        this.searchInput.focus();
+    }
+    
+    close() {
+        this.container.classList.remove('open');
+        this.searchInput.value = '';
+        this.filterOptions('');
+    }
+    
+    filterOptions(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        this.options.forEach(option => {
+            const label = option.querySelector('label').textContent.toLowerCase();
+            if (label.includes(term)) {
+                option.classList.remove('hidden');
+            } else {
+                option.classList.add('hidden');
+            }
+        });
+    }
+    
+    toggleOption(value, checked) {
+        if (checked) {
+            this.selectedValues.add(value);
+        } else {
+            this.selectedValues.delete(value);
+        }
+        this.updateDisplay();
+        this.updateHiddenSelect();
+    }
+    
+    updateDisplay() {
+        const chipsContainer = this.input.querySelector('.selected-chips');
+        chipsContainer.innerHTML = '';
+        
+        if (this.selectedValues.size === 0) {
+            this.searchInput.placeholder = `Search ${this.fieldName}...`;
+        } else {
+            this.selectedValues.forEach(value => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.innerHTML = `
+                    ${value}
+                    <button type="button" class="chip-remove" data-value="${value}">&times;</button>
+                `;
+                
+                // Add remove functionality
+                chip.querySelector('.chip-remove').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.removeValue(value);
+                });
+                
+                chipsContainer.appendChild(chip);
+            });
+            
+            this.searchInput.placeholder = '';
+        }
+    }
+    
+    removeValue(value) {
+        this.selectedValues.delete(value);
+        
+        // Update checkbox
+        const option = this.container.querySelector(`[data-value="${value}"]`);
+        if (option) {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.checked = false;
+        }
+        
+        this.updateDisplay();
+        this.updateHiddenSelect();
+    }
+    
+    updateHiddenSelect() {
+        // Clear all options
+        this.hiddenSelect.querySelectorAll('option').forEach(option => {
+            option.selected = false;
+        });
+        
+        // Select current values
+        this.selectedValues.forEach(value => {
+            const option = this.hiddenSelect.querySelector(`option[value="${value}"]`);
+            if (option) {
+                option.selected = true;
+            }
+        });
+    }
+}
+
+// Initialize all multi-select containers
+document.addEventListener('DOMContentLoaded', function() {
+    const containers = document.querySelectorAll('.multiselect-container');
+    containers.forEach(container => {
+        new ModernMultiSelect(container);
+    });
+});
+
+// Clear all filters function
+function clearAllFilters() {
+    const containers = document.querySelectorAll('.multiselect-container');
+    containers.forEach(container => {
+        const multiselect = container.modernMultiSelect;
+        if (multiselect) {
+            multiselect.selectedValues.clear();
+            multiselect.updateDisplay();
+            multiselect.updateHiddenSelect();
+            
+            // Clear checkboxes
+            container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+    });
+    
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    window.location.href = "{{ url_for('main.test_cases') }}";
+}
+
+window.clearAllFilters = clearAllFilters;
+</script>
+            if (option.value && option.selected) {
+                this.selectedValues.add(option.value);
+            }
+        });
+        }
+        
+        this.renderOptions();
+        this.updateDisplay();
+    }
+    
+    saveToStorage() {
+        try {
+            const values = Array.from(this.selectedValues);
+            localStorage.setItem(this.storageKey, JSON.stringify(values));
+        } catch (e) {
+            console.warn('Could not save multiselect values:', e);
+        }
+    }
+    
+    loadFromStorage() {
+        try {
+            const saved = localStorage.getItem(this.storageKey);
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    
+    renderOptions() {
+        const options = this.element.querySelectorAll('option');
+        let html = '';
+        
+        // Select All option
+        html += `
+            <div class="multiselect-option" data-value="__select_all__" style="padding: 8px 12px; border-bottom: 1px solid #e9ecef;">
+                <input type="checkbox" id="select_all_${this.element.id}" ${this.areAllOptionsSelected() ? 'checked' : ''}>
+                <label for="select_all_${this.element.id}" style="margin-left: 8px; cursor: pointer;">Select all</label>
+            </div>
+        `;
+        
+        // Clear All option
+        if (this.selectedValues.size > 0) {
+            html += `
+                <div class="multiselect-option" data-value="__clear_all__" style="padding: 8px 12px; border-bottom: 1px solid #e9ecef; background: #f8f9fa;">
+                    <button type="button" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                        Clear All
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Options
+        options.forEach(option => {
+            if (option.value) {
+                const isSelected = this.selectedValues.has(option.value);
+                    html += `
+                    <div class="multiselect-option" data-value="${option.value}" style="padding: 8px 12px; cursor: pointer; ${isSelected ? 'background: #e3f2fd;' : ''}">
+                            <input type="checkbox" id="${option.value}_${this.element.id}" ${isSelected ? 'checked' : ''}>
+                        <label for="${option.value}_${this.element.id}" style="margin-left: 8px; cursor: pointer;">${option.textContent}</label>
+                        </div>
+                    `;
+            }
+        });
+        
+        this.dropdown.innerHTML = html;
+        
+        // Bind click events
+        this.dropdown.addEventListener('click', (e) => {
+            const option = e.target.closest('.multiselect-option');
+            if (option) {
+                const value = option.dataset.value;
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                
+                if (value === '__select_all__') {
+                    this.toggleSelectAll();
+                } else if (value === '__clear_all__') {
+                    this.clearAll();
+                } else {
+                    this.toggleOption(value, checkbox);
+                }
+            }
+        });
+    }
+    
+    toggle() {
+        this.isOpen = !this.isOpen;
+        this.dropdown.style.display = this.isOpen ? 'block' : 'none';
+        this.input.querySelector('.multiselect-arrow').style.transform = this.isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+    
+    close() {
+        this.isOpen = false;
+        this.dropdown.style.display = 'none';
+        this.input.querySelector('.multiselect-arrow').style.transform = 'rotate(0deg)';
+    }
+    
+    toggleOption(value, checkbox) {
+        if (this.selectedValues.has(value)) {
+            this.selectedValues.delete(value);
+            checkbox.checked = false;
+        } else {
+            this.selectedValues.add(value);
+            checkbox.checked = true;
+        }
+        
+        this.updateDisplay();
+        this.updateOriginalSelect();
+        this.renderOptions();
+        this.saveToStorage();
+    }
+    
+    toggleSelectAll() {
+        const options = this.element.querySelectorAll('option');
+        if (this.areAllOptionsSelected()) {
+            options.forEach(option => {
+                if (option.value) {
+                    this.selectedValues.delete(option.value);
+                }
+            });
+        } else {
+            options.forEach(option => {
+                if (option.value) {
+                    this.selectedValues.add(option.value);
+                }
+            });
+        }
+        
+        this.updateDisplay();
+        this.updateOriginalSelect();
+        this.renderOptions();
+        this.saveToStorage();
+    }
+    
+    clearAll() {
+        this.selectedValues.clear();
+        this.updateDisplay();
+        this.updateOriginalSelect();
+        this.renderOptions();
+        this.saveToStorage();
+    }
+    
+    areAllOptionsSelected() {
+        const options = this.element.querySelectorAll('option');
+        const selectableOptions = Array.from(options).filter(option => option.value);
+        return selectableOptions.length > 0 && selectableOptions.every(option => this.selectedValues.has(option.value));
+    }
+    
+    updateDisplay() {
+        const placeholder = this.input.querySelector('.multiselect-placeholder');
+        
+        if (this.selectedValues.size === 0) {
+            placeholder.textContent = 'Select options...';
+        } else if (this.selectedValues.size === 1) {
+            const selectedOption = this.element.querySelector(`option[value="${Array.from(this.selectedValues)[0]}"]`);
+            placeholder.textContent = selectedOption ? selectedOption.textContent : '1 selected';
+        } else if (this.selectedValues.size <= 3) {
+            const selectedTexts = Array.from(this.selectedValues).map(value => {
+                const option = this.element.querySelector(`option[value="${value}"]`);
+                return option ? option.textContent : value;
+            });
+            placeholder.textContent = selectedTexts.join(', ');
+        } else {
+            placeholder.textContent = `${this.selectedValues.size} selected`;
+        }
+    }
+    
+    updateOriginalSelect() {
+        const options = this.element.querySelectorAll('option');
+        options.forEach(option => {
+            option.selected = this.selectedValues.has(option.value);
+        });
+        this.element.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
+// Initialize multi-select dropdowns
+document.addEventListener('DOMContentLoaded', function() {
+    const multiselectElements = document.querySelectorAll('.multiselect');
+    multiselectElements.forEach(element => {
+        try {
+        new MultiSelectDropdown(element);
+        } catch (error) {
+            console.error('Error initializing dropdown:', error);
+            element.style.display = 'block';
+            element.classList.remove('multiselect');
+        }
+    });
+    
+    // Form submission handler
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            multiselectElements.forEach(element => {
+                if (element.multiselectInstance) {
+                    element.multiselectInstance.updateOriginalSelect();
+                }
+            });
+        });
+    }
+});
+
+// Clear all filters function
+function clearAllFilters() {
+    const multiselectElements = document.querySelectorAll('.multiselect');
+    multiselectElements.forEach(element => {
+        if (element.multiselectInstance) {
+            element.multiselectInstance.clearAll();
+        }
+    });
+    
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    window.location.href = "{{ url_for('main.test_cases') }}";
+}
+
+window.clearAllFilters = clearAllFilters;
 
 $(document).ready(function() {
     
@@ -1450,9 +2054,9 @@ function loadSavedFiltersList() {
         
         if (filterNames.length === 0) {
             savedFiltersList.innerHTML += '<li><span class="dropdown-item-text text-muted">No saved filters</span></li>';
-            return;
-        }
-        
+        return;
+    }
+    
         // Sort by timestamp (newest first)
         const sortedFilters = filterNames.sort((a, b) => {
             return new Date(savedFilters[b].timestamp) - new Date(savedFilters[a].timestamp);
@@ -1727,8 +2331,8 @@ function createColumnManagerModal() {
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="hideAllColumns()">
                             <i class="fas fa-eye-slash me-1"></i>Hide All
-                        </button>
-                    </div>
+                </button>
+            </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -2130,7 +2734,7 @@ function clearAllDynamicFilters() {
 
 // Override the existing clearAllDynamicFilters function if it exists
 if (typeof clearAllDynamicFilters === 'undefined') {
-    window.clearAllDynamicFilters = clearAllDynamicFilters;
+window.clearAllDynamicFilters = clearAllDynamicFilters;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2459,10 +3063,11 @@ function updateAvailableColumns() {
 function getUniqueValuesForColumn(column) {
     
     const columnValues = {
-        'App': {{ apps | tojson }},
-        'Test Type': {{ test_types | tojson }},
-        'Feature': ['Login', 'Dashboard', 'Reports', 'Settings', 'User Management', 'Data Processing'], 
-        'Priority': {{ priorities | tojson }},
+        'Feature': {{ (features or []) | tojson }},
+        'Screen ID': {{ (screen_ids or []) | tojson }},
+        'Test Type': {{ (test_types or []) | tojson }},
+        'TestSuite Type': {{ (test_suite_types or []) | tojson }},
+        'Requirement Type': {{ (requirement_types or []) | tojson }},
         'Summary': ['Login Test', 'Data Validation', 'API Test', 'UI Test', 'Performance Test', 'Security Test'], 
         'Test Case ID': ['TC-001', 'TC-002', 'TC-003', 'TC-004', 'Auto-Generated'] 
     };
@@ -2644,7 +3249,7 @@ function exportTestSuite() {
     formData.append('selectedTestCases', selectedIds.join(','));
     
     // Submit form
-    fetch('{{ url_for("main.export_test_suite") }}', {
+    fetch('{{ url_for("main.export_test_suite_page") }}', {
         method: 'POST',
         body: formData
     })
@@ -2683,8 +3288,127 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('change', function(e) {
         if (e.target.classList.contains('test-case-checkbox')) {
             updateExportButton();
+            updateSelectedTestCases();
         }
     });
+    
+    // Initialize selected test cases from localStorage
+    loadSelectedTestCases();
+    
+    // Store filtered test cases on page load
+    storeFilteredTestCases();
 });
+
+// Store all visible/filtered test cases
+function storeFilteredTestCases() {
+    const filteredTestCases = [];
+    
+    // Get all visible test case rows (not hidden by filters)
+    const rows = document.querySelectorAll('.test-case-row');
+    
+    rows.forEach(row => {
+        const testCaseData = extractTestCaseData(row);
+        if (testCaseData) {
+            filteredTestCases.push(testCaseData);
+        }
+    });
+    
+    // Store in localStorage
+    localStorage.setItem('filteredTestCases', JSON.stringify(filteredTestCases));
+    console.log(`Stored ${filteredTestCases.length} filtered test cases`);
+}
+
+// Test Case Selection Functions
+function updateSelectedTestCases() {
+    const checkboxes = document.querySelectorAll('.test-case-checkbox:checked');
+    const selectedTestCases = [];
+    
+    checkboxes.forEach(checkbox => {
+        const row = checkbox.closest('tr') || checkbox.closest('.card');
+        if (row) {
+            const testCaseData = extractTestCaseData(row);
+            if (testCaseData) {
+                selectedTestCases.push(testCaseData);
+            }
+        }
+    });
+    
+    // Store in localStorage
+    localStorage.setItem('selectedTestCases', JSON.stringify(selectedTestCases));
+    
+    // Update UI indicators
+    updateSelectedCount(selectedTestCases.length);
+}
+
+function extractTestCaseData(row) {
+    try {
+        const testCaseId = row.querySelector('[data-column="test_case_id"]')?.textContent?.trim() || 
+                          row.querySelector('.text-primary')?.textContent?.trim() || 
+                          'N/A';
+        
+        const summary = row.querySelector('[data-column="summary"]')?.textContent?.trim() || 
+                       row.querySelector('.card-title')?.textContent?.trim() || 
+                       'Test case summary';
+        
+        const app = row.querySelector('[data-column="app"]')?.textContent?.trim() || 'N/A';
+        const testType = row.querySelector('[data-column="test_type"]')?.textContent?.trim() || 'N/A';
+        const priority = row.querySelector('[data-column="priority"]')?.textContent?.trim() || 'N/A';
+        
+        return {
+            id: testCaseId,
+            summary: summary,
+            app: app,
+            testType: testType,
+            priority: priority
+        };
+    } catch (error) {
+        console.error('Error extracting test case data:', error);
+        return null;
+    }
+}
+
+function loadSelectedTestCases() {
+    const selectedTestCases = JSON.parse(localStorage.getItem('selectedTestCases') || '[]');
+    
+    // Restore checkbox states
+    const checkboxes = document.querySelectorAll('.test-case-checkbox');
+    checkboxes.forEach(checkbox => {
+        const row = checkbox.closest('tr') || checkbox.closest('.card');
+        if (row) {
+            const testCaseData = extractTestCaseData(row);
+            if (testCaseData && selectedTestCases.some(tc => tc.id === testCaseData.id)) {
+                checkbox.checked = true;
+            }
+        }
+    });
+    
+    updateSelectedCount(selectedTestCases.length);
+}
+
+function updateSelectedCount(count) {
+    // Update any UI elements that show selected count
+    const countElements = document.querySelectorAll('.selected-count');
+    countElements.forEach(element => {
+        element.textContent = `${count} selected`;
+    });
+}
+
+function clearSelectedTestCases() {
+    localStorage.removeItem('selectedTestCases');
+    
+    // Uncheck all checkboxes
+    const checkboxes = document.querySelectorAll('.test-case-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    updateSelectedCount(0);
+}
+
+// Make functions available globally
+window.updateSelectedTestCases = updateSelectedTestCases;
+window.loadSelectedTestCases = loadSelectedTestCases;
+window.clearSelectedTestCases = clearSelectedTestCases;
+
 </script>
 {% endblock %}

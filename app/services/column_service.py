@@ -105,21 +105,15 @@ class ColumnManager:
     
     def get_legacy_mapping(self, legacy_column: str) -> Optional[str]:
         """Get new column name for legacy column name"""
-        legacy_mappings = self.config.get("column_mapping", {}).get("legacy_mappings", {})
-        return legacy_mappings.get(legacy_column)
+        # Return the same column name since mappings are disabled
+        return legacy_column
     
     def map_legacy_columns(self, df_columns: List[str]) -> Dict[str, str]:
         """Map legacy column names to new standardized names"""
+        # Return identity mapping since mappings are disabled
         mapping = {}
-        legacy_mappings = self.config.get("column_mapping", {}).get("legacy_mappings", {})
-        
-        for legacy_col in df_columns:
-            if legacy_col in legacy_mappings:
-                mapping[legacy_col] = legacy_mappings[legacy_col]
-            else:
-                if legacy_col in self.get_all_columns():
-                    mapping[legacy_col] = legacy_col
-        
+        for col in df_columns:
+            mapping[col] = col
         return mapping
     
     def get_default_display_columns(self) -> List[str]:
@@ -160,17 +154,8 @@ class ColumnManager:
     
     def normalize_test_case(self, test_case: Dict[str, Any], file_columns: List[str]) -> Dict[str, Any]:
         """Normalize a test case using column mappings"""
-        column_mapping = self.map_legacy_columns(file_columns)
-        normalized = {}
-        
-        for original_col, value in test_case.items():
-            if original_col in column_mapping:
-                new_col = column_mapping[original_col]
-                normalized[new_col] = value
-            else:
-                normalized[original_col] = value
-        
-        return normalized
+        # Return the test case as-is since mappings are disabled
+        return test_case
     
     def get_column_info_for_template(self) -> Dict[str, Any]:
         """Get column information formatted for templates"""

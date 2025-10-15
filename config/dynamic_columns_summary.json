@@ -141,33 +141,7 @@
           "frequency_percentage": 100.0
         }
       },
-      "mappings": {
-        "id": [
-          "Screen ID",
-          "TC ID"
-        ],
-        "summary": [
-          "Summary"
-        ],
-        "feature": [
-          "Feature"
-        ],
-        "priority": [
-          "Priority"
-        ],
-        "status": [
-          "Status"
-        ],
-        "screen": [
-          "Screen ID"
-        ],
-        "type": [
-          "type"
-        ],
-        "expected": [
-          "Expected Behavior"
-        ]
-      },
+      "mappings": {},
       "file_analyses": [
         {
           "file_path": "data/excel_files/validex\\App1\\FMEA\\app1_fmea_tests.xlsx",
@@ -1592,27 +1566,7 @@
           "frequency_percentage": 100.0
         }
       },
-      "mappings": {
-        "id": [
-          "Screen ID",
-          "Requirement ID"
-        ],
-        "summary": [
-          "Description"
-        ],
-        "priority": [
-          "Priority"
-        ],
-        "status": [
-          "Status"
-        ],
-        "screen": [
-          "Screen ID"
-        ],
-        "type": [
-          "Category"
-        ]
-      },
+      "mappings": {},
       "file_analyses": [
         {
           "file_path": "data/excel_files/requirements\\sample_requirements.xlsx",

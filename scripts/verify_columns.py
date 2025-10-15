@@ -24,3 +24,5 @@ for count in sorted(column_counts.keys()):
 
 print('\nColumn diversity achieved!')
 
+
+

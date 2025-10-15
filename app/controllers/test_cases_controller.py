@@ -32,21 +32,41 @@ class TestCasesController(BaseController):
         test_cases_data = self.load_test_files()
         
         
-        app_filter = request.args.getlist('app') if request.args.getlist('app') else [request.args.get('app', '')]
+        # Get filter parameters (multi-select again)
+        app_filter = request.args.get('app', '')
         test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
         priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
+        # New filters
+        feature_filter = request.args.getlist('feature') if request.args.getlist('feature') else [request.args.get('feature', '')]
+        screen_id_filter = request.args.getlist('screen_id') if request.args.getlist('screen_id') else [request.args.get('screen_id', '')]
+        testsuite_type_filter = request.args.getlist('testsuite_type') if request.args.getlist('testsuite_type') else [request.args.get('testsuite_type', '')]
+        requirement_type_filter = request.args.getlist('requirement_type') if request.args.getlist('requirement_type') else [request.args.get('requirement_type', '')]
         search_query = request.args.get('search', '')
         sort_by = request.args.get('sort', 'Test Case ID')
         sort_order = request.args.get('order', 'asc')
         
-        app_filter = [f for f in app_filter if f]
+        # Clean filter values
         test_type_filter = [f for f in test_type_filter if f]
         priority_filter = [f for f in priority_filter if f]
+        feature_filter = [f for f in feature_filter if f]
+        screen_id_filter = [f for f in screen_id_filter if f]
+        testsuite_type_filter = [f for f in testsuite_type_filter if f]
+        requirement_type_filter = [f for f in requirement_type_filter if f]
         
+        # Process dynamic column filters
         dynamic_filters = {}
-        dynamic_filter_groups = {}
+        for key, value in request.args.items():
+            if key.startswith('dynamic_column_'):
+                column_name = key.replace('dynamic_column_', '')
+                if value:
+                    # Handle both single values and lists
+                    if isinstance(value, list):
+                        dynamic_filters[column_name] = [v for v in value if v]
+                    else:
+                        dynamic_filters[column_name] = [value] if value else []
         
         # Process dynamic filters with new structure
+        dynamic_filter_groups = {}  # Initialize the dictionary
         for key, value in request.args.items():
             if key.startswith('dynamic_') and value:
                 parts = key.split('_')
@@ -79,13 +99,15 @@ class TestCasesController(BaseController):
         
         filtered_cases = self._filter_test_cases(
             test_cases_data, app_filter, test_type_filter, 
-            priority_filter, search_query, dynamic_filters, selected_id_list
+            priority_filter, feature_filter, screen_id_filter, 
+            testsuite_type_filter, requirement_type_filter, 
+            search_query, dynamic_filters, selected_id_list
         )
         
         filtered_cases = self._sort_test_cases(filtered_cases, sort_by, sort_order)
         
         page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 25))
+        per_page = int(request.args.get('per_page', config.get_test_cases_per_page()))
         
         total_cases = len(filtered_cases)
         start_idx = (page - 1) * per_page
@@ -97,19 +119,33 @@ class TestCasesController(BaseController):
         has_prev = page > 1
         has_next = page < total_pages
         
-        apps, test_types, priorities = self._get_filter_options(test_cases_data)
+        test_types, priorities = self._get_filter_options(test_cases_data)
+        
+        # Get enhanced filter data for new filters
+        enhanced_data = self.get_enhanced_filter_data(test_cases_data)
+        filter_options = enhanced_data['filter_options']
         
         from config.settings import config
         multiselect_threshold = config.get_multiselect_threshold()
         
         return render_template('validex/test_cases.html', 
                              test_cases=paginated_cases,
-                             apps=sorted(apps),
                              test_types=sorted(test_types),
                              priorities=sorted(priorities),
-                             current_app_filter=app_filter[0] if len(app_filter) == 1 else app_filter,
+                             # New filter options - with test data
+                             apps=sorted(filter_options.get('App', [])),
+                             features=['Logistics', 'WebPortal', 'Dashboard', 'BankingApp'] if not filter_options.get('Feature', []) else sorted(filter_options.get('Feature', [])),
+                             screen_ids=['SETTINGS_003', 'DASHBOARD_004', 'NAV_002', 'HOME_001'] if not filter_options.get('Screen ID', []) else sorted(filter_options.get('Screen ID', [])),
+                             test_suite_types=['Sanity', 'Smoke', 'Regression', 'Integration'] if not filter_options.get('TestSuite Type', []) else sorted(filter_options.get('TestSuite Type', [])),
+                             requirement_types=['Functional', 'Non-Functional', 'Performance'] if not filter_options.get('Requirement Type', []) else sorted(filter_options.get('Requirement Type', [])),
+                             current_app_filter=app_filter,
                              current_test_type_filter=test_type_filter[0] if len(test_type_filter) == 1 else test_type_filter,
                              current_priority_filter=priority_filter[0] if len(priority_filter) == 1 else priority_filter,
+                             # New current filter values
+                             current_feature_filter=feature_filter[0] if len(feature_filter) == 1 else feature_filter,
+                             current_screen_id_filter=screen_id_filter[0] if len(screen_id_filter) == 1 else screen_id_filter,
+                             current_test_suite_type_filter=testsuite_type_filter[0] if len(testsuite_type_filter) == 1 else testsuite_type_filter,
+                             current_requirement_type_filter=requirement_type_filter[0] if len(requirement_type_filter) == 1 else requirement_type_filter,
                              current_search=search_query,
                              current_sort=sort_by,
                              current_order=sort_order,
@@ -124,19 +160,39 @@ class TestCasesController(BaseController):
                              multiselect_threshold=multiselect_threshold)
     
     def _filter_test_cases(self, test_cases_data, app_filter, test_type_filter, 
-                          priority_filter, search_query, dynamic_filters, selected_id_list):
+                          priority_filter, feature_filter, screen_id_filter, 
+                          testsuite_type_filter, requirement_type_filter, 
+                          search_query, dynamic_filters, selected_id_list):
         """Filter test cases based on criteria"""
         filtered_cases = []
         for file_name, file_data in test_cases_data.items():
             for case in file_data:
                 case['source_file'] = file_name
                 
-                if app_filter and case.get('App', '') not in app_filter:
+                if app_filter and case.get('App', '') != app_filter:
                     continue
                 if test_type_filter and case.get('Test Type', '') not in test_type_filter:
                     continue
                 if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
                     continue
+                if feature_filter and case.get('Feature', '') not in feature_filter:
+                    continue
+                if screen_id_filter and case.get('Screen ID', '') not in screen_id_filter:
+                    continue
+                if testsuite_type_filter and case.get('TestSuite Type', '') not in testsuite_type_filter:
+                    continue
+                if requirement_type_filter and case.get('Requirement Type', '') not in requirement_type_filter:
+                    continue
+                
+                # Apply dynamic column filters
+                for column_name, filter_values in dynamic_filters.items():
+                    if filter_values:  # Only apply if there are values to filter by
+                        # Convert column name to proper case for lookup
+                        display_column_name = self._convert_column_key_to_display_name(column_name)
+                        case_value = case.get(display_column_name, '')
+                        if case_value not in filter_values:
+                            continue
+                
                 if search_query:
                     search_text = ' '.join(str(v) for v in case.values() if v).lower()
                     if search_query.lower() not in search_text:
@@ -167,6 +223,36 @@ class TestCasesController(BaseController):
                 pass
         return test_cases
     
+    def _convert_column_key_to_display_name(self, column_key):
+        """Convert column key to display name for case lookup"""
+        mapping = {
+            'tc_id': 'TC ID',
+            'feature': 'Feature',
+            'screen_id': 'Screen ID',
+            'test_type': 'Test Type',
+            'test_objective': 'Test Objective',
+            'summary': 'Summary',
+            'app': 'App',
+            'priority': 'Priority',
+            'source_file': 'Source File',
+            'reference_document': 'Reference_Document',
+            'associated_requirements': 'Associated Requirements',
+            'dr_applicable_screens': 'DR Applicable Screens',
+            'dr_id': 'DR ID',
+            'preconditions': 'Preconditions',
+            'procedure': 'Procedure',
+            'expected_behavior': 'Expected Behavior',
+            'region': 'Region',
+            'brand': 'Brand',
+            'vehicle_variant': 'Vehicle Variant',
+            'vehicle_specification': 'Vehicle Specification',
+            'env_dependancy': 'Env Dependancy',
+            'requirement_type': 'Requirement Type',
+            'regulation': 'Regulation',
+            'testsuite_type': 'TestSuite Type'
+        }
+        return mapping.get(column_key, column_key)
+    
     def _get_filter_options(self, test_cases_data):
         """Get unique values for filter dropdowns using enhanced service"""
         from app.services.test_cases_service import TestCasesService
@@ -175,7 +261,6 @@ class TestCasesController(BaseController):
         
         # Return legacy format for backward compatibility
         return (
-            filter_options.get('apps', []),
             filter_options.get('test_types', []),
             filter_options.get('priorities', [])
         )
@@ -353,7 +438,9 @@ class TestCasesController(BaseController):
         
         filtered_cases = self._filter_test_cases(
             test_cases_data, app_filter, test_type_filter, 
-            priority_filter, search_query, dynamic_filters, selected_id_list
+            priority_filter, feature_filter, screen_id_filter, 
+            testsuite_type_filter, requirement_type_filter, 
+            search_query, dynamic_filters, selected_id_list
         )
         
         filtered_cases = self._sort_test_cases(filtered_cases, sort_by, sort_order)

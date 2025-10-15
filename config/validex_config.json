@@ -11,7 +11,7 @@
     "admin_enabled": false,
     "sakura_enabled": true,
     "multiselect_threshold": 5,
-    "test_cases_per_page": 10,
+    "test_cases_per_page": 100,
     "auto_refresh_interval": 30,
     "auto_launch_browser": true,
     "startup_delay": 2
@@ -104,43 +104,33 @@
   },
   "columns": {
     "required": [
-      "Expected Behavior",
-      "Feature",
-      "Priority",
-      "Screen ID",
-      "Status",
-      "Summary",
+      "Reference_Document",
       "TC ID",
+      "Associated Requirements",
+      "Screen ID",
+      "Feature",
+      "DR Applicable Screens",
+      "DR ID",
+      "Test Objective",
+      "Preconditions",
+      "Procedure",
+      "Expected Behavior",
+      "Test Type",
+      "Region",
+      "Brand",
+      "Vehicle Variant",
+      "Vehicle Specification",
+      "Env Dependancy",
+      "Requirement Type",
+      "Regulation",
+      "Priority",
+      "TestSuite Type"
+    ],
+    "optional": [
+      "Summary",
       "type"
     ],
-    "optional": [],
-    "mappings": {
-      "id": [
-        "Screen ID",
-        "TC ID"
-      ],
-      "summary": [
-        "Summary"
-      ],
-      "feature": [
-        "Feature"
-      ],
-      "priority": [
-        "Priority"
-      ],
-      "status": [
-        "Status"
-      ],
-      "screen": [
-        "Screen ID"
-      ],
-      "type": [
-        "type"
-      ],
-      "expected": [
-        "Expected Behavior"
-      ]
-    }
+    "mappings": {}
   },
   "export": {
     "default_format": "file",
@@ -163,128 +153,328 @@
     "timeout": 30
   },
   "dynamic_columns": {
-    "Screen ID": {
-      "display_name": "Screen ID",
+    "Reference_Document": {
+      "display_name": "Reference Document",
       "type": "string",
       "required": true,
-      "unique": true,
-      "description": "Unique identifier",
+      "unique": false,
+      "description": "Reference document for the test case",
       "sample_values": [
-        "LOGIN_001",
-        "HOME_001",
-        "LOGOUT_001",
-        "SEARCH_002",
-        "LOGIN_STRESS_001"
+        "SRS_v1.0",
+        "HMI_Spec_v2.1",
+        "Safety_Req_v1.5"
       ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
-    },
-    "Status": {
-      "display_name": "Status",
-      "type": "string",
-      "required": true,
-      "unique": true,
-      "description": "Current status",
-      "sample_values": [
-        "Pending"
-      ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
-    },
-    "Summary": {
-      "display_name": "Summary",
-      "type": "string",
-      "required": true,
-      "unique": true,
-      "description": "Brief description or title",
-      "sample_values": [
-        "Report Scheduling",
-        "High Load User Login",
-        "Report Generation",
-        "Database Connection Failure",
-        "Search History"
-      ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
-    },
-    "Expected Behavior": {
-      "display_name": "Expected Behavior",
-      "type": "string",
-      "required": true,
-      "unique": true,
-      "description": "Expected result or behavior",
-      "sample_values": [
-        "Database should handle 10000 queries per minute",
-        "System should handle 1000 concurrent logins",
-        "Reports should be exportable in multiple formats",
-        "User should be able to logout successfully",
-        "User should be able to schedule automatic reports"
-      ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
-    },
-    "type": {
-      "display_name": "type",
-      "type": "string",
-      "required": true,
-      "unique": true,
-      "description": "Type or category",
-      "sample_values": [
-        "FMEA",
-        "Smoke",
-        "Sanity",
-        "Stress",
-        "Functional"
-      ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
-    },
-    "Priority": {
-      "display_name": "Priority",
-      "type": "string",
-      "required": true,
-      "unique": true,
-      "description": "Priority level",
-      "sample_values": [
-        "Critical",
-        "Low",
-        "High",
-        "Medium"
-      ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
+      "frequency": 0,
+      "frequency_percentage": 0.0
     },
     "TC ID": {
       "display_name": "TC ID",
       "type": "string",
       "required": true,
       "unique": true,
-      "description": "Unique identifier",
+      "description": "Test Case ID in format XX_FEATURE_XXX1",
       "sample_values": [
-        "FMEA005",
-        "SMK004",
-        "STR004",
-        "SF1002",
-        "FMEA004"
+        "TC_LOGIN_001",
+        "TC_NAV_002",
+        "TC_SAFETY_003"
       ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
+      "frequency": 0,
+      "frequency_percentage": 0.0
     },
-    "Feature": {
-      "display_name": "Feature",
+    "Associated Requirements": {
+      "display_name": "Associated Requirements",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Associated requirements (multiline)",
+      "sample_values": [
+        "REQ-001: User Authentication\nREQ-002: Session Management",
+        "REQ-003: Navigation Control\nREQ-004: Safety Override"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Screen ID": {
+      "display_name": "Screen ID",
       "type": "string",
       "required": true,
-      "unique": true,
-      "description": "Feature or component",
+      "unique": false,
+      "description": "Screen identifier",
       "sample_values": [
-        "Navigation",
-        "Session",
-        "Reporting",
-        "Network",
-        "Authentication"
+        "LOGIN_001",
+        "HOME_001",
+        "NAV_002"
       ],
-      "frequency": 18,
-      "frequency_percentage": 100.0
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Feature": {
+      "display_name": "App Name",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Application name (e.g., App1, App2, App3, BankingApp, Dashboard, Logistics, WebPortal)",
+      "sample_values": [
+        "App1",
+        "App2", 
+        "App3",
+        "BankingApp",
+        "Dashboard",
+        "Logistics",
+        "WebPortal",
+        "APIService"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "DR Applicable Screens": {
+      "display_name": "DR Applicable Screens",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Design Review applicable screens (multiline)",
+      "sample_values": [
+        "LOGIN_001\nHOME_001",
+        "NAV_002\nSETTINGS_003"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "DR ID": {
+      "display_name": "DR ID",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Design Review ID (multiline)",
+      "sample_values": [
+        "DR-001\nDR-002",
+        "DR-003\nDR-004"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Test Objective": {
+      "display_name": "Test Objective",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Objective of the test",
+      "sample_values": [
+        "Verify user login functionality",
+        "Validate navigation accuracy",
+        "Test safety override mechanism"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Preconditions": {
+      "display_name": "Preconditions",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Preconditions for test execution (multiline)",
+      "sample_values": [
+        "User account exists\nSystem is online",
+        "Navigation system initialized\nGPS signal available"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Procedure": {
+      "display_name": "Procedure",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Test procedure steps (multiline)",
+      "sample_values": [
+        "1. Navigate to login screen\n2. Enter credentials\n3. Click login button",
+        "1. Access navigation menu\n2. Select destination\n3. Verify route calculation"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Expected Behavior": {
+      "display_name": "Expected Behavior",
+      "type": "multiline_string",
+      "required": true,
+      "unique": false,
+      "description": "Expected test behavior (multiline)",
+      "sample_values": [
+        "User should be logged in successfully\nDashboard should be displayed",
+        "Route should be calculated correctly\nNavigation should start automatically"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Test Type": {
+      "display_name": "Test Type",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Type of test",
+      "allowed_values": [
+        "Positive",
+        "Negative",
+        "Boundary",
+        "Integration",
+        "Performance",
+        "Security"
+      ],
+      "sample_values": [
+        "Positive",
+        "Negative",
+        "Boundary"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Region": {
+      "display_name": "Region",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Geographic region",
+      "sample_values": [
+        "North America",
+        "Europe",
+        "Asia Pacific"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Brand": {
+      "display_name": "Brand",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Vehicle brand",
+      "sample_values": [
+        "Toyota",
+        "Honda",
+        "BMW"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Vehicle Variant": {
+      "display_name": "Vehicle Variant",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Vehicle variant",
+      "sample_values": [
+        "Sedan",
+        "SUV",
+        "Hatchback"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Vehicle Specification": {
+      "display_name": "Vehicle Specification",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Vehicle specification",
+      "sample_values": [
+        "Base Model",
+        "Premium",
+        "Sport"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Env Dependancy": {
+      "display_name": "Environment Dependency",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Environment dependency",
+      "sample_values": [
+        "Development",
+        "Staging",
+        "Production"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Requirement Type": {
+      "display_name": "Requirement Type",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Type of requirement",
+      "allowed_values": [
+        "Functional",
+        "HMI",
+        "Safety",
+        "Performance",
+        "Security",
+        "Compliance"
+      ],
+      "sample_values": [
+        "Functional",
+        "HMI",
+        "Safety"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Regulation": {
+      "display_name": "Regulation",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Applicable regulation",
+      "sample_values": [
+        "ISO 26262",
+        "ECE R79",
+        "FMVSS"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "Priority": {
+      "display_name": "Priority",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Test priority",
+      "allowed_values": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "sample_values": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
+    },
+    "TestSuite Type": {
+      "display_name": "TestSuite Type",
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "description": "Type of test suite",
+      "allowed_values": [
+        "Sanity",
+        "Smoke",
+        "Regression",
+        "Integration",
+        "System",
+        "Acceptance"
+      ],
+      "sample_values": [
+        "Sanity",
+        "Smoke",
+        "Regression"
+      ],
+      "frequency": 0,
+      "frequency_percentage": 0.0
     }
   },
   "last_auto_update": "2025-10-10T01:21:01.773197"

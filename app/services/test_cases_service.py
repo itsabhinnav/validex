@@ -212,65 +212,8 @@ class TestCasesService:
     
     def get_column_mappings(self, test_cases_data: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Dict[str, Any]]:
         """Get column mappings and suggestions based on available data"""
-        all_columns = self.get_available_columns(test_cases_data)
-        column_stats = self.get_column_statistics(test_cases_data)
-        
-        # Define standard column patterns
-        standard_patterns = {
-            'id': ['TC ID', 'Test Case ID', 'Test ID', 'ID', 'Id', 'test_case_id', 'requirement_id'],
-            'summary': ['Summary', 'Description', 'Title', 'Name', 'Test Summary'],
-            'feature': ['Feature', 'Component', 'Module', 'Area', 'Function'],
-            'priority': ['Priority', 'Level', 'Importance', 'Severity'],
-            'status': ['Status', 'State', 'Condition', 'Result'],
-            'screen': ['Screen ID', 'Screen', 'Page', 'Page ID'],
-            'type': ['Test Type', 'Type', 'Category', 'Kind', 'Test Category'],
-            'expected': ['Expected Behavior', 'Expected Result', 'Expected', 'Outcome', 'Expected Outcome'],
-            'assignee': ['Assignee', 'Tester', 'Owner', 'Responsible'],
-            'environment': ['Environment', 'Env', 'Deployment'],
-            'build': ['Build Version', 'Build', 'Version', 'Release'],
-            'automated': ['Automated', 'Auto', 'Manual', 'Execution Type']
-        }
-        
-        mappings = {}
-        
-        # For each standard pattern, find matching columns
-        for pattern, variations in standard_patterns.items():
-            matches = []
-            for col in all_columns:
-                for variation in variations:
-                    if variation.lower() in col.lower() or col.lower() in variation.lower():
-                        confidence = self._calculate_column_confidence(col, variation, column_stats.get(col, {}))
-                        matches.append({
-                            'column': col,
-                            'confidence': confidence,
-                            'sample_values': self._get_sample_values_for_column(test_cases_data, col)
-                        })
-                        break
-            
-            if matches:
-                # Sort by confidence
-                matches.sort(key=lambda x: x['confidence'], reverse=True)
-                mappings[pattern] = matches
-        
-        # Add unmapped columns
-        mapped_columns = set()
-        for pattern_matches in mappings.values():
-            for match in pattern_matches:
-                mapped_columns.add(match['column'])
-        
-        unmapped = []
-        for col in all_columns:
-            if col not in mapped_columns:
-                unmapped.append({
-                    'column': col,
-                    'confidence': 0.5,  # Default confidence for unmapped columns
-                    'sample_values': self._get_sample_values_for_column(test_cases_data, col)
-                })
-        
-        if unmapped:
-            mappings['other'] = unmapped
-        
-        return mappings
+        # Return empty mappings as requested
+        return {}
     
     def _calculate_column_confidence(self, column_name: str, pattern: str, stats: Dict[str, Any]) -> float:
         """Calculate confidence score for column mapping"""

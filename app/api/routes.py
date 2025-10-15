@@ -691,9 +691,9 @@ def prepare_test_suite():
     """Redirect to test cases page (merged functionality)"""
     return redirect(url_for('main.test_cases'))
 
-@main_bp.route('/export-test-suite')
-def export_test_suite():
-    """Export test suite with release details"""
+@main_bp.route('/export-test-suite-legacy')
+def export_test_suite_legacy():
+    """Export test suite with release details (legacy)"""
     role = session.get('current_role')
     
     if not role:

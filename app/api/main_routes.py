@@ -61,11 +61,15 @@ def export_test_cases_csv():
     """Export test cases to CSV"""
     return test_cases_controller._handle_export_test_cases_csv()
 
-# Prepare test suite functionality merged into test cases page
-
+# Export test suite page (moved from test cases page)
 @main_bp.route('/export-test-suite')
-def export_test_suite():
-    """Export test suite with release details"""
+def export_test_suite_page():
+    """Export test suite page"""
+    return render_template('validex/export_test_suite.html')
+
+@main_bp.route('/export-test-suite-file')
+def export_test_suite_file():
+    """Export test suite file with release details"""
     return test_cases_controller._handle_export_test_suite()
 
 @main_bp.route('/setup')
@@ -324,10 +328,537 @@ def get_filter_options():
         'column_statistics': enhanced_data.get('column_statistics', {})
     })
 
-@main_bp.errorhandler(404)
-def not_found(error):
-    """Handle 404 errors"""
-    return render_template('errors/404.html'), 404
+@main_bp.route('/api/requirements/auto-load', methods=['POST'])
+def auto_load_requirements():
+    """Auto-load requirements from Excel files"""
+    from app.controllers.requirements_controller import RequirementsController
+    
+    try:
+        controller = RequirementsController()
+        result = controller.auto_load_requirements()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_requirements': result['total_requirements'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/requirements/refresh', methods=['POST'])
+def refresh_requirements():
+    """Refresh requirements by reloading all files"""
+    from app.controllers.requirements_controller import RequirementsController
+    
+    try:
+        controller = RequirementsController()
+        result = controller.refresh_requirements()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_requirements': result['total_requirements'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/requirements/columns', methods=['GET'])
+def get_requirements_columns():
+    """Get all available columns from loaded requirements"""
+    from app.controllers.requirements_controller import RequirementsController
+    
+    try:
+        controller = RequirementsController()
+        result = controller.get_available_columns()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'columns': result['columns'],
+                'column_values': result['column_values'],
+                'total_requirements': result['total_requirements'],
+                'total_columns': result['total_columns']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/auto-load', methods=['POST'])
+def auto_load_designs():
+    """Auto-load design specifications from Excel files"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.auto_load_designs()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_designs': result['total_designs'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/refresh', methods=['POST'])
+def refresh_designs():
+    """Refresh design specifications by reloading all files"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.refresh_designs()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_designs': result['total_designs'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/directory-info', methods=['GET'])
+def get_design_directory_info():
+    """Get information about the design directory"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.get_design_directory_info()
+        
+        return jsonify({
+            'success': True,
+            'directory_info': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/columns', methods=['GET'])
+def get_design_columns():
+    """Get all available columns from loaded design specifications"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.get_available_columns()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'columns': result['columns'],
+                'column_values': result['column_values'],
+                'total_designs': result['total_designs'],
+                'total_columns': result['total_columns']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/filter', methods=['POST'])
+def filter_designs():
+    """Filter design specifications based on column values"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        filters = request.get_json() or {}
+        
+        result = controller.filter_designs_by_columns(filters)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'filtered_designs': result['filtered_designs'],
+                'total_filtered': result['total_filtered'],
+                'total_original': result['total_original'],
+                'summary': result.get('summary', {}),
+                'filters_applied': result.get('filters_applied', {})
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/dashboard', methods=['GET'])
+def get_design_dashboard():
+    """Get design specifications dashboard data"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.get_design_dashboard()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'summary': result['summary'],
+                'recent_designs': result['recent_designs'],
+                'designs_data': result['designs_data']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design/browse', methods=['GET'])
+def browse_designs():
+    """Browse and filter design specifications"""
+    from app.controllers.design_controller import DesignController
+    
+    try:
+        controller = DesignController()
+        result = controller.browse_designs()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'designs': result['designs'],
+                'total_designs': result['total_designs'],
+                'page': result['page'],
+                'per_page': result['per_page'],
+                'total_pages': result['total_pages'],
+                'has_prev': result['has_prev'],
+                'has_next': result['has_next'],
+                'filters': result['filters'],
+                'filter_options': result['filter_options'],
+                'sort_by': result['sort_by'],
+                'sort_order': result['sort_order']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/auto-load', methods=['POST'])
+def auto_load_design_phases():
+    """Auto-load design phases from Excel files"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.auto_load_design_phases()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_phases': result['total_phases'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/refresh', methods=['POST'])
+def refresh_design_phases():
+    """Refresh design phases by reloading all files"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.refresh_design_phases()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'loaded_files': result['loaded_files'],
+                'total_phases': result['total_phases'],
+                'summary': result.get('summary', {}),
+                'timestamp': result.get('timestamp'),
+                'warning': result.get('warning')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/directory-info', methods=['GET'])
+def get_design_phase_directory_info():
+    """Get information about the design directory"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.get_design_directory_info()
+        
+        return jsonify({
+            'success': True,
+            'directory_info': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/columns', methods=['GET'])
+def get_design_phase_columns():
+    """Get all available columns from loaded design phases"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.get_available_columns()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'columns': result['columns'],
+                'column_values': result['column_values'],
+                'total_phases': result['total_phases'],
+                'total_columns': result['total_columns']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/filter', methods=['POST'])
+def filter_design_phases():
+    """Filter design phases based on column values"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        filters = request.get_json() or {}
+        
+        result = controller.filter_design_phases_by_columns(filters)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'filtered_phases': result['filtered_phases'],
+                'total_filtered': result['total_filtered'],
+                'total_original': result['total_original'],
+                'summary': result.get('summary', {}),
+                'filters_applied': result.get('filters_applied', {})
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/dashboard', methods=['GET'])
+def get_design_phase_dashboard():
+    """Get design phase dashboard data"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.get_design_phase_dashboard()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'summary': result['summary'],
+                'recent_phases': result['recent_phases'],
+                'phases_data': result['phases_data']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/browse', methods=['GET'])
+def browse_design_phases():
+    """Browse and filter design phases"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.browse_design_phases()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'phases': result['phases'],
+                'total_phases': result['total_phases'],
+                'page': result['page'],
+                'per_page': result['per_page'],
+                'total_pages': result['total_pages'],
+                'has_prev': result['has_prev'],
+                'has_next': result['has_next'],
+                'filters': result['filters'],
+                'filter_options': result['filter_options'],
+                'sort_by': result['sort_by'],
+                'sort_order': result['sort_order']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error occurred')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
+
+@main_bp.route('/api/design-phase/<phase_id>', methods=['GET'])
+def get_design_phase_details(phase_id):
+    """Get detailed information for a specific design phase"""
+    from app.controllers.design_phase_controller import DesignPhaseController
+    
+    try:
+        controller = DesignPhaseController()
+        result = controller.get_design_phase_details(phase_id)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'phase': result['phase'],
+                'related_phases': result['related_phases']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Design phase not found')
+            }), 404
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}'
+        }), 500
 
 @main_bp.errorhandler(500)
 def internal_error(error):

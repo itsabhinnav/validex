@@ -5,6 +5,7 @@ Requirements Controller for Sakura Requirements Management System
 from flask import request, session, current_app
 from typing import Dict, Any, List, Optional
 from app.services.requirements_service import RequirementsService
+from app.services.requirements_auto_loader import RequirementsAutoLoader
 from app.models.requirement import Requirement
 
 class RequirementsController:
@@ -12,6 +13,7 @@ class RequirementsController:
     
     def __init__(self):
         self.requirements_service = RequirementsService()
+        self.auto_loader = RequirementsAutoLoader()
     
     def get_requirements_dashboard(self) -> Dict[str, Any]:
         """Get requirements dashboard data"""
@@ -400,3 +402,104 @@ class RequirementsController:
         related.sort(key=lambda x: x.get('similarity_score', 0), reverse=True)
         
         return related[:5]  # Return top 5 related requirements
+    
+    def auto_load_requirements(self) -> Dict[str, Any]:
+        """Automatically load requirements from Excel files"""
+        try:
+            result = self.auto_loader.auto_load_requirements()
+            
+            if result['success']:
+                current_app.logger.info(f"Auto-loaded {result['total_requirements']} requirements from {result['loaded_files']} files")
+            else:
+                current_app.logger.error(f"Auto-load failed: {result.get('error', 'Unknown error')}")
+            
+            return result
+            
+        except Exception as e:
+            current_app.logger.error(f"Error in auto_load_requirements: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'loaded_files': 0,
+                'total_requirements': 0,
+                'requirements_data': {}
+            }
+    
+    def refresh_requirements(self) -> Dict[str, Any]:
+        """Refresh requirements by reloading all files"""
+        try:
+            result = self.auto_loader.refresh_requirements()
+            
+            if result['success']:
+                current_app.logger.info(f"Refreshed {result['total_requirements']} requirements from {result['loaded_files']} files")
+            else:
+                current_app.logger.error(f"Refresh failed: {result.get('error', 'Unknown error')}")
+            
+            return result
+            
+        except Exception as e:
+            current_app.logger.error(f"Error in refresh_requirements: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'loaded_files': 0,
+                'total_requirements': 0,
+                'requirements_data': {}
+            }
+    
+    def get_requirements_directory_info(self) -> Dict[str, Any]:
+        """Get information about the requirements directory"""
+        try:
+            return self.auto_loader.get_requirements_directory_info()
+            
+        except Exception as e:
+            current_app.logger.error(f"Error getting directory info: {e}")
+            return {
+                'exists': False,
+                'path': None,
+                'file_count': 0,
+                'files': [],
+                'error': str(e)
+            }
+    
+    def get_available_columns(self) -> Dict[str, Any]:
+        """Get all available columns from loaded requirements"""
+        try:
+            result = self.auto_loader.get_available_columns()
+            
+            if result['success']:
+                current_app.logger.info(f"Retrieved {result['total_columns']} columns from {result['total_requirements']} requirements")
+            else:
+                current_app.logger.error(f"Failed to get columns: {result.get('error', 'Unknown error')}")
+            
+            return result
+            
+        except Exception as e:
+            current_app.logger.error(f"Error in get_available_columns: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'columns': [],
+                'column_values': {}
+            }
+    
+    def filter_requirements_by_columns(self, filters: Dict[str, Any]) -> Dict[str, Any]:
+        """Filter requirements based on column values"""
+        try:
+            result = self.auto_loader.filter_requirements_by_columns(filters)
+            
+            if result['success']:
+                current_app.logger.info(f"Filtered {result['total_filtered']} requirements from {result['total_original']} total")
+            else:
+                current_app.logger.error(f"Filtering failed: {result.get('error', 'Unknown error')}")
+            
+            return result
+            
+        except Exception as e:
+            current_app.logger.error(f"Error in filter_requirements_by_columns: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'filtered_requirements': [],
+                'total_filtered': 0
+            }
