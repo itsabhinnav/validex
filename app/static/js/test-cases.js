@@ -2071,6 +2071,12 @@ function initializeTagMultiSelect($select) {
         $select.select2('destroy');
     }
 
+    // Hide the multiselect container since we're using Select2
+    const container = $select.closest('.multiselect-container');
+    if (container.length) {
+        container.find('.multiselect-input, .multiselect-dropdown').hide();
+    }
+
     $select.select2({
         theme: 'bootstrap-5',
         placeholder: function() {

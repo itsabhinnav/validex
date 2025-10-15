@@ -600,13 +600,8 @@
 {% block extra_css %}
 <link href="{{ url_for('static', filename='css/multiselect.css') }}" rel="stylesheet">
 <style>
-/* Hide ModernMultiSelect elements since we're using smart multi-select only */
-.multiselect-input,
-.multiselect-dropdown,
-.multiselect-options,
-.multiselect-option {
-    display: none !important;
-}
+/* Smart multi-select system will handle all multiselect elements */
+/* No need to hide any elements - let the JavaScript decide which UI to use */
 
 /* Ensure checkbox multiselect containers are properly styled */
 .checkbox-multiselect-container {
