@@ -97,40 +97,13 @@ test_cases_data = {}
 
 @main_bp.route('/')
 def index():
-    """Main application selector page"""
-    return render_template('common/app_selector.html')
-
-@main_bp.route('/app-selector')
-def app_selector():
-    """Application selector page"""
-    return render_template('common/app_selector.html')
-
-@main_bp.route('/select-app', methods=['POST'])
-def select_app():
-    """Handle app selection and redirect to appropriate landing page"""
-    selected_app = request.form.get('selected_app')
-    
-    session['current_app'] = selected_app
-    
-    if selected_app == 'validex':
-        return redirect(url_for('main.landing', app='validex'))
-    elif selected_app == 'sakura':
-        # Check if Sakura is enabled
-        from config.settings import config
-        if config.is_sakura_enabled():
-            return redirect(url_for('sakura.sakura_dashboard'))
-        else:
-            # Sakura is disabled, redirect to app selector with error message
-            return redirect(url_for('main.index'))
-    else:
-        session['current_app'] = 'validex'
-        return redirect(url_for('main.landing', app='validex'))
+    """Main application entry point"""
+    return redirect(url_for('main.landing'))
 
 @main_bp.route('/landing')
 def landing():
     """Landing page with role selection"""
-    app_name = request.args.get('app', 'validex')
-    return render_template('common/landing.html', app_name=app_name)
+    return render_template('common/landing.html')
 
 @main_bp.route('/app')
 def app_entry():
@@ -176,11 +149,6 @@ def set_role():
     else:
         return redirect(url_for('main.dashboard'))
 
-@main_bp.route('/logout')
-def logout():
-    """Logout and return to role selection"""
-    session.pop('current_role', None)
-    return redirect(url_for('main.role_selection'))
 
 
 @main_bp.route('/api/filter-test-cases', methods=['POST'])
@@ -263,21 +231,6 @@ def get_app_status():
             'message': f'Error getting app status: {str(e)}',
             'error': str(e)
         }), 500
-
-@main_bp.route('/api/auto-refresh-test')
-def auto_refresh_test():
-    """Test endpoint for auto-refresh functionality"""
-    return jsonify({
-        'success': True,
-        'message': 'Auto-refresh test endpoint',
-        'timestamp': datetime.now().isoformat(),
-        'auto_refresh_working': True
-    })
-
-@main_bp.route('/auto-refresh-test')
-def auto_refresh_test_page():
-    """Auto-refresh test page"""
-    return render_template('validex/auto_refresh_test.html')
 
 @main_bp.route('/prepare-test-suite')
 def prepare_test_suite():

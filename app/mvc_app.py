@@ -82,28 +82,12 @@ def create_mvc_app(config_name='development'):
         from config.settings import config
         return {
             'admin_enabled': config.is_admin_enabled(),
-            'sakura_enabled': config.is_sakura_enabled(),
-            'auto_refresh_interval': config.get('app.auto_refresh_interval', 30) * 1000,  # Convert to milliseconds
             'auto_launch_browser': config.is_auto_launch_browser_enabled(),
             'startup_delay': config.get_startup_delay()
         }
     
     from app.api.main_routes import main_bp
     app.register_blueprint(main_bp)
-    
-    # Register Sakura blueprint only if enabled
-    from config.settings import config
-    if config.is_sakura_enabled():
-        try:
-            from app.api.sakura_routes import sakura_bp
-            app.register_blueprint(sakura_bp)
-            print("Sakura blueprint registered successfully")
-        except ImportError as e:
-            print(f"Sakura blueprint not available: {e}")
-        except Exception as e:
-            print(f"Error registering Sakura blueprint: {e}")
-    else:
-        print("Sakura app is disabled by configuration")
     
     try:
         from app.api.sync_routes import sync_bp

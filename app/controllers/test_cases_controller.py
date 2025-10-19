@@ -10,6 +10,7 @@ from datetime import datetime
 from .base_controller import BaseController
 from app.services.test_cases_service import TestCasesService
 from app.views.test_cases_view import TestCasesView
+from config.settings import config
 
 class TestCasesController(BaseController):
     """Controller for test cases functionality"""
@@ -125,9 +126,6 @@ class TestCasesController(BaseController):
         enhanced_data = self.get_enhanced_filter_data(test_cases_data)
         filter_options = enhanced_data['filter_options']
         
-        from config.settings import config
-        multiselect_threshold = config.get_multiselect_threshold()
-        
         return render_template('validex/test_cases.html', 
                              test_cases=paginated_cases,
                              test_types=sorted(test_types),
@@ -137,7 +135,7 @@ class TestCasesController(BaseController):
                              features=['Logistics', 'WebPortal', 'Dashboard', 'BankingApp'] if not filter_options.get('Feature', []) else sorted(filter_options.get('Feature', [])),
                              screen_ids=['SETTINGS_003', 'DASHBOARD_004', 'NAV_002', 'HOME_001'] if not filter_options.get('Screen ID', []) else sorted(filter_options.get('Screen ID', [])),
                              test_suite_types=['Sanity', 'Smoke', 'Regression', 'Integration'] if not filter_options.get('TestSuite Type', []) else sorted(filter_options.get('TestSuite Type', [])),
-                             requirement_types=['Functional', 'Non-Functional', 'Performance'] if not filter_options.get('Requirement Type', []) else sorted(filter_options.get('Requirement Type', [])),
+                             requirement_types=['Functional', 'Non-Functional', 'Performance', 'Security', 'Integration', 'Usability', 'Compatibility', 'Accessibility'] if not filter_options.get('Requirement Type', []) else sorted(filter_options.get('Requirement Type', [])),
                              current_app_filter=app_filter,
                              current_test_type_filter=test_type_filter[0] if len(test_type_filter) == 1 else test_type_filter,
                              current_priority_filter=priority_filter[0] if len(priority_filter) == 1 else priority_filter,
@@ -157,7 +155,7 @@ class TestCasesController(BaseController):
                              total_pages=total_pages,
                              has_prev=has_prev,
                              has_next=has_next,
-                             multiselect_threshold=multiselect_threshold)
+)
     
     def _filter_test_cases(self, test_cases_data, app_filter, test_type_filter, 
                           priority_filter, feature_filter, screen_id_filter, 

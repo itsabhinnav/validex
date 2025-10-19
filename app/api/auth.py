@@ -24,9 +24,4 @@ def authenticate():
         flash('Invalid credentials')
         return redirect(url_for('auth.login'))
 
-@auth_bp.route('/logout')
-def logout():
-    """Logout user"""
-    session.pop('user', None)
-    return redirect(url_for('main.index'))
 

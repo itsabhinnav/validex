@@ -11,7 +11,6 @@ The main base template that all other templates extend from. Contains:
 - Sidebar
 - Footer
 - Common JavaScript and CSS includes
-- Auto-refresh configuration injection
 
 ### `landing.html`
 Landing page template for the application. Features:
@@ -19,12 +18,6 @@ Landing page template for the application. Features:
 - Call-to-action buttons
 - Application description
 - Clean, modern design
-
-### `app_selector.html`
-Application selector page template. Allows users to choose between:
-- Validex (Test Case Management)
-- Sakura (Requirements Management)
-- Shows application status and availability
 
 ### `role_selection.html`
 Role selection template for user authentication. Provides:

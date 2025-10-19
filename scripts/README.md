@@ -64,7 +64,7 @@ python scripts/validex.py build --all
 ## 📋 Commands
 
 ### `config` - Dynamic Configuration Analysis
-Analyzes Excel files in both Validex and Sakura directories and updates configuration files automatically.
+Analyzes Excel files in Validex directories and updates configuration files automatically.
 
 ```bash
 python scripts/validex.py config
@@ -74,20 +74,20 @@ python scripts/validex.py config
 - Scans `data/excel_files/validex/` for test case files
 - Scans `data/excel_files/requirements/` for requirements files
 - Analyzes column structures and data types
-- Updates `config/validex_config.json` and `config/sakura_config.json`
+- Updates `config/validex_config.json`
 - Generates `config/dynamic_columns_summary.json`
 
-### `sample` - Create Sample Requirements
-Creates a sample requirements Excel file for testing the Sakura app.
+### `sample` - Create Sample Test Cases
+Creates sample test case Excel files for testing the Validex app.
 
 ```bash
 python scripts/validex.py sample
 ```
 
 **What it does:**
-- Creates `data/excel_files/requirements/sample_requirements.xlsx`
-- Includes sample data with realistic requirements
-- Uses proper column structure for Sakura app
+- Creates `data/excel_files/validex/sample_test_cases.xlsx`
+- Includes sample data with realistic test cases
+- Uses proper column structure for Validex app
 
 ### `build` - Build Distributions
 Builds various distribution packages for deployment.

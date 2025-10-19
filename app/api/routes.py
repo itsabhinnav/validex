@@ -106,34 +106,13 @@ def load_test_files():
 
 @main_bp.route('/')
 def index():
-    """Main application selector page"""
-    return render_template('common/app_selector.html')
-
-@main_bp.route('/app-selector')
-def app_selector():
-    """Application selector page"""
-    return render_template('common/app_selector.html')
-
-@main_bp.route('/select-app', methods=['POST'])
-def select_app():
-    """Handle app selection and redirect to appropriate landing page"""
-    selected_app = request.form.get('selected_app')
-    
-    session['current_app'] = selected_app
-    
-    if selected_app == 'validex':
-        return redirect(url_for('main.landing', app='validex'))
-    elif selected_app == 'sakura':
-        return redirect(url_for('sakura.sakura_dashboard'))
-    else:
-        session['current_app'] = 'validex'
-        return redirect(url_for('main.landing', app='validex'))
+    """Main application entry point"""
+    return redirect(url_for('main.landing'))
 
 @main_bp.route('/landing')
 def landing():
     """Landing page with role selection"""
-    app_name = request.args.get('app', 'validex')
-    return render_template('common/landing.html', app_name=app_name)
+    return render_template('common/landing.html')
 
 @main_bp.route('/app')
 def app_entry():
@@ -829,11 +808,6 @@ def sync_dashboard():
     
     return render_template('sync_dashboard.html', current_role=role)
 
-@main_bp.route('/logout')
-def logout():
-    """Logout and return to role selection"""
-    session.pop('current_role', None)
-    return redirect(url_for('main.role_selection'))
 
 @main_bp.errorhandler(404)
 def not_found(error):

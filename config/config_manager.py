@@ -32,10 +32,7 @@ class ConfigManager:
                 "host": "127.0.0.1",
                 "port": 8000,
                 "admin_enabled": False,
-                "sakura_enabled": False,
-                "multiselect_threshold": 5,
                 "test_cases_per_page": 10,
-                "auto_refresh_interval": 30,
                 "auto_launch_browser": True,
                 "startup_delay": 2
             },
@@ -348,10 +345,6 @@ class ConfigManager:
         """Check if admin section is enabled"""
         return self.get('app.admin_enabled', False)
     
-    def is_sakura_enabled(self) -> bool:
-        """Check if Sakura app is enabled"""
-        return self.get('app.sakura_enabled', False)
-    
     def is_jfrog_enabled(self) -> bool:
         """Check if JFrog integration is enabled"""
         return self.get('jfrog.enabled', False)
@@ -371,10 +364,6 @@ class ConfigManager:
     def get_reports_dir(self) -> str:
         """Get reports directory"""
         return self.get('filesystem.reports_dir', 'data/reports')
-    
-    def get_multiselect_threshold(self) -> int:
-        """Get the multiselect threshold for UI switching"""
-        return self.get('app.multiselect_threshold', 5)
     
     def get_test_cases_per_page(self) -> int:
         """Get the default number of test cases per page"""

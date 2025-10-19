@@ -1,5 +1,5 @@
 """
-Requirements API Routes for Sakura Requirements Management System
+Requirements API Routes for Validex Test Case Management System
 """
 
 from flask import Blueprint, request, jsonify, session, redirect, url_for, render_template

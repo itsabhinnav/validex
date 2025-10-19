@@ -22,17 +22,9 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
-            <a class="navbar-brand text-dark" href="{% if session.get('current_app') == 'sakura' %}{{ url_for('sakura.sakura_dashboard') }}{% else %}{{ url_for('main.dashboard') }}{% endif %}">
-                {% if session.get('current_app') == 'sakura' %}
-                    <i class="fas fa-spa" style="color: #ff69b4;"></i>
-                {% else %}
-                    <i class="fas fa-clipboard-check"></i>
-                {% endif %}
-                {% if session.get('current_app') %}
-                    {{ session.get('current_app', 'Platform').title() }}
-                {% else %}
-                    Platform
-                {% endif %}
+            <a class="navbar-brand text-dark" href="{{ url_for('main.dashboard') }}">
+                <i class="fas fa-clipboard-check"></i>
+                Validex
             </a>
             
             {% if current_role %}
@@ -61,12 +53,6 @@
                         <i class="fas fa-cloud"></i> {{ get_text('navigation.jfrog') }}
                     </a>
                 {% endif %}
-                <a class="nav-link text-dark" href="{{ url_for('main.app_selector') }}">
-                    <i class="fas fa-exchange-alt"></i> Switch App
-                </a>
-                <a class="nav-link text-dark" href="{{ url_for('main.logout') }}">
-                    <i class="fas fa-sign-out-alt"></i> {{ get_text('navigation.logout') }}
-                </a>
             </div>
             {% endif %}
         </div>

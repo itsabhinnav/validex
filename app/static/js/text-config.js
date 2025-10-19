@@ -40,8 +40,7 @@ window.textConfig = {
     "prepare_test_suite": "Prepare Test Suite",
     "reports": "Reports",
     "admin": "Admin",
-    "jfrog": "JFrog",
-    "logout": "Logout"
+    "jfrog": "JFrog"
   },
   "dashboard": {
     "title": "Dashboard",

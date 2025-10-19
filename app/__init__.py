@@ -73,14 +73,6 @@ def create_app(config_name='development'):
     from app.api.main_routes import main_bp
     app.register_blueprint(main_bp)
     try:
-        from app.api.sakura_routes import sakura_bp
-        app.register_blueprint(sakura_bp)
-        print("Sakura blueprint registered successfully")
-    except ImportError as e:
-        print(f"Sakura blueprint not available: {e}")
-    except Exception as e:
-        print(f"Error registering Sakura blueprint: {e}")
-    try:
         from app.api.sync_routes import sync_bp
         app.register_blueprint(sync_bp)
     except ImportError:

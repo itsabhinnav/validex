@@ -533,11 +533,49 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterForm = document.getElementById('filterForm');
     if (filterForm) {
         filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Update multiselect elements
             multiselectElements.forEach(element => {
                 if (element.multiselectInstance) {
                     element.multiselectInstance.updateOriginalSelect();
                 }
             });
+            
+            // Collect all form data including dynamic filters
+            const formData = new FormData(filterForm);
+            const filters = {};
+            
+            // Collect main form filters
+            for (let [key, value] of formData.entries()) {
+                if (value.trim() !== '') {
+                    filters[key] = value.trim();
+                }
+            }
+            
+            // Collect dynamic filters
+            const dynamicFilters = document.querySelectorAll('#dynamicFiltersContainer [name^="dynamic_"]');
+            dynamicFilters.forEach(element => {
+                if (element.value && element.value.trim() !== '') {
+                    filters[element.name] = element.value.trim();
+                }
+            });
+            
+            // Build URL with all filters
+            const url = new URL(window.location);
+            Object.keys(filters).forEach(key => {
+                if (Array.isArray(filters[key])) {
+                    url.searchParams.delete(key);
+                    filters[key].forEach(value => {
+                        url.searchParams.append(key, value);
+                    });
+                } else {
+                    url.searchParams.set(key, filters[key]);
+                }
+            });
+            
+            // Navigate to the filtered URL
+            window.location.href = url.toString();
         });
     }
     
@@ -555,6 +593,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize dynamic filters functionality
     initializeDynamicFilters();
+    
+    // Restore dynamic filters from URL parameters
+    restoreDynamicFiltersFromURL();
     
     // Initialize smart multi-select with delay
     setTimeout(function() {
@@ -1707,6 +1748,7 @@ function loadAvailableColumns() {
         .then(data => {
             window.availableColumns = data.available_columns || [];
             console.log('Available columns loaded:', window.availableColumns);
+            updateColumnSelector();
         })
         .catch(error => {
             console.error('Error loading available columns:', error);
@@ -1716,6 +1758,7 @@ function loadAvailableColumns() {
                 'Status', 'Priority', 'Source File', 'Expected Behavior', 
                 'Screen ID', 'Assignee', 'Category', 'Created Date', 'Due Date'
             ];
+            updateColumnSelector();
         });
 }
 
@@ -1777,11 +1820,7 @@ function addDynamicFilter() {
 }
 
 function generateColumnOptions() {
-    if (!window.availableColumns) return '';
-    
-    return window.availableColumns.map(column => 
-        `<option value="${column}">${column}</option>`
-    ).join('');
+    return generateAvailableColumnOptions();
 }
 
 function removeDynamicFilter(filterId) {
@@ -1794,21 +1833,18 @@ function removeDynamicFilter(filterId) {
 function clearAllDynamicFilters() {
     const container = document.getElementById('dynamicFiltersContainer');
     if (container) {
+        const filterCount = container.children.length;
         container.innerHTML = '';
-    }
-    
-    // Also clear the dynamic filters section
-    const section = document.getElementById('dynamicFiltersSection');
-    if (section) {
-        section.style.display = 'none';
-    }
-    
-    // Reset button state
-    const btn = document.getElementById('dynamicFiltersBtn');
-    if (btn) {
-        btn.classList.remove('active');
-        btn.classList.remove('btn-info');
-        btn.classList.add('btn-outline-light');
+        
+        // Update the column selector dropdown
+        updateColumnSelector();
+        
+        // Show status message
+        if (filterCount > 0) {
+            showFilterStatus(`Cleared ${filterCount} filter(s)`, 'info');
+        } else {
+            showFilterStatus('No filters to clear', 'info');
+        }
     }
 }
 
@@ -1821,73 +1857,312 @@ if (typeof clearAllDynamicFilters === 'undefined') {
 let filterCounter = 0;
 const usedColumns = new Set();
 
-function addDynamicFilter() {
-    const columnSelect = document.getElementById('filterColumn');
-    const selectedColumn = columnSelect.value;
+function addFilterForColumn(columnName) {
+    if (!columnName) return;
     
-    if (!selectedColumn || usedColumns.has(selectedColumn)) {
+    // Check if this column is already being used
+    const usedColumns = getUsedColumns();
+    if (usedColumns.has(columnName)) {
+        showFilterStatus(`Filter for "${columnName}" already exists!`, 'warning');
+        document.getElementById('columnSelector').value = '';
         return;
     }
     
-    usedColumns.add(selectedColumn);
-    filterCounter++;
+    // Add the filter
+    addDynamicFilterForColumn(columnName);
     
-    const container = document.getElementById('dynamicFilterContainer');
-    const filterDiv = document.createElement('div');
-    filterDiv.className = 'col-md-3 mb-2 dynamic-filter-item';
-    filterDiv.id = `filter-${filterCounter}`;
+    // Reset the dropdown
+    document.getElementById('columnSelector').value = '';
+    
+    // Update the dropdown options
+    updateColumnSelector();
+    
+    // Show success message
+    showFilterStatus(`Filter added for "${columnName}"`, 'success');
+}
 
-    const uniqueValues = getUniqueValuesForColumn(selectedColumn);
+function showFilterStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('filterStatus');
+    const statusText = document.getElementById('filterStatusText');
     
-    filterDiv.innerHTML = `
-        <div class="d-flex align-items-end">
-            <div class="flex-grow-1 me-2">
-                <label class="form-label small">${selectedColumn}</label>
-                <select class="form-select form-select-sm" name="dynamic_${selectedColumn.toLowerCase().replace(' ', '_')}" id="dynamic_${filterCounter}">
-                    <option value="">All ${selectedColumn}</option>
-                    ${uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('')}
-                </select>
+    if (statusDiv && statusText) {
+        statusText.textContent = message;
+        
+        // Update alert class based on type
+        const alertDiv = statusDiv.querySelector('.alert');
+        alertDiv.className = `alert alert-${type} alert-sm py-2`;
+        
+        statusDiv.style.display = 'block';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+function refreshColumnList() {
+    const refreshBtn = document.querySelector('button[onclick="refreshColumnList()"]');
+    if (refreshBtn) {
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        refreshBtn.disabled = true;
+    }
+    
+    showFilterStatus('Refreshing column list...', 'info');
+    
+    // Reload available columns
+    loadAvailableColumns();
+    
+    // Re-enable button after a short delay
+    setTimeout(() => {
+        if (refreshBtn) {
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            refreshBtn.disabled = false;
+        }
+        showFilterStatus('Column list refreshed successfully!', 'success');
+    }, 1000);
+}
+
+function addDynamicFilterForColumn(columnName) {
+    const container = document.getElementById('dynamicFiltersContainer');
+    if (!container) return;
+    
+    const filterId = 'dynamic_filter_' + Date.now();
+    const filterElement = document.createElement('div');
+    filterElement.className = 'col-md-4 mb-3';
+    filterElement.id = filterId;
+    
+    filterElement.innerHTML = `
+        <div class="card border-secondary filter-card" data-column="${columnName}">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 text-primary">
+                        <i class="fas fa-filter me-1"></i>${columnName}
+                    </h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDynamicFilter('${filterId}', '${columnName}')" title="Remove this filter">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Filter Type</label>
+                    <select class="form-select form-select-sm" name="dynamic_type_${filterId}" id="filter_type_${filterId}" onchange="updateFilterValueInput('${filterId}')">
+                        <option value="exact">Exact Match</option>
+                        <option value="contains">Contains</option>
+                        <option value="starts_with">Starts With</option>
+                        <option value="ends_with">Ends With</option>
+                        <option value="regex">Regex</option>
+                        <option value="in_list">In List</option>
+                        <option value="not_in_list">Not In List</option>
+                        <option value="greater_than">Greater Than</option>
+                        <option value="less_than">Less Than</option>
+                        <option value="between">Between</option>
+                        <option value="is_empty">Is Empty</option>
+                        <option value="is_not_empty">Is Not Empty</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Value</label>
+                    <input type="text" class="form-control form-control-sm" name="dynamic_value_${filterId}" id="filter_value_${filterId}" placeholder="Enter ${columnName} value">
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Filter will be applied when you click "Apply Filters"
+                    </small>
+                </div>
             </div>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDynamicFilter(${filterCounter}, '${selectedColumn}')" title="Remove filter">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
     `;
     
-    container.appendChild(filterDiv);
-
-    // Initialize Select2 if jQuery is available
-    if (typeof $ !== 'undefined') {
-        $(filterDiv).find('select').select2({
-            theme: 'bootstrap-5',
-            placeholder: function() {
-                return $(this).find('option:first').text();
-            },
-            allowClear: true,
-            width: '100%',
-            minimumResultsForSearch: 0,
-            multiple: function() {
-                return $(this).attr('multiple') !== undefined;
+    container.appendChild(filterElement);
+    
+    // Set appropriate filter type based on column
+    const filterTypeSelect = document.getElementById(`filter_type_${filterId}`);
+    if (isNumericColumn(columnName)) {
+        // Move numeric options to top for numeric columns
+        const numericOptions = ['greater_than', 'less_than', 'between', 'exact'];
+        const otherOptions = filterTypeSelect.querySelectorAll('option');
+        const newHTML = [];
+        
+        numericOptions.forEach(opt => {
+            const option = filterTypeSelect.querySelector(`option[value="${opt}"]`);
+            if (option) {
+                newHTML.push(option.outerHTML);
             }
         });
-    }
-
-    columnSelect.value = '';
-    updateAvailableColumns();
-}
-
-function removeDynamicFilter(filterId, column) {
-    const filterElement = document.getElementById(`filter-${filterId}`);
-    if (filterElement) {
-        filterElement.classList.add('removing');
         
-        setTimeout(() => {
-            filterElement.remove();
-            usedColumns.delete(column);
-            updateAvailableColumns();
-        }, 300);
+        otherOptions.forEach(option => {
+            if (!numericOptions.includes(option.value)) {
+                newHTML.push(option.outerHTML);
+            }
+        });
+        
+        filterTypeSelect.innerHTML = newHTML.join('');
+    }
+    
+    // Update column selector
+    updateColumnSelector();
+}
+
+function updateFilterValueInput(filterId) {
+    const filterTypeSelect = document.getElementById(`filter_type_${filterId}`);
+    const valueInput = document.getElementById(`filter_value_${filterId}`);
+    
+    if (!filterTypeSelect || !valueInput) return;
+    
+    const filterType = filterTypeSelect.value;
+    
+    // Update placeholder and input type based on filter type
+    switch (filterType) {
+        case 'between':
+            valueInput.placeholder = 'Enter min,max (e.g., 1,10)';
+            break;
+        case 'in_list':
+        case 'not_in_list':
+            valueInput.placeholder = 'Enter values separated by commas';
+            break;
+        case 'regex':
+            valueInput.placeholder = 'Enter regex pattern';
+            break;
+        case 'is_empty':
+        case 'is_not_empty':
+            valueInput.disabled = true;
+            valueInput.value = '';
+            valueInput.placeholder = 'No value needed';
+            break;
+        default:
+            valueInput.disabled = false;
+            valueInput.placeholder = 'Enter filter value';
+            break;
     }
 }
+
+function updateColumnSelector() {
+    const selector = document.getElementById('columnSelector');
+    if (!selector) return;
+    
+    // Clear existing options except the first one
+    selector.innerHTML = '<option value="">Select a column to filter...</option>';
+    
+    if (window.availableColumns) {
+        const usedColumns = getUsedColumns();
+        
+        window.availableColumns
+            .filter(column => !usedColumns.has(column))
+            .forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = column;
+                selector.appendChild(option);
+            });
+    }
+    
+    // Update the count
+    updateColumnSelector();
+}
+
+function removeDynamicFilter(filterId, columnName) {
+    const element = document.getElementById(filterId);
+    if (element) {
+        element.remove();
+        
+        // Update the column selector dropdown
+        updateColumnSelector();
+        
+        // Show status message
+        showFilterStatus(`Filter for "${columnName}" removed`, 'info');
+    }
+}
+
+function generateAvailableColumnOptions() {
+    if (!window.availableColumns) return '';
+    
+    // Get currently used columns from existing filters
+    const usedColumns = getUsedColumns();
+    
+    return window.availableColumns
+        .filter(column => !usedColumns.has(column))
+        .map(column => `<option value="${column}">${column}</option>`)
+        .join('');
+}
+
+function getUsedColumns() {
+    const usedColumns = new Set();
+    
+    // Get columns from existing dynamic filters
+    const existingFilters = document.querySelectorAll('#dynamicFiltersContainer select[name^="dynamic_column_"]');
+    existingFilters.forEach(select => {
+        if (select.value) {
+            usedColumns.add(select.value);
+        }
+    });
+    
+    // Get columns from main filter cards
+    const mainFilterColumns = ['Feature', 'Screen ID', 'Test Type', 'Test Suite Type', 'Requirement Type'];
+    mainFilterColumns.forEach(column => {
+        usedColumns.add(column);
+    });
+    
+    return usedColumns;
+}
+
+function updateFilterTypeOptions(filterId) {
+    const columnSelect = document.querySelector(`select[name="dynamic_column_${filterId}"]`);
+    const filterTypeSelect = document.getElementById(`filter_type_${filterId}`);
+    const valueInput = document.getElementById(`filter_value_${filterId}`);
+    
+    if (!columnSelect || !filterTypeSelect || !valueInput) return;
+    
+    const selectedColumn = columnSelect.value;
+    
+    // Reset filter type options
+    filterTypeSelect.innerHTML = `
+        <option value="exact">Exact Match</option>
+        <option value="contains">Contains</option>
+        <option value="starts_with">Starts With</option>
+        <option value="ends_with">Ends With</option>
+        <option value="regex">Regex</option>
+        <option value="in_list">In List</option>
+        <option value="not_in_list">Not In List</option>
+        <option value="greater_than">Greater Than</option>
+        <option value="less_than">Less Than</option>
+        <option value="between">Between</option>
+        <option value="is_empty">Is Empty</option>
+        <option value="is_not_empty">Is Not Empty</option>
+    `;
+    
+    // Update placeholder based on column
+    if (selectedColumn) {
+        valueInput.placeholder = `Enter ${selectedColumn} value`;
+        
+        // If it's a numeric column, suggest numeric operations
+        if (isNumericColumn(selectedColumn)) {
+            // Move numeric options to top
+            const numericOptions = ['greater_than', 'less_than', 'between', 'exact'];
+            const otherOptions = filterTypeSelect.querySelectorAll('option');
+            const newHTML = [];
+            
+            numericOptions.forEach(opt => {
+                const option = filterTypeSelect.querySelector(`option[value="${opt}"]`);
+                if (option) {
+                    newHTML.push(option.outerHTML);
+                }
+            });
+            
+            otherOptions.forEach(option => {
+                if (!numericOptions.includes(option.value)) {
+                    newHTML.push(option.outerHTML);
+                }
+            });
+            
+            filterTypeSelect.innerHTML = newHTML.join('');
+        }
+    } else {
+        valueInput.placeholder = 'Enter filter value';
+    }
+}
+
+
 
 function updateAvailableColumns() {
     const columnSelect = document.getElementById('filterColumn');
@@ -1940,8 +2215,7 @@ function clearAllDynamicFilters() {
 
 function initializeSmartMultiSelect() {
     console.log('Initializing smart multi-select...');
-    // Note: This would need the multiselect_threshold variable from the template
-    const threshold = 2; // Lower threshold to make Requirement Type use tag UI like others
+    // Force all multiselect filters to use chip-based tag UI
     
     if (typeof $ !== 'undefined') {
         $('select[multiple]').each(function() {
@@ -1958,13 +2232,9 @@ function initializeSmartMultiSelect() {
             const options = $select.find('option').length - 1; 
             console.log('Select element found with', options, 'options for field:', $select.attr('name'));
             
-            if (options <= threshold) {
-                console.log('Using checkbox UI for', options, 'options for field:', $select.attr('name'));
-                initializeCheckboxMultiSelect($select);
-            } else {
-                console.log('Using tag UI for', options, 'options for field:', $select.attr('name'));
-                initializeTagMultiSelect($select);
-            }
+            // Always use tag UI (chip-based) for all filters
+            console.log('Using tag UI (chip-based) for field:', $select.attr('name'));
+            initializeTagMultiSelect($select);
             
             // Mark as initialized
             $select.addClass('smart-multiselect-initialized');
@@ -1972,6 +2242,7 @@ function initializeSmartMultiSelect() {
     }
 }
 
+// DEPRECATED: Checkbox multiselect function - no longer used, all filters use chip-based UI
 function initializeCheckboxMultiSelect($select) {
     // Check if already initialized to prevent duplicates
     if ($select.hasClass('checkbox-multiselect-initialized')) {
@@ -2313,6 +2584,49 @@ function clearSelectedTestCases() {
     });
     
     updateSelectedCount(0);
+}
+
+function restoreDynamicFiltersFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const dynamicFilters = {};
+    
+    // Collect all dynamic filter parameters
+    for (const [key, value] of urlParams.entries()) {
+        if (key.startsWith('dynamic_')) {
+            const parts = key.split('_');
+            if (parts.length >= 3) {
+                const filterId = parts[2];
+                const filterType = parts[1];
+                
+                if (!dynamicFilters[filterId]) {
+                    dynamicFilters[filterId] = {};
+                }
+                dynamicFilters[filterId][filterType] = value;
+            }
+        }
+    }
+    
+    // Recreate dynamic filter cards
+    Object.keys(dynamicFilters).forEach(filterId => {
+        const filterData = dynamicFilters[filterId];
+        if (filterData.column && filterData.type && filterData.value) {
+            // Create the filter card
+            addDynamicFilterForColumn(filterData.column);
+            
+            // Find the newly created filter and set its values
+            setTimeout(() => {
+                const filterTypeSelect = document.getElementById(`filter_type_${filterId}`);
+                const filterValueInput = document.getElementById(`filter_value_${filterId}`);
+                
+                if (filterTypeSelect) {
+                    filterTypeSelect.value = filterData.type;
+                }
+                if (filterValueInput) {
+                    filterValueInput.value = filterData.value;
+                }
+            }, 100);
+        }
+    });
 }
 
 // Make functions available globally

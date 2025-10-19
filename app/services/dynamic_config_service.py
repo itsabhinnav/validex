@@ -19,8 +19,7 @@ class DynamicConfigService:
         self.logger = logging.getLogger(__name__)
         self.excel_extensions = ['.xlsx', '.xls', '.xlsm']
         self.app_directories = {
-            'validex': 'data/excel_files/validex',
-            'sakura': 'data/excel_files/requirements'
+            'validex': 'data/excel_files/validex'
         }
         
     def analyze_all_apps(self) -> Dict[str, Any]:
@@ -328,10 +327,6 @@ class DynamicConfigService:
             if 'validex' in analysis_results:
                 self._update_validex_config(analysis_results['validex'])
             
-            # Update sakura config (if exists)
-            if 'sakura' in analysis_results:
-                self._update_sakura_config(analysis_results['sakura'])
-            
             # Update column service config
             self._update_column_service_config(analysis_results)
             
@@ -370,20 +365,20 @@ class DynamicConfigService:
         except Exception as e:
             self.logger.error(f"Error updating validex config: {e}")
     
-    def _update_sakura_config(self, sakura_config: Dict[str, Any]) -> None:
-        """Update sakura configuration"""
-        # Create sakura-specific config if needed
-        config_path = 'config/sakura_config.json'
+    def _update_validex_config(self, validex_config: Dict[str, Any]) -> None:
+        """Update validex configuration"""
+        # Update validex-specific config
+        config_path = 'config/validex_config.json'
         
         config = {
-            'app_name': 'Sakura',
-            'description': 'Requirements Management System',
+            'app_name': 'Validex',
+            'description': 'Test Case Management System',
             'columns': {
-                'required': sakura_config['required_columns'],
-                'optional': sakura_config['optional_columns'],
+                'required': validex_config['required_columns'],
+                'optional': validex_config['optional_columns'],
                 'mappings': {}
             },
-            'dynamic_columns': sakura_config['column_definitions'],
+            'dynamic_columns': validex_config['column_definitions'],
             'last_auto_update': datetime.now().isoformat()
         }
         
@@ -391,10 +386,10 @@ class DynamicConfigService:
             with open(config_path, 'w') as f:
                 json.dump(config, f, indent=2)
             
-            self.logger.info("Updated sakura_config.json with dynamic columns")
+            self.logger.info("Updated validex_config.json with dynamic columns")
             
         except Exception as e:
-            self.logger.error(f"Error updating sakura config: {e}")
+            self.logger.error(f"Error updating validex config: {e}")
     
     def _update_column_service_config(self, analysis_results: Dict[str, Any]) -> None:
         """Update column service configuration"""

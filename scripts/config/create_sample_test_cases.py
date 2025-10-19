@@ -1,5 +1,5 @@
 """
-Create sample requirements Excel file for Sakura
+Create sample test case Excel file for Validex
 """
 
 import pandas as pd

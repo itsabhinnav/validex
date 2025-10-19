@@ -56,10 +56,6 @@ class Config:
         """Check if admin section is enabled"""
         return config_manager.is_admin_enabled()
     
-    def is_sakura_enabled(self):
-        """Check if Sakura app is enabled"""
-        return config_manager.is_sakura_enabled()
-    
     def is_auto_launch_browser_enabled(self):
         """Check if auto-launch browser is enabled"""
         return config_manager.is_auto_launch_browser_enabled()
@@ -67,10 +63,6 @@ class Config:
     def get_startup_delay(self):
         """Get startup delay in seconds"""
         return config_manager.get_startup_delay()
-    
-    def get_multiselect_threshold(self):
-        """Get the multiselect threshold for UI switching"""
-        return config_manager.get_multiselect_threshold()
     
     def get_test_cases_per_page(self):
         """Get the default number of test cases per page"""

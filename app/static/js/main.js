@@ -2,8 +2,6 @@
 
 let currentFilters = {};
 let isLoading = false;
-let autoRefreshInterval = null;
-let autoRefreshEnabled = false;
 
 function getText(keyPath, defaultValue = '') {
     if (typeof window.getText === 'function') {
@@ -299,128 +297,13 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Auto-refresh functionality
-function initializeAutoRefresh() {
-    // Get auto-refresh interval from configuration (default: 30 seconds)
-    const refreshInterval = window.autoRefreshInterval || 30000; // 30 seconds in milliseconds
-    
-    if (refreshInterval > 0) {
-        autoRefreshEnabled = true;
-        startAutoRefresh(refreshInterval);
-        console.log(`🔄 Auto-refresh enabled: ${refreshInterval / 1000} seconds`);
-    } else {
-        console.log('🔄 Auto-refresh disabled');
-    }
-}
 
-function startAutoRefresh(interval) {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-    }
-    
-    autoRefreshInterval = setInterval(() => {
-        if (!isLoading && autoRefreshEnabled) {
-            refreshCurrentPage();
-        }
-    }, interval);
-}
-
-function stopAutoRefresh() {
-    if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-        autoRefreshInterval = null;
-    }
-    autoRefreshEnabled = false;
-    console.log('🔄 Auto-refresh stopped');
-}
-
-function refreshCurrentPage() {
-    const currentPath = window.location.pathname;
-    
-    // Only refresh on specific pages that benefit from auto-refresh
-    const refreshablePages = ['/test-cases', '/dashboard', '/reports'];
-    
-    if (refreshablePages.some(page => currentPath.includes(page))) {
-        console.log('🔄 Auto-refreshing page...');
-        
-        // Show a subtle refresh indicator
-        showRefreshIndicator();
-        
-        // Reload the page
-        window.location.reload();
-    }
-}
-
-function showRefreshIndicator() {
-    // Create a subtle refresh indicator
-    const indicator = document.createElement('div');
-    indicator.id = 'auto-refresh-indicator';
-    indicator.innerHTML = '🔄 Auto-refreshing...';
-    indicator.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: rgba(0, 123, 255, 0.9);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        z-index: 9999;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        transition: opacity 0.3s ease;
-    `;
-    
-    document.body.appendChild(indicator);
-    
-    // Remove indicator after 2 seconds
-    setTimeout(() => {
-        if (indicator.parentNode) {
-            indicator.style.opacity = '0';
-            setTimeout(() => {
-                if (indicator.parentNode) {
-                    indicator.parentNode.removeChild(indicator);
-                }
-            }, 300);
-        }
-    }, 2000);
-}
-
-function toggleAutoRefresh() {
-    if (autoRefreshEnabled) {
-        stopAutoRefresh();
-        showNotification('Auto-refresh disabled', 'info');
-    } else {
-        const refreshInterval = window.autoRefreshInterval || 30000;
-        startAutoRefresh(refreshInterval);
-        autoRefreshEnabled = true;
-        showNotification('Auto-refresh enabled', 'success');
-    }
-}
-
-// Initialize auto-refresh when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Add a small delay to ensure everything is loaded
-    setTimeout(initializeAutoRefresh, 1000);
-});
-
-// Pause auto-refresh when page is not visible
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        stopAutoRefresh();
-    } else if (autoRefreshEnabled) {
-        const refreshInterval = window.autoRefreshInterval || 30000;
-        startAutoRefresh(refreshInterval);
-    }
-});
 
 window.ValidexApp = {
     showNotification,
     formatStatusBadge,
     formatPriorityBadge,
     showLoadingState,
-    hideLoadingState,
-    toggleAutoRefresh,
-    startAutoRefresh,
-    stopAutoRefresh
+    hideLoadingState
 };
 
