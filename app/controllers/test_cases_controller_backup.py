@@ -619,34 +619,25 @@ class TestCasesController(BaseController):
         
         return redirect(url_for('main.test_cases', message='CSV export not implemented yet'))
 
+ 
+ 
     def _handle_test_cases_split(self):
-        """Handle split-view test cases page"""
+        \"\"\"Handle split-view test cases page\"\"\"
         role = session.get('current_role')
         if not role:
             return redirect(url_for('main.role_selection'))
         
+        # Load test cases data
         test_cases_data = self.load_test_files()
         
-        # Get filter parameters (exact same as test_cases page)
-        app_filter = request.args.get('app', '')
-        test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
-        priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
-        # New filters
-        feature_filter = request.args.getlist('feature') if request.args.getlist('feature') else [request.args.get('feature', '')]
-        screen_id_filter = request.args.getlist('screen_id') if request.args.getlist('screen_id') else [request.args.get('screen_id', '')]
-        testsuite_type_filter = request.args.getlist('testsuite_type') if request.args.getlist('testsuite_type') else [request.args.get('testsuite_type', '')]
-        requirement_type_filter = request.args.getlist('requirement_type') if request.args.getlist('requirement_type') else [request.args.get('requirement_type', '')]
-        search_query = request.args.get('search', '')
-        sort_by = request.args.get('sort', 'Test Case ID')
-        sort_order = request.args.get('order', 'asc')
-        
-        # Clean filter values
-        test_type_filter = [f for f in test_type_filter if f]
-        priority_filter = [f for f in priority_filter if f]
-        feature_filter = [f for f in feature_filter if f]
-        screen_id_filter = [f for f in screen_id_filter if f]
-        testsuite_type_filter = [f for f in testsuite_type_filter if f]
-        requirement_type_filter = [f for f in requirement_type_filter if f]
+        # Get filter parameters
+        app_filter = request.args.getlist('app_filter')
+        test_type_filter = request.args.getlist('test_type_filter')
+        priority_filter = request.args.getlist('priority_filter')
+        requirement_type_filter = request.args.getlist('requirement_type_filter')
+        search_query = request.args.get('search_query', '').strip()
+        sort_by = request.args.get('sort_by', 'test_case_id')
+        sort_order = request.args.get('sort_order', 'asc')
         
         # Process dynamic column filters
         dynamic_filters = {}
@@ -654,20 +645,19 @@ class TestCasesController(BaseController):
             if key.startswith('dynamic_column_'):
                 column_name = key.replace('dynamic_column_', '')
                 if value:
-                    # Handle both single values and lists
                     if isinstance(value, list):
                         dynamic_filters[column_name] = [v for v in value if v]
                     else:
                         dynamic_filters[column_name] = [value] if value else []
         
         # Process dynamic filters with new structure
-        dynamic_filter_groups = {}  # Initialize the dictionary
+        dynamic_filter_groups = {}
         for key, value in request.args.items():
             if key.startswith('dynamic_') and value:
                 parts = key.split('_')
                 if len(parts) >= 3:
-                    filter_id = parts[2]  # Get the unique filter ID
-                    filter_type = parts[1]  # column, type, value, value2
+                    filter_id = parts[2]
+                    filter_type = parts[1]
                     
                     if filter_id not in dynamic_filter_groups:
                         dynamic_filter_groups[filter_id] = {}
@@ -682,75 +672,50 @@ class TestCasesController(BaseController):
                 value = filter_data['value']
                 value2 = filter_data.get('value2', '')
                 
-                dynamic_filters[f"{column}_{filter_type}"] = {
+                dynamic_filters[f\"{column}_{filter_type}\"] = {
                     'column': column,
                     'type': filter_type,
                     'value': value,
                     'value2': value2
                 }
         
-        selected_id_list = []  # For split view, we don't need selected IDs
+        # Flatten test cases data
+        all_test_cases = []
+        for file_name, file_data in test_cases_data.items():
+            all_test_cases.extend(file_data)
         
-        filtered_cases = self._filter_test_cases(
-            test_cases_data, app_filter, test_type_filter, 
-            priority_filter, feature_filter, screen_id_filter, 
-            testsuite_type_filter, requirement_type_filter, 
-            search_query, dynamic_filters, selected_id_list
-        )
+        # Apply filters
+        filtered_cases = self._filter_test_cases(all_test_cases, {
+            'app_filter': app_filter,
+            'test_type_filter': test_type_filter,
+            'priority_filter': priority_filter,
+            'requirement_type_filter': requirement_type_filter,
+            'search_query': search_query,
+            'dynamic_filters': dynamic_filters
+        })
         
+        # Sort test cases
         filtered_cases = self._sort_test_cases(filtered_cases, sort_by, sort_order)
         
-        # Pagination - show 10 cases by default
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))  # Default to 10 cases
+        # Get filter options
+        apps, test_types, priorities = self._get_filter_options(test_cases_data)
+        requirement_types = self._get_requirement_types(test_cases_data)
         
-        total_cases = len(filtered_cases)
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        
-        paginated_cases = filtered_cases[start_idx:end_idx]
-        
-        total_pages = (total_cases + per_page - 1) // per_page
-        has_prev = page > 1
-        has_next = page < total_pages
-        
-        test_types, priorities = self._get_filter_options(test_cases_data)
-        
-        # Get enhanced filter data for new filters
-        enhanced_data = self.get_enhanced_filter_data(test_cases_data)
-        filter_options = enhanced_data['filter_options']
-        
-        # Prepare context for template (exact same as test_cases page)
+        # Prepare context for template
         context = {
-            'test_cases': paginated_cases,
-            'test_types': sorted(test_types),
-            'priorities': sorted(priorities),
-            # New filter options - with test data
-            'apps': sorted(filter_options.get('App', [])),
-            'features': ['Logistics', 'WebPortal', 'Dashboard', 'BankingApp'] if not filter_options.get('Feature', []) else sorted(filter_options.get('Feature', [])),
-            'screen_ids': ['SETTINGS_003', 'DASHBOARD_004', 'NAV_002', 'HOME_001'] if not filter_options.get('Screen ID', []) else sorted(filter_options.get('Screen ID', [])),
-            'test_suite_types': ['Sanity', 'Smoke', 'Regression', 'Integration'] if not filter_options.get('TestSuite Type', []) else sorted(filter_options.get('TestSuite Type', [])),
-            'requirement_types': ['Functional', 'Non-Functional', 'Performance', 'Security', 'Integration', 'Usability', 'Compatibility', 'Accessibility'] if not filter_options.get('Requirement Type', []) else sorted(filter_options.get('Requirement Type', [])),
-            'current_app_filter': app_filter,
-            'current_test_type_filter': test_type_filter,
-            'current_priority_filter': priority_filter,
-            'current_feature_filter': feature_filter,
-            'current_screen_id_filter': screen_id_filter,
-            'current_testsuite_type_filter': testsuite_type_filter,
-            'current_requirement_type_filter': requirement_type_filter,
-            'current_search_query': search_query,
-            'current_sort': sort_by,
-            'current_order': sort_order,
-            'total_cases': total_cases,
-            'current_page': page,
-            'per_page': per_page,
-            'total_pages': total_pages,
-            'has_prev': has_prev,
-            'has_next': has_next,
-            'role': role,
-            'available_columns': enhanced_data.get('available_columns', []),
-            'column_mappings': enhanced_data.get('column_mappings', {}),
-            'column_statistics': enhanced_data.get('column_statistics', {})
+            'test_cases': filtered_cases,
+            'apps': apps,
+            'test_types': test_types,
+            'priorities': priorities,
+            'requirement_types': requirement_types,
+            'selected_apps': app_filter,
+            'selected_test_types': test_type_filter,
+            'selected_priorities': priority_filter,
+            'selected_requirement_types': requirement_type_filter,
+            'search_query': search_query,
+            'sort_by': sort_by,
+            'sort_order': sort_order,
+            'role': role
         }
         
-        return render_template('validex/test_cases_split.html', **context)
+        return self.view.render_test_cases_split(context)

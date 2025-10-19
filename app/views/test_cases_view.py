@@ -58,3 +58,7 @@ class TestCasesView(BaseView):
             'multiselect_threshold': multiselect_threshold
         }
 
+    def render_test_cases_split(self, context: Dict[str, Any]) -> str:
+        """Render split-view test cases template"""
+        return self.render_template('validex/test_cases_split.html', **context)
+

@@ -26,6 +26,11 @@ def test_cases():
     """Test cases page"""
     return test_cases_controller._handle_test_cases()
 
+@main_bp.route('/test-cases-split')
+def test_cases_split():
+    """Split-view test cases page"""
+    return test_cases_controller._handle_test_cases_split()
+
 @main_bp.route('/admin')
 def admin():
     """Admin page"""
