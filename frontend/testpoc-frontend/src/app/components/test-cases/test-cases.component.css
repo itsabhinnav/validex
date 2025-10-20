@@ -1,0 +1,54 @@
+/* Test Cases Component Styles */
+
+/* Default state for test case items */
+.test-case-id {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.test-case-objective {
+    color: #6c757d;
+}
+
+/* Fix selected test case visibility */
+.list-group-item.active {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.list-group-item.active .test-case-id {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.list-group-item.active .test-case-objective {
+    color: #f8f9fa !important;
+}
+
+/* Ensure proper contrast for selected items */
+.list-group-item.active .text-primary {
+    color: #ffffff !important;
+}
+
+.list-group-item.active .text-muted {
+    color: #f8f9fa !important;
+}
+
+/* Hover state improvements */
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item:hover .test-case-id {
+    color: #0d6efd;
+}
+
+.list-group-item:hover .test-case-objective {
+    color: #495057;
+}
+
+/* Focus state for accessibility */
+.list-group-item:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}

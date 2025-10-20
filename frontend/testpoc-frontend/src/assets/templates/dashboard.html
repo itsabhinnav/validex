@@ -1,0 +1,191 @@
+{% extends "common/base.html" %}
+
+{% block title %}Dashboard - Validex{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ total_cases }}</h3>
+                <p class="card-text">Total Test Cases</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ file_count }}</h3>
+                <p class="card-text">Test Files</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.apps|length }}</h3>
+                <p class="card-text">Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.test_types|length }}</h3>
+                <p class="card-text">Test Types</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Test Suite</h5>
+                <p class="card-text">View test cases and prepare test suites for execution</p>
+                <a href="{{ url_for('main.test_cases') }}" class="btn btn-success btn-lg">
+                    Test Suite
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if app_stats %}
+<!-- Additional pie chart for directory stats if available -->
+{% if app_stats.by_directory %}
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Test Cases by Directory</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="directoryPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {% for directory, count in app_stats.by_directory.items() %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ directory }}</span>
+                            <span class="badge bg-info">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* Pie Chart Styling */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+canvas {
+    max-height: 300px !important;
+}
+
+/* Responsive chart adjustments */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+    
+    canvas {
+        max-height: 250px !important;
+    }
+}
+
+/* Chart card styling */
+.card-body .row {
+    align-items: center;
+}
+
+/* Legend styling */
+.chart-legend {
+    font-size: 0.9rem;
+}
+
+/* Badge styling for better visibility */
+.badge {
+    font-size: 0.8rem;
+    min-width: 2rem;
+    text-align: center;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart.js configuration
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: ${value} (${percentage}%)`;
+                    }
+                }
+            }
+        }
+    };
+
+    const directoryColors = [
+        '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14', '#6c757d',
+        '#20c997', '#dc3545', '#ffc107', '#007bff', '#28a745'
+    ];
+
+    // Directory Pie Chart
+    {% if app_stats and app_stats.by_directory %}
+    const directoryCtx = document.getElementById('directoryPieChart').getContext('2d');
+    const directoryData = {
+        labels: [{% for directory, count in app_stats.by_directory.items() %}'{{ directory }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for directory, count in app_stats.by_directory.items() %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: directoryColors.slice(0, {{ app_stats.by_directory|length }}),
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    };
+    
+    new Chart(directoryCtx, {
+        type: 'pie',
+        data: directoryData,
+        options: chartOptions
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

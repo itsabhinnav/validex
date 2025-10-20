@@ -1,0 +1,19 @@
+{
+  "name": "validex-fullstack",
+  "version": "1.0.0",
+  "description": "Validex Frontend + Backend",
+  "scripts": {
+    "start": "python build_and_run.py",
+    "start:dev": "python build_and_run.py --dev",
+    "start:prod": "python build_and_run.py --prod",
+    "start:legacy": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && python run.py",
+    "frontend": "cd frontend/testpoc-frontend && ng serve --port 4200",
+    "build": "cd frontend/testpoc-frontend && ng build",
+    "build:prod": "cd frontend/testpoc-frontend && ng build --configuration production",
+    "install:frontend": "cd frontend/testpoc-frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

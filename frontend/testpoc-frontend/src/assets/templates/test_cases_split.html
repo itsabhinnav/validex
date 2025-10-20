@@ -1,0 +1,899 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Test Cases - Validex{% endblock %}
+
+{% block content %}
+<style>
+.split-layout {
+    height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-section {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 1rem;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.left-panel {
+    width: 40%;
+    background: #ffffff;
+    border-right: 1px solid #e9ecef;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.right-panel {
+    flex: 1;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .split-layout {
+        height: auto;
+        min-height: calc(100vh - 120px);
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .left-panel {
+        width: 100%;
+        height: 300px;
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .right-panel {
+        height: calc(100vh - 420px);
+        min-height: 400px;
+    }
+    
+    .filter-section {
+        padding: 0.5rem;
+    }
+    
+    .filter-section .row {
+        margin: 0;
+    }
+    
+    .filter-section .col-lg-2 {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-panel {
+        height: 250px;
+    }
+    
+    .right-panel {
+        height: calc(100vh - 370px);
+        min-height: 300px;
+    }
+    
+    .test-case-item {
+        padding: 0.75rem;
+    }
+    
+    .test-case-details {
+        padding: 1rem;
+    }
+}
+
+.test-case-item {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f3f4;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.test-case-item:hover {
+    background-color: #f8f9fa;
+}
+
+.test-case-item.active {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.test-case-id {
+    font-weight: 600;
+    color: #1976d2;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.test-case-objective {
+    color: #424242;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.test-case-details {
+    padding: 2rem;
+}
+
+.detail-section {
+    margin-bottom: 2rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #424242;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: #616161;
+    line-height: 1.5;
+}
+
+.filter-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #17a2b8 !important;
+}
+
+.filter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.filter-card .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+#filterStatus {
+    transition: all 0.3s ease;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #9e9e9e;
+}
+
+    .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Test Case Link Styling */
+.test-case-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.test-case-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.test-case-link i {
+    font-size: 0.875rem;
+}
+
+/* Detail Section Styling to match main app */
+.detail-section {
+    border-bottom: 1px solid #f1f3f4;
+    padding: 0.75rem 0;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+    min-width: 150px;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    color: #212529;
+    word-wrap: break-word;
+}
+</style>
+
+<div class="container-fluid split-layout">
+    <!-- Minimal Filter Section -->
+    <div class="filter-section mb-3">
+        <form method="GET" action="{{ url_for('main.test_cases_split') }}" id="filterForm">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Search Bar -->
+                <div class="input-group" style="min-width: 200px; max-width: 300px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="search" name="search" value="{{ current_search_query or '' }}" placeholder="Search test cases...">
+                </div>
+
+                <!-- Feature Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Feature
+                    </button>
+                    <div class="dropdown-menu p-0" style="min-width: 300px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search Feature" id="featureSearch">
+                            </div>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allFeatures">
+                                <label class="form-check-label fw-bold" for="allFeatures">
+                                    All features
+                                </label>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1">
+                            <small class="text-muted fw-bold">Available Features</small>
+                        </div>
+                        <div class="px-3 pb-2" style="max-height: 200px; overflow-y: auto;">
+                            {% for feature in features %}
+                                <div class="form-check">
+                                    <input class="form-check-input feature-checkbox" type="checkbox" name="feature" value="{{ feature }}" id="feature_{{ loop.index }}" {% if feature in current_feature_filter %}checked{% endif %}>
+                                    <label class="form-check-label" for="feature_{{ loop.index }}">
+                                        <i class="fas fa-star text-warning me-1"></i>{{ feature }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-3 py-2 border-top">
+                            <a href="#" class="text-decoration-none text-warning" onclick="clearFeatureSelection()">
+                                <i class="fas fa-times me-1"></i>Clear selection
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screen ID Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Screen ID
+                    </button>
+                    <div class="dropdown-menu p-0" style="min-width: 300px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search Screen ID" id="screenIdSearch">
+                            </div>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allScreenIds">
+                                <label class="form-check-label fw-bold" for="allScreenIds">
+                                    All screen IDs
+                                </label>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1">
+                            <small class="text-muted fw-bold">Available Screen IDs</small>
+                        </div>
+                        <div class="px-3 pb-2" style="max-height: 200px; overflow-y: auto;">
+                            {% for screen_id in screen_ids %}
+                                <div class="form-check">
+                                    <input class="form-check-input screen-id-checkbox" type="checkbox" name="screen_id" value="{{ screen_id }}" id="screen_id_{{ loop.index }}" {% if screen_id in current_screen_id_filter %}checked{% endif %}>
+                                    <label class="form-check-label" for="screen_id_{{ loop.index }}">
+                                        <i class="fas fa-desktop text-info me-1"></i>{{ screen_id }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-3 py-2 border-top">
+                            <a href="#" class="text-decoration-none text-warning" onclick="clearScreenIdSelection()">
+                                <i class="fas fa-times me-1"></i>Clear selection
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Type Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Test Type
+                    </button>
+                    <div class="dropdown-menu p-0" style="min-width: 300px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search Test Type" id="testTypeSearch">
+                            </div>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allTestTypes">
+                                <label class="form-check-label fw-bold" for="allTestTypes">
+                                    All test types
+                                </label>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1">
+                            <small class="text-muted fw-bold">Available Test Types</small>
+                        </div>
+                        <div class="px-3 pb-2" style="max-height: 200px; overflow-y: auto;">
+                            {% for test_type in test_types %}
+                                <div class="form-check">
+                                    <input class="form-check-input test-type-checkbox" type="checkbox" name="test_type" value="{{ test_type }}" id="test_type_{{ loop.index }}" {% if test_type in current_test_type_filter %}checked{% endif %}>
+                                    <label class="form-check-label" for="test_type_{{ loop.index }}">
+                                        <i class="fas fa-vial text-primary me-1"></i>{{ test_type }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-3 py-2 border-top">
+                            <a href="#" class="text-decoration-none text-warning" onclick="clearTestTypeSelection()">
+                                <i class="fas fa-times me-1"></i>Clear selection
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TestSuite Type Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        TestSuite Type
+                    </button>
+                    <div class="dropdown-menu p-0" style="min-width: 300px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search TestSuite Type" id="testSuiteTypeSearch">
+                            </div>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allTestSuiteTypes">
+                                <label class="form-check-label fw-bold" for="allTestSuiteTypes">
+                                    All test suite types
+                                </label>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1">
+                            <small class="text-muted fw-bold">Available TestSuite Types</small>
+                        </div>
+                        <div class="px-3 pb-2" style="max-height: 200px; overflow-y: auto;">
+                            {% for test_suite_type in test_suite_types %}
+                                <div class="form-check">
+                                    <input class="form-check-input test-suite-type-checkbox" type="checkbox" name="test_suite_type" value="{{ test_suite_type }}" id="test_suite_type_{{ loop.index }}" {% if test_suite_type in current_test_suite_type_filter %}checked{% endif %}>
+                                    <label class="form-check-label" for="test_suite_type_{{ loop.index }}">
+                                        <i class="fas fa-layer-group text-success me-1"></i>{{ test_suite_type }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-3 py-2 border-top">
+                            <a href="#" class="text-decoration-none text-warning" onclick="clearTestSuiteTypeSelection()">
+                                <i class="fas fa-times me-1"></i>Clear selection
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requirement Type Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Requirement Type
+                    </button>
+                    <div class="dropdown-menu p-0" style="min-width: 300px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search Requirement Type" id="requirementTypeSearch">
+                            </div>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allRequirementTypes">
+                                <label class="form-check-label fw-bold" for="allRequirementTypes">
+                                    All requirement types
+                                </label>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1">
+                            <small class="text-muted fw-bold">Available Requirement Types</small>
+                        </div>
+                        <div class="px-3 pb-2" style="max-height: 200px; overflow-y: auto;">
+                            {% for requirement_type in requirement_types %}
+                                <div class="form-check">
+                                    <input class="form-check-input requirement-type-checkbox" type="checkbox" name="requirement_type" value="{{ requirement_type }}" id="requirement_type_{{ loop.index }}" {% if requirement_type in current_requirement_type_filter %}checked{% endif %}>
+                                    <label class="form-check-label" for="requirement_type_{{ loop.index }}">
+                                        <i class="fas fa-clipboard-list text-info me-1"></i>{{ requirement_type }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="px-3 py-2 border-top">
+                            <a href="#" class="text-decoration-none text-warning" onclick="clearRequirementTypeSelection()">
+                                <i class="fas fa-times me-1"></i>Clear selection
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More Filters -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        More filters
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="addFilterForColumn('Priority')">Priority</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="addFilterForColumn('App')">App</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="addFilterForColumn('Region')">Region</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="addFilterForColumn('Brand')">Brand</a></li>
+                    </ul>
+                </div>
+
+                <!-- Action Links -->
+                <div class="ms-auto d-flex gap-2">
+                    <a href="{{ url_for('main.test_cases_split') }}" class="text-decoration-none text-muted">Clear filters</a>
+                </div>
+            </div>
+
+            <!-- Hidden inputs for form submission -->
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+            <input type="hidden" name="order" value="{{ current_order }}">
+        </form>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Left Panel - Test Case List -->
+        <div class="left-panel">
+            <div class="p-3 border-bottom bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Test Cases
+                    <span class="badge bg-primary ms-2" id="testCaseCount">{{ test_cases|length }}</span>
+                </h6>
+            </div>
+            <div id="testCaseList">
+                {% if test_cases %}
+                    {% for test_case in test_cases %}
+                    <div class="test-case-item" data-test-case-id="{{ test_case.get('Test Case ID', test_case.get('TC ID', '')) }}" onclick="selectTestCase('{{ loop.index0 }}')">
+                        <div class="test-case-id">{{ test_case.get('Test Case ID', test_case.get('TC ID', '')) }}</div>
+                        <div class="test-case-objective">{{ test_case.get('Test Objective', test_case.get('Summary', 'No objective available')) }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h6>No test cases found</h6>
+                        <p>Try adjusting your filters or search criteria</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Panel - Test Case Details -->
+        <div class="right-panel">
+            <div id="testCaseDetails">
+                <div class="empty-state">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <h6>Select a test case</h6>
+                    <p>Choose a test case from the list to view its details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden template for test case details -->
+<template id="testCaseDetailTemplate">
+    <div class="test-case-details">
+        <div class="detail-section">
+            <div class="detail-label">Test Case ID</div>
+            <div class="detail-value">
+                <a href="#" id="detailTestCaseIdLink" class="test-case-link" onclick="openTestCaseDetails(event)">
+                    <i class="fas fa-external-link-alt me-1"></i>
+                    <span id="detailTestCaseId"></span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Test Objective</div>
+            <div class="detail-value" id="detailObjective"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">App</div>
+            <div class="detail-value" id="detailApp"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Test Type</div>
+            <div class="detail-value" id="detailTestType"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Priority</div>
+            <div class="detail-value" id="detailPriority"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Feature</div>
+            <div class="detail-value" id="detailFeature"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Screen ID</div>
+            <div class="detail-value" id="detailScreenId"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Preconditions</div>
+            <div class="detail-value" id="detailPreconditions"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Procedure</div>
+            <div class="detail-value" id="detailProcedure"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Expected Behavior</div>
+            <div class="detail-value" id="detailExpectedBehavior"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Requirement Type</div>
+            <div class="detail-value" id="detailRequirementType"></div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="detail-label">Test Suite Type</div>
+            <div class="detail-value" id="detailTestSuiteType"></div>
+        </div>
+    </div>
+</template>
+
+<script>
+// Test case data from server
+const testCases = {{ test_cases|tojson }};
+
+function selectTestCase(index) {
+    // Remove active class from all items
+    document.querySelectorAll('.test-case-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to selected item
+    document.querySelectorAll('.test-case-item')[index].classList.add('active');
+    
+    // Get test case data
+    const testCase = testCases[index];
+    
+    // Update details panel
+    const detailsContainer = document.getElementById('testCaseDetails');
+    const template = document.getElementById('testCaseDetailTemplate');
+    const clone = template.content.cloneNode(true);
+    
+    // Populate details
+    const testCaseId = testCase['Test Case ID'] || testCase['TC ID'] || 'N/A';
+    clone.getElementById('detailTestCaseId').textContent = testCaseId;
+    const testCaseIdLink = clone.getElementById('detailTestCaseIdLink');
+    if (testCaseIdLink) {
+        testCaseIdLink.href = `/test-case-details?test_case_id=${encodeURIComponent(testCaseId)}`;
+    }
+    clone.getElementById('detailObjective').textContent = testCase['Test Objective'] || testCase['Summary'] || 'N/A';
+    clone.getElementById('detailApp').textContent = testCase['App'] || 'N/A';
+    clone.getElementById('detailTestType').textContent = testCase['Test Type'] || 'N/A';
+    clone.getElementById('detailPriority').textContent = testCase['Priority'] || 'N/A';
+    clone.getElementById('detailFeature').textContent = testCase['Feature'] || 'N/A';
+    clone.getElementById('detailScreenId').textContent = testCase['Screen ID'] || 'N/A';
+    clone.getElementById('detailPreconditions').textContent = testCase['Preconditions'] || 'N/A';
+    clone.getElementById('detailProcedure').textContent = testCase['Procedure'] || 'N/A';
+    clone.getElementById('detailExpectedBehavior').textContent = testCase['Expected Behavior'] || 'N/A';
+    clone.getElementById('detailRequirementType').textContent = testCase['Requirement Type'] || 'N/A';
+    clone.getElementById('detailTestSuiteType').textContent = testCase['Test Suite Type'] || 'N/A';
+    
+    // Replace content
+    detailsContainer.innerHTML = '';
+    detailsContainer.appendChild(clone);
+}
+
+// Search functionality for dropdowns
+document.addEventListener('DOMContentLoaded', function() {
+    // Feature search
+    const featureSearch = document.getElementById('featureSearch');
+    if (featureSearch) {
+        featureSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.feature-checkbox');
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.nextElementSibling;
+                const text = label.textContent.toLowerCase();
+                const formCheck = checkbox.closest('.form-check');
+                if (text.includes(searchTerm)) {
+                    formCheck.style.display = 'block';
+                } else {
+                    formCheck.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Screen ID search
+    const screenIdSearch = document.getElementById('screenIdSearch');
+    if (screenIdSearch) {
+        screenIdSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.screen-id-checkbox');
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.nextElementSibling;
+                const text = label.textContent.toLowerCase();
+                const formCheck = checkbox.closest('.form-check');
+                if (text.includes(searchTerm)) {
+                    formCheck.style.display = 'block';
+                } else {
+                    formCheck.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Test Type search
+    const testTypeSearch = document.getElementById('testTypeSearch');
+    if (testTypeSearch) {
+        testTypeSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.test-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.nextElementSibling;
+                const text = label.textContent.toLowerCase();
+                const formCheck = checkbox.closest('.form-check');
+                if (text.includes(searchTerm)) {
+                    formCheck.style.display = 'block';
+                } else {
+                    formCheck.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // TestSuite Type search
+    const testSuiteTypeSearch = document.getElementById('testSuiteTypeSearch');
+    if (testSuiteTypeSearch) {
+        testSuiteTypeSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.test-suite-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.nextElementSibling;
+                const text = label.textContent.toLowerCase();
+                const formCheck = checkbox.closest('.form-check');
+                if (text.includes(searchTerm)) {
+                    formCheck.style.display = 'block';
+                } else {
+                    formCheck.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Requirement Type search
+    const requirementTypeSearch = document.getElementById('requirementTypeSearch');
+    if (requirementTypeSearch) {
+        requirementTypeSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const checkboxes = document.querySelectorAll('.requirement-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.nextElementSibling;
+                const text = label.textContent.toLowerCase();
+                const formCheck = checkbox.closest('.form-check');
+                if (text.includes(searchTerm)) {
+                    formCheck.style.display = 'block';
+                } else {
+                    formCheck.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Select all functionality
+    // Feature select all
+    const allFeatures = document.getElementById('allFeatures');
+    if (allFeatures) {
+        allFeatures.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.feature-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // Screen ID select all
+    const allScreenIds = document.getElementById('allScreenIds');
+    if (allScreenIds) {
+        allScreenIds.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.screen-id-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // Test Type select all
+    const allTestTypes = document.getElementById('allTestTypes');
+    if (allTestTypes) {
+        allTestTypes.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.test-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // TestSuite Type select all
+    const allTestSuiteTypes = document.getElementById('allTestSuiteTypes');
+    if (allTestSuiteTypes) {
+        allTestSuiteTypes.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.test-suite-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // Requirement Type select all
+    const allRequirementTypes = document.getElementById('allRequirementTypes');
+    if (allRequirementTypes) {
+        allRequirementTypes.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.requirement-type-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+
+    // Initialize with first test case selected if available
+    if (testCases.length > 0) {
+        selectTestCase(0);
+    }
+
+    // Auto-submit form when filters change
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        // Add change listeners to all form inputs
+        const inputs = filterForm.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Small delay to allow for multiple rapid changes
+                clearTimeout(window.filterTimeout);
+                window.filterTimeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 300);
+            });
+        });
+
+        // Add input listeners for search fields
+        const searchInputs = filterForm.querySelectorAll('input[type="text"]');
+        searchInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Delay for search to avoid too many requests
+                clearTimeout(window.searchTimeout);
+                window.searchTimeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 1000);
+            });
+        });
+    }
+});
+
+// Clear selection functions
+function clearFeatureSelection() {
+    const checkboxes = document.querySelectorAll('.feature-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('allFeatures').checked = false;
+    // Trigger auto-submit
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.submit();
+    }
+}
+
+function clearScreenIdSelection() {
+    const checkboxes = document.querySelectorAll('.screen-id-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('allScreenIds').checked = false;
+    // Trigger auto-submit
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.submit();
+    }
+}
+
+function clearTestTypeSelection() {
+    const checkboxes = document.querySelectorAll('.test-type-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('allTestTypes').checked = false;
+    // Trigger auto-submit
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.submit();
+    }
+}
+
+function clearTestSuiteTypeSelection() {
+    const checkboxes = document.querySelectorAll('.test-suite-type-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('allTestSuiteTypes').checked = false;
+    // Trigger auto-submit
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.submit();
+    }
+}
+
+function clearRequirementTypeSelection() {
+    const checkboxes = document.querySelectorAll('.requirement-type-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('allRequirementTypes').checked = false;
+    // Trigger auto-submit
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.submit();
+    }
+}
+
+// Function to open test case details page
+function openTestCaseDetails(event) {
+    event.preventDefault();
+    const testCaseId = event.target.closest('.test-case-link').querySelector('#detailTestCaseId').textContent;
+    if (testCaseId) {
+        // Open test case details page in new tab
+        const detailsUrl = `/test-case-details?test_case_id=${encodeURIComponent(testCaseId)}`;
+        window.open(detailsUrl, '_blank');
+    }
+}
+</script>
+
+{% endblock %}

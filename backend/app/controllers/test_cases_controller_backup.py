@@ -257,8 +257,9 @@ class TestCasesController(BaseController):
         service = TestCasesService()
         filter_options = service.get_filter_options(test_cases_data)
         
-        # Return legacy format for backward compatibility
+        # Return correct format with apps, test_types, and priorities
         return (
+            filter_options.get('apps', []),
             filter_options.get('test_types', []),
             filter_options.get('priorities', [])
         )

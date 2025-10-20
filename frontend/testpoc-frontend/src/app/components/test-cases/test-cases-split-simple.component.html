@@ -1,0 +1,229 @@
+<div class="container-fluid">
+    <!-- Debug Information -->
+    <div class="alert alert-info mb-3">
+        <strong>Debug Info:</strong> 
+        Loaded {{ testCases.length }} test cases. 
+        Selected index: {{ selectedTestCaseIndex }}. 
+        Selected test case: {{ selectedTestCase ? selectedTestCase['Test Case ID'] : 'None' }}.
+        Current view: {{ currentView }}
+    </div>
+    
+    <!-- View Toggle -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>Test Cases Split View</h5>
+        <div class="btn-group" role="group" aria-label="View toggle">
+            <button type="button" 
+                    class="btn btn-outline-secondary"
+                    [class.active]="currentView === 'list'"
+                    (click)="onViewChange('list')"
+                    title="List View">
+                <i class="fas fa-th-list"></i> List
+            </button>
+            <button type="button" 
+                    class="btn btn-outline-secondary"
+                    [class.active]="currentView === 'detail'"
+                    (click)="onViewChange('detail')"
+                    title="Detail View">
+                <i class="fas fa-columns"></i> Detail
+            </button>
+        </div>
+    </div>
+    
+    <!-- List View -->
+    <div *ngIf="currentView === 'list'" class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Test Cases ({{ testCases.length }})</h6>
+                </div>
+                <div class="card-body">
+                    <div *ngIf="testCases.length > 0; else noTestCases">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Test Case ID</th>
+                                        <th>App</th>
+                                        <th>Test Type</th>
+                                        <th>Priority</th>
+                                        <th>Feature</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let testCase of testCases; let i = index">
+                                        <td>{{ testCase['Test Case ID'] || testCase['TC ID'] }}</td>
+                                        <td>{{ testCase['App'] || 'N/A' }}</td>
+                                        <td>{{ testCase['Test Type'] || 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge" [class]="getPriorityBadgeClass(testCase['Priority'] || '')">
+                                                {{ testCase['Priority'] || 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ testCase['Feature'] || 'N/A' }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    (click)="viewTestCaseDetails(testCase)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <ng-template #noTestCases>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-search fa-3x mb-3"></i>
+                            <h6>No test cases found</h6>
+                            <p>Try adjusting your filters or search criteria</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detail View (Split View) -->
+    <div *ngIf="currentView === 'detail'" class="row">
+        <!-- Left Panel - Test Case List -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Test Cases ({{ testCases.length }})</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div *ngIf="testCases.length > 0; else noTestCases">
+                        <div *ngFor="let testCase of testCases; let i = index" 
+                             class="p-3 border-bottom cursor-pointer"
+                             [class.bg-primary]="selectedTestCaseIndex === i"
+                             [class.text-white]="selectedTestCaseIndex === i"
+                             (click)="selectTestCase(i)">
+                            <div class="fw-bold">{{ testCase['Test Case ID'] || testCase['TC ID'] }}</div>
+                            <div class="small">{{ testCase['Test Objective'] || 'No objective available' }}</div>
+                        </div>
+                    </div>
+                    <ng-template #noTestCases>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-search fa-2x mb-2"></i>
+                            <h6>No test cases found</h6>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Test Case Details -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Test Case Details</h6>
+                </div>
+                <div class="card-body">
+                    <div *ngIf="selectedTestCase; else noSelection">
+                        <!-- Debug: Show selected test case info -->
+                        <div class="alert alert-success mb-3">
+                            <strong>Selected Test Case:</strong> {{ selectedTestCase['Test Case ID'] || selectedTestCase['TC ID'] }}
+                        </div>
+                        
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Test Case ID:</strong><br>
+                                {{ selectedTestCase['Test Case ID'] || selectedTestCase['TC ID'] }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>App:</strong><br>
+                                {{ selectedTestCase['App'] || 'N/A' }}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Test Type:</strong><br>
+                                {{ selectedTestCase['Test Type'] || 'N/A' }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Priority:</strong><br>
+                                <span class="badge" [class]="getPriorityBadgeClass(selectedTestCase['Priority'] || '')">
+                                    {{ selectedTestCase['Priority'] || 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Feature:</strong><br>
+                                {{ selectedTestCase['Feature'] || 'N/A' }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Screen ID:</strong><br>
+                                {{ selectedTestCase['Screen ID'] || 'N/A' }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Test Objective:</strong><br>
+                            {{ selectedTestCase['Test Objective'] || 'No objective available' }}
+                        </div>
+                        
+                        <div class="mb-3" *ngIf="selectedTestCase['Preconditions']">
+                            <strong>Preconditions:</strong><br>
+                            <div class="bg-light p-3 rounded">
+                                {{ selectedTestCase['Preconditions'] }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" *ngIf="selectedTestCase['Procedure']">
+                            <strong>Procedure:</strong><br>
+                            <div class="bg-light p-3 rounded">
+                                {{ selectedTestCase['Procedure'] }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" *ngIf="selectedTestCase['Expected Behavior']">
+                            <strong>Expected Behavior:</strong><br>
+                            <div class="bg-light p-3 rounded">
+                                {{ selectedTestCase['Expected Behavior'] }}
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" (click)="openTestCaseDetails($event)">
+                                <i class="fas fa-external-link-alt me-1"></i>Open Details
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" (click)="copyTestCaseId()">
+                                <i class="fas fa-copy me-1"></i>Copy ID
+                            </button>
+                        </div>
+                    </div>
+                    <ng-template #noSelection>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
+                            <h6>Select a test case</h6>
+                            <p>Choose a test case from the list to view its details</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.btn-group .btn:hover:not(.active) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+</style>

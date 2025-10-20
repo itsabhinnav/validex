@@ -1,0 +1,609 @@
+<!-- Test Cases Split Component Template -->
+<div class="container mt-3">
+    <!-- Modern Filter Bar -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Filters
+                    </h5>
+                    <div class="btn-group" role="group" aria-label="View toggle">
+                        <button type="button" 
+                                class="btn btn-outline-secondary btn-sm"
+                                [class.active]="currentView === 'list'"
+                                (click)="onViewChange('list')"
+                                title="List View">
+                            <i class="fas fa-th-list"></i> List
+                        </button>
+                        <button type="button" 
+                                class="btn btn-outline-secondary btn-sm"
+                                [class.active]="currentView === 'detail'"
+                                (click)="onViewChange('detail')"
+                                title="Detail View">
+                            <i class="fas fa-columns"></i> Detail
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filter Bar -->
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                        <!-- Search Box -->
+                        <div class="search-box">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    placeholder="Search test cases..."
+                                    [(ngModel)]="filterState.search_query"
+                                    name="search_query"
+                                    (ngModelChange)="onSearchChange($event)"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- App Filter Dropdown -->
+                        <div class="dropdown" [class.show]="appDropdownOpen">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    (click)="toggleAppDropdown()" aria-expanded="false">
+                                App {{ getFilterCount('app_filter') > 0 ? '=' + getFilterCount('app_filter') : '' }}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" 
+                                 [class.show]="appDropdownOpen" 
+                                 style="min-width: 250px;">
+                                <div class="px-3 py-2">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-sm" 
+                                               placeholder="Search App..." 
+                                               [(ngModel)]="appSearchQuery"
+                                               (ngModelChange)="filterAppOptions()">
+                                    </div>
+                                    <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="form-check" *ngFor="let app of filteredAppOptions">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   [id]="'app-' + app"
+                                                   [checked]="isAppSelected(app)"
+                                                   (change)="toggleAppFilter(app, $event)">
+                                            <label class="form-check-label" [for]="'app-' + app">
+                                                {{ app }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                (click)="clearAppFilter()">
+                                            Clear selection
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                (click)="applyFilters()">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test Type Filter Dropdown -->
+                        <div class="dropdown" [class.show]="testTypeDropdownOpen">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    (click)="toggleTestTypeDropdown()" aria-expanded="false">
+                                Test Type {{ getFilterCount('test_type_filter') > 0 ? '=' + getFilterCount('test_type_filter') : '' }}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" 
+                                 [class.show]="testTypeDropdownOpen" 
+                                 style="min-width: 250px;">
+                                <div class="px-3 py-2">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-sm" 
+                                               placeholder="Search Test Type..." 
+                                               [(ngModel)]="testTypeSearchQuery"
+                                               (ngModelChange)="filterTestTypeOptions()">
+                                    </div>
+                                    <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="form-check" *ngFor="let type of filteredTestTypeOptions">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   [id]="'type-' + type"
+                                                   [checked]="isTestTypeSelected(type)"
+                                                   (change)="toggleTestTypeFilter(type, $event)">
+                                            <label class="form-check-label" [for]="'type-' + type">
+                                                {{ type }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                (click)="clearTestTypeFilter()">
+                                            Clear selection
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                (click)="applyFilters()">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priority Filter Dropdown -->
+                        <div class="dropdown" [class.show]="priorityDropdownOpen">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    (click)="togglePriorityDropdown()" aria-expanded="false">
+                                Priority {{ getFilterCount('priority_filter') > 0 ? '=' + getFilterCount('priority_filter') : '' }}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" 
+                                 [class.show]="priorityDropdownOpen" 
+                                 style="min-width: 250px;">
+                                <div class="px-3 py-2">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-sm" 
+                                               placeholder="Search Priority..." 
+                                               [(ngModel)]="prioritySearchQuery"
+                                               (ngModelChange)="filterPriorityOptions()">
+                                    </div>
+                                    <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="form-check" *ngFor="let priority of filteredPriorityOptions">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   [id]="'priority-' + priority"
+                                                   [checked]="isPrioritySelected(priority)"
+                                                   (change)="togglePriorityFilter(priority, $event)">
+                                            <label class="form-check-label" [for]="'priority-' + priority">
+                                                {{ priority }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                (click)="clearPriorityFilter()">
+                                            Clear selection
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                (click)="applyFilters()">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feature Filter Dropdown -->
+                        <div class="dropdown" [class.show]="featureDropdownOpen">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    (click)="toggleFeatureDropdown()" aria-expanded="false">
+                                Feature {{ getFilterCount('feature_filter') > 0 ? '=' + getFilterCount('feature_filter') : '' }}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" 
+                                 [class.show]="featureDropdownOpen" 
+                                 style="min-width: 250px;">
+                                <div class="px-3 py-2">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-sm" 
+                                               placeholder="Search Feature..." 
+                                               [(ngModel)]="featureSearchQuery"
+                                               (ngModelChange)="filterFeatureOptions()">
+                                    </div>
+                                    <div class="filter-options" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="form-check" *ngFor="let feature of filteredFeatureOptions">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   [id]="'feature-' + feature"
+                                                   [checked]="isFeatureSelected(feature)"
+                                                   (change)="toggleFeatureFilter(feature, $event)">
+                                            <label class="form-check-label" [for]="'feature-' + feature">
+                                                {{ feature }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                (click)="clearFeatureFilter()">
+                                            Clear selection
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                (click)="applyFilters()">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- More Filters Dropdown -->
+                        <div class="dropdown" [class.show]="moreFiltersDropdownOpen">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    (click)="toggleMoreFiltersDropdown()" aria-expanded="false">
+                                More filters
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" 
+                                 [class.show]="moreFiltersDropdownOpen" 
+                                 style="min-width: 300px;">
+                                <div class="px-3 py-2">
+                                    <h6 class="mb-3">Additional Filters</h6>
+                                    
+                                    <!-- Screen ID Filter -->
+                                    <div class="mb-3">
+                                        <label class="form-label small">Screen ID</label>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   placeholder="Search Screen ID..." 
+                                                   [(ngModel)]="screenIdSearchQuery"
+                                                   (ngModelChange)="filterScreenIdOptions()">
+                                        </div>
+                                        <div class="filter-options" style="max-height: 150px; overflow-y: auto;">
+                                            <div class="form-check" *ngFor="let screenId of filteredScreenIdOptions">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       [id]="'screen-' + screenId"
+                                                       [checked]="isScreenIdSelected(screenId)"
+                                                       (change)="toggleScreenIdFilter(screenId, $event)">
+                                                <label class="form-check-label" [for]="'screen-' + screenId">
+                                                    {{ screenId }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Test Suite Type Filter -->
+                                    <div class="mb-3">
+                                        <label class="form-label small">Test Suite Type</label>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   placeholder="Search Test Suite Type..." 
+                                                   [(ngModel)]="testSuiteTypeSearchQuery"
+                                                   (ngModelChange)="filterTestSuiteTypeOptions()">
+                                        </div>
+                                        <div class="filter-options" style="max-height: 150px; overflow-y: auto;">
+                                            <div class="form-check" *ngFor="let type of filteredTestSuiteTypeOptions">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       [id]="'suite-' + type"
+                                                       [checked]="isTestSuiteTypeSelected(type)"
+                                                       (change)="toggleTestSuiteTypeFilter(type, $event)">
+                                                <label class="form-check-label" [for]="'suite-' + type">
+                                                    {{ type }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Requirement Type Filter -->
+                                    <div class="mb-3">
+                                        <label class="form-label small">Requirement Type</label>
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   placeholder="Search Requirement Type..." 
+                                                   [(ngModel)]="requirementTypeSearchQuery"
+                                                   (ngModelChange)="filterRequirementTypeOptions()">
+                                        </div>
+                                        <div class="filter-options" style="max-height: 150px; overflow-y: auto;">
+                                            <div class="form-check" *ngFor="let type of filteredRequirementTypeOptions">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       [id]="'req-' + type"
+                                                       [checked]="isRequirementTypeSelected(type)"
+                                                       (change)="toggleRequirementTypeFilter(type, $event)">
+                                                <label class="form-check-label" [for]="'req-' + type">
+                                                    {{ type }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                (click)="clearMoreFilters()">
+                                            Clear selection
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                (click)="applyFilters()">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clear All Filters Button -->
+                        <button type="button" class="btn btn-outline-danger" (click)="clearAllFilters()">
+                            <i class="fas fa-times"></i> Clear filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-primary fs-6">
+                        <i class="fas fa-list me-1"></i>
+                        {{ paginationState.total_cases }} Test Cases Found
+                    </span>
+                    <span class="text-muted ms-2">
+                        Showing {{ testCases.length }} of {{ paginationState.total_cases }} results
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-label mb-0">Per page:</label>
+                    <select class="form-select form-select-sm" style="width: auto;" 
+                            [(ngModel)]="paginationState.per_page" (ngModelChange)="onPerPageChange($event)">
+                        <option [value]="10">10</option>
+                        <option [value]="20">20</option>
+                        <option [value]="50">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Cases Display -->
+    <div class="row">
+        <!-- List View -->
+        <div class="col-12" *ngIf="currentView === 'list'">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <a href="#" (click)="onSortChange('Test Case ID', filterState.sort_order === 'asc' ? 'desc' : 'asc')">
+                                            Test Case ID
+                                            <i class="fas fa-sort ms-1" 
+                                               [class.fa-sort-up]="filterState.sort_by === 'Test Case ID' && filterState.sort_order === 'asc'"
+                                               [class.fa-sort-down]="filterState.sort_by === 'Test Case ID' && filterState.sort_order === 'desc'"></i>
+                                        </a>
+                                    </th>
+                                    <th>Test Objective</th>
+                                    <th>App</th>
+                                    <th>Test Type</th>
+                                    <th>Priority</th>
+                                    <th>Feature</th>
+                                    <th>Screen ID</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let testCase of testCases; trackBy: trackByTestCaseId">
+                                    <td>
+                                        <strong>{{ testCase['Test Case ID'] || testCase['TC ID'] }}</strong>
+                                    </td>
+                                    <td>{{ testCase['Test Objective'] || testCase['Summary'] || 'N/A' }}</td>
+                                    <td>{{ testCase['App'] || 'N/A' }}</td>
+                                    <td>{{ testCase['Test Type'] || 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge" 
+                                              [class]="getPriorityBadgeClass(testCase['Priority'] || '')">
+                                            {{ testCase['Priority'] || 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ testCase['Feature'] || 'N/A' }}</td>
+                                    <td>{{ testCase['Screen ID'] || 'N/A' }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                (click)="viewTestCaseDetails(testCase)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail View (Split View) -->
+        <div class="col-12" *ngIf="currentView === 'detail'">
+            <div class="row">
+                <!-- Left Panel - Test Case List -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list me-2"></i>Test Cases
+                                <span class="badge bg-primary ms-2">{{ testCases.length }}</span>
+                            </h6>
+                        </div>
+                        <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+                            <div *ngIf="testCases.length > 0; else noTestCases">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" 
+                                       class="list-group-item list-group-item-action"
+                                       *ngFor="let testCase of testCases; let i = index"
+                                       [class.active]="selectedTestCaseIndex === i"
+                                       (click)="selectTestCase(i)">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div>
+                                                <h6 class="mb-1 test-case-id">{{ testCase['Test Case ID'] || testCase['TC ID'] }}</h6>
+                                                <p class="mb-0 test-case-objective">{{ testCase['Test Objective'] || testCase['Summary'] || 'No objective available' }}</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <ng-template #noTestCases>
+                                <div class="text-center p-4">
+                                    <i class="fas fa-search text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2">No test cases found</p>
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Test Case Details -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Test Case Details
+                            </h6>
+                        </div>
+                        <div class="card-body" *ngIf="selectedTestCase; else noSelection">
+                            <!-- Header Section -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1 text-primary">
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            {{ selectedTestCase['Test Case ID'] || selectedTestCase['TC ID'] }}
+                                        </h5>
+                                        <p class="text-muted mb-0">{{ selectedTestCase['Test Objective'] || selectedTestCase['Summary'] || 'No objective available' }}</p>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-primary" (click)="viewTestCaseDetails(selectedTestCase)">
+                                            <i class="fas fa-external-link-alt me-1"></i>Open Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Basic Information Grid -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-mobile-alt text-primary me-1"></i>App:</strong>
+                                        <span class="ms-2">{{ selectedTestCase['App'] || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-vial text-primary me-1"></i>Test Type:</strong>
+                                        <span class="ms-2">{{ selectedTestCase['Test Type'] || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-exclamation-triangle text-warning me-1"></i>Priority:</strong>
+                                        <span class="ms-2">
+                                            <span class="badge" 
+                                                  [class]="getPriorityBadgeClass(selectedTestCase['Priority'] || '')">
+                                                {{ selectedTestCase['Priority'] || 'N/A' }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-star text-warning me-1"></i>Feature:</strong>
+                                        <span class="ms-2">{{ selectedTestCase['Feature'] || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Information -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-desktop text-info me-1"></i>Screen ID:</strong>
+                                        <span class="ms-2">{{ selectedTestCase['Screen ID'] || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <strong><i class="fas fa-layer-group text-success me-1"></i>Test Suite Type:</strong>
+                                        <span class="ms-2">{{ selectedTestCase['TestSuite Type'] || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Test Steps Section -->
+                            <div class="mb-3" *ngIf="selectedTestCase['Preconditions']">
+                                <strong><i class="fas fa-list-ol text-primary me-1"></i>Preconditions:</strong>
+                                <div class="bg-light p-3 rounded mt-2">
+                                    {{ selectedTestCase['Preconditions'] }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3" *ngIf="selectedTestCase['Procedure']">
+                                <strong><i class="fas fa-play text-success me-1"></i>Procedure:</strong>
+                                <div class="bg-light p-3 rounded mt-2">
+                                    {{ selectedTestCase['Procedure'] }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3" *ngIf="selectedTestCase['Expected Behavior']">
+                                <strong><i class="fas fa-check-circle text-success me-1"></i>Expected Behavior:</strong>
+                                <div class="bg-light p-3 rounded mt-2">
+                                    {{ selectedTestCase['Expected Behavior'] }}
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noSelection>
+                            <div class="card-body text-center">
+                                <i class="fas fa-mouse-pointer text-muted" style="font-size: 2rem;"></i>
+                                <h6 class="mt-2">Select a test case</h6>
+                                <p class="text-muted">Choose a test case from the list to view its details</p>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4" *ngIf="paginationState.total_pages > 1">
+        <div class="col-12">
+            <nav aria-label="Test cases pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" [class.disabled]="!paginationState.has_prev">
+                        <a class="page-link" href="#" (click)="onPageChange(paginationState.current_page - 1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" 
+                        *ngFor="let page of getPageNumbers()" 
+                        [class.active]="page === paginationState.current_page">
+                        <a class="page-link" href="#" (click)="onPageChange(page)">{{ page }}</a>
+                    </li>
+                    <li class="page-item" [class.disabled]="!paginationState.has_next">
+                        <a class="page-link" href="#" (click)="onPageChange(paginationState.current_page + 1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div *ngIf="loading" class="position-fixed top-50 start-50 translate-middle">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<!-- Error Message -->
+<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+

@@ -1,0 +1,53 @@
+/* Global Styles */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.main-content {
+  padding: 20px;
+  min-height: calc(100vh - 64px);
+}
+
+/* Custom styles for migrated components */
+.filter-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #17a2b8 !important;
+}
+
+.filter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.filter-card .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+#filterStatus {
+    transition: all 0.3s ease;
+}
+
+/* Angular Material overrides */
+.mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.mat-button {
+  color: white !important;
+}
+
+.mat-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}

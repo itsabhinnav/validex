@@ -2,7 +2,7 @@
 Main routes for MVC architecture - handles app selection and role management
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from app.controllers.dashboard_controller import DashboardController
 from app.controllers.test_cases_controller import TestCasesController
@@ -25,11 +25,6 @@ def dashboard():
 def test_cases():
     """Test cases page"""
     return test_cases_controller._handle_test_cases()
-
-@main_bp.route('/test-cases-split')
-def test_cases_split():
-    """Split-view test cases page"""
-    return test_cases_controller._handle_test_cases_split()
 
 @main_bp.route('/admin')
 def admin():
@@ -67,20 +62,12 @@ def export_test_cases_csv():
     return test_cases_controller._handle_export_test_cases_csv()
 
 # Export test suite page (moved from test cases page)
-@main_bp.route('/export-test-suite')
-def export_test_suite_page():
-    """Export test suite page"""
-    return render_template('validex/export_test_suite.html')
 
 @main_bp.route('/export-test-suite-file')
 def export_test_suite_file():
     """Export test suite file with release details"""
     return test_cases_controller._handle_export_test_suite()
 
-@main_bp.route('/setup')
-def setup():
-    """Setup page"""
-    return render_template('auth/setup.html')
 
 @main_bp.route('/jfrog-config')
 def jfrog_config():
@@ -100,15 +87,8 @@ def inject_current_role():
 
 test_cases_data = {}
 
-@main_bp.route('/')
-def index():
-    """Main application entry point"""
-    return redirect(url_for('main.landing'))
+# Removed root route to avoid conflicts with Angular frontend serving
 
-@main_bp.route('/landing')
-def landing():
-    """Landing page with role selection"""
-    return render_template('common/landing.html')
 
 @main_bp.route('/app')
 def app_entry():
@@ -117,25 +97,8 @@ def app_entry():
     if role:
         return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('main.role_selection'))
+        return jsonify({'redirect': '/landing'})
 
-@main_bp.route('/role-selection')
-def role_selection():
-    """Role selection page"""
-    from app.controllers.base_controller import BaseController
-    base_controller = BaseController('temp')
-    test_cases_data = base_controller.load_test_files()
-    
-    file_count = len(test_cases_data)
-    total_cases = sum(len(cases) for cases in test_cases_data.values()) if test_cases_data else 0
-    
-    from config.settings import config
-    admin_enabled = config.is_admin_enabled()
-    
-    return render_template('auth/role_selection.html', 
-                         file_count=file_count, 
-                         total_cases=total_cases,
-                         admin_enabled=admin_enabled)
 
 @main_bp.route('/set-role', methods=['POST'])
 def set_role():
@@ -155,6 +118,114 @@ def set_role():
         return redirect(url_for('main.dashboard'))
 
 
+
+@main_bp.route('/api/test-cases', methods=['GET'])
+def get_test_cases():
+    """Get test cases with filtering and pagination"""
+    from app.controllers.test_cases_controller import TestCasesController
+    from app.services.test_cases_service import TestCasesService
+    
+    controller = TestCasesController()
+    service = TestCasesService()
+    
+    test_cases_data = controller.load_test_files()
+    
+    # Get filter parameters from request
+    app_filter = request.args.get('app', '')
+    test_types = request.args.getlist('test_type')
+    priorities = request.args.getlist('priority')
+    features = request.args.getlist('feature')
+    screen_ids = request.args.getlist('screen_id')
+    test_suite_types = request.args.getlist('test_suite_type')
+    requirement_types = request.args.getlist('requirement_type')
+    search_query = request.args.get('search', '')
+    sort_by = request.args.get('sort', 'TC ID')
+    sort_order = request.args.get('order', 'asc')
+    
+    # Create filter object
+    filters = {
+        'app_filter': app_filter,
+        'test_type_filter': test_types,
+        'priority_filter': priorities,
+        'feature_filter': features,
+        'screen_id_filter': screen_ids,
+        'test_suite_type_filter': test_suite_types,
+        'requirement_type_filter': requirement_types,
+        'search_query': search_query,
+        'sort_by': sort_by,
+        'sort_order': sort_order
+    }
+    
+    # Apply filters
+    filtered_cases = service.filter_test_cases(test_cases_data, filters)
+    
+    # Apply sorting
+    filtered_cases = service.sort_test_cases(filtered_cases, sort_by, sort_order)
+    
+    # Apply pagination
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 20))
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    
+    paginated_cases = filtered_cases[start_idx:end_idx]
+    
+    # Get filter options
+    filter_options_result = controller._get_filter_options(test_cases_data)
+    if len(filter_options_result) == 3:
+        apps, test_types, priorities = filter_options_result
+    else:
+        apps, test_types = filter_options_result
+        priorities = []
+    enhanced_data = controller.get_enhanced_filter_data(test_cases_data)
+    
+    # Get proper filter options from service
+    from app.services.test_cases_service import TestCasesService
+    service = TestCasesService()
+    all_filter_options = service.get_filter_options(test_cases_data)
+    
+    return jsonify({
+        'test_cases': paginated_cases,
+        'filter_options': {
+            'apps': sorted(apps),
+            'test_types': sorted(test_types),
+            'priorities': sorted(priorities),
+            'features': sorted(all_filter_options.get('Feature', [])),
+            'screen_ids': sorted(all_filter_options.get('Screen ID', [])),
+            'test_suite_types': sorted(all_filter_options.get('TestSuite Type', [])),
+            'requirement_types': sorted(all_filter_options.get('Requirement Type', [])),
+            'regions': sorted(all_filter_options.get('Region', [])),
+            'brands': sorted(all_filter_options.get('Brand', []))
+        },
+        'pagination': {
+            'current_page': page,
+            'per_page': per_page,
+            'total_cases': len(filtered_cases),
+            'total_pages': (len(filtered_cases) + per_page - 1) // per_page,
+            'has_prev': page > 1,
+            'has_next': page < (len(filtered_cases) + per_page - 1) // per_page
+        }
+    })
+
+@main_bp.route('/api/test-case-details', methods=['GET'])
+def get_test_case_details():
+    """Get detailed information for a specific test case"""
+    test_case_id = request.args.get('test_case_id')
+    if not test_case_id:
+        return jsonify({'error': 'test_case_id parameter is required'}), 400
+    
+    from app.controllers.test_cases_controller import TestCasesController
+    
+    controller = TestCasesController()
+    test_cases_data = controller.load_test_files()
+    
+    # Find the test case
+    for file_name, file_data in test_cases_data.items():
+        for case in file_data:
+            if case.get('TC ID') == test_case_id:
+                return jsonify(case)
+    
+    return jsonify({'error': 'Test case not found'}), 404
 
 @main_bp.route('/api/filter-test-cases', methods=['POST'])
 def filter_test_cases_api():
@@ -253,12 +324,29 @@ def get_filter_options():
     selected_apps = request.args.getlist('apps')
     if not selected_apps or selected_apps == ['']:
         # Return all options if no app is selected
-        apps, test_types, priorities = controller._get_filter_options(test_cases_data)
+        filter_options_result = controller._get_filter_options(test_cases_data)
+        if len(filter_options_result) == 3:
+            apps, test_types, priorities = filter_options_result
+        else:
+            apps, test_types = filter_options_result
+            priorities = []
         enhanced_data = controller.get_enhanced_filter_data(test_cases_data)
+        
+        # Get proper filter options from service
+        from app.services.test_cases_service import TestCasesService
+        service = TestCasesService()
+        all_filter_options = service.get_filter_options(test_cases_data)
+        
         return jsonify({
             'apps': sorted(apps),
             'test_types': sorted(test_types),
             'priorities': sorted(priorities),
+            'features': sorted(all_filter_options.get('Feature', [])),
+            'screen_ids': sorted(all_filter_options.get('Screen ID', [])),
+            'test_suite_types': sorted(all_filter_options.get('TestSuite Type', [])),
+            'requirement_types': sorted(all_filter_options.get('Requirement Type', [])),
+            'regions': sorted(all_filter_options.get('Region', [])),
+            'brands': sorted(all_filter_options.get('Brand', [])),
             'available_columns': enhanced_data.get('available_columns', []),
             'column_mappings': enhanced_data.get('column_mappings', {}),
             'column_statistics': enhanced_data.get('column_statistics', {})
@@ -274,13 +362,29 @@ def get_filter_options():
                 filtered_data[file_name].append(case)
     
     # Get options from filtered data
-    apps, test_types, priorities = controller._get_filter_options(filtered_data)
+    filter_options_result = controller._get_filter_options(filtered_data)
+    if len(filter_options_result) == 3:
+        apps, test_types, priorities = filter_options_result
+    else:
+        apps, test_types = filter_options_result
+        priorities = []
     enhanced_data = controller.get_enhanced_filter_data(filtered_data)
+    
+    # Get proper filter options from service
+    from app.services.test_cases_service import TestCasesService
+    service = TestCasesService()
+    all_filter_options = service.get_filter_options(filtered_data)
     
     return jsonify({
         'apps': sorted(apps),
         'test_types': sorted(test_types),
         'priorities': sorted(priorities),
+        'features': sorted(all_filter_options.get('Feature', [])),
+        'screen_ids': sorted(all_filter_options.get('Screen ID', [])),
+        'test_suite_types': sorted(all_filter_options.get('TestSuite Type', [])),
+        'requirement_types': sorted(all_filter_options.get('Requirement Type', [])),
+        'regions': sorted(all_filter_options.get('Region', [])),
+        'brands': sorted(all_filter_options.get('Brand', [])),
         'available_columns': enhanced_data.get('available_columns', []),
         'column_mappings': enhanced_data.get('column_mappings', {}),
         'column_statistics': enhanced_data.get('column_statistics', {})
@@ -821,5 +925,8 @@ def get_design_phase_details(phase_id):
 @main_bp.errorhandler(500)
 def internal_error(error):
     """Handle 500 errors"""
-    return render_template('errors/500.html'), 500
+    return jsonify({
+        'error': 'Internal Server Error',
+        'message': 'An error occurred while processing your request'
+    }), 500
 

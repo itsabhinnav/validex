@@ -1,0 +1,413 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Export Test Suite - Validex{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+    
+    <!-- Test Suite Preparation Section -->
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white" style="border-radius: 15px 15px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Test Suite Preparation
+                </h5>
+                <button class="btn btn-light btn-sm" type="button" onclick="toggleTestSuite()" id="testSuiteToggle">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body bg-light" id="testSuiteContent">
+            <form id="releaseDetailsForm">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label for="releaseVersion" class="form-label">Release Version *</label>
+                        <input type="text" class="form-control" id="releaseVersion" name="releaseVersion" 
+                               placeholder="e.g., v2.1.0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sprint" class="form-label">Sprint</label>
+                        <input type="text" class="form-control" id="sprint" name="sprint" 
+                               placeholder="e.g., Sprint 15">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="buildNumber" class="form-label">Build Number</label>
+                        <input type="text" class="form-control" id="buildNumber" name="buildNumber" 
+                               placeholder="e.g., Build 1234">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="environment" class="form-label">Environment</label>
+                        <select class="form-select" id="environment" name="environment">
+                            <option value="">Select Environment</option>
+                            <option value="DEV">Development</option>
+                            <option value="QA">QA</option>
+                            <option value="UAT">UAT</option>
+                            <option value="PROD">Production</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="testSuiteName" class="form-label">Test Suite Name</label>
+                        <input type="text" class="form-control" id="testSuiteName" name="testSuiteName" 
+                               placeholder="e.g., Regression Suite v2.1.0">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="testSuiteDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="testSuiteDescription" name="testSuiteDescription" 
+                               placeholder="Brief description of the test suite">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        <small><i class="fas fa-info-circle me-1"></i>Select test cases below and configure release details to prepare your test suite</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-primary" onclick="clearTestSuiteForm()">
+                            <i class="fas fa-eraser me-1"></i>Clear
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportTestSuite()" id="exportSuiteBtn" disabled>
+                            <i class="fas fa-download me-1"></i>Export Test Suite
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtered Test Cases Section -->
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtered Test Cases
+                </h5>
+                <span class="badge bg-light text-dark" id="selectedCount">0 test cases</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="selectedTestCasesList" class="mb-3">
+                <p class="text-muted text-center py-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No test cases selected. Go back to the test cases page to select test cases for export.
+                </p>
+            </div>
+            <div class="text-center">
+                <a href="{{ url_for('main.test_cases') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Test Cases
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Section -->
+    <div class="card content-card shadow-sm">
+        <div class="card-header bg-info text-white" style="border-radius: 15px 15px 0 0;">
+            <h5 class="mb-0">
+                <i class="fas fa-download me-2"></i>
+                Export Options
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="exportFormat" id="excelFormat" value="excel" checked>
+                        <label class="form-check-label" for="excelFormat">
+                            <i class="fas fa-file-excel me-1 text-success"></i>Excel Format (.xlsx)
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="exportFormat" id="csvFormat" value="csv">
+                        <label class="form-check-label" for="csvFormat">
+                            <i class="fas fa-file-csv me-1 text-info"></i>CSV Format (.csv)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="includeTestData" checked>
+                        <label class="form-check-label" for="includeTestData">
+                            Include Test Data
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="includeExecutionHistory">
+                        <label class="form-check-label" for="includeExecutionHistory">
+                            Include Execution History
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="exportSuccessModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Export Successful
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Your test suite has been successfully exported!</p>
+                <div class="alert alert-info">
+                    <strong>File:</strong> <span id="exportedFileName"></span><br>
+                    <strong>Test Cases:</strong> <span id="exportedTestCasesCount"></span><br>
+                    <strong>Format:</strong> <span id="exportedFormat"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Test Case Link Styling */
+.test-case-link {
+    transition: all 0.2s ease;
+}
+
+.test-case-link:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+    transform: translateY(-1px);
+}
+
+/* Modern Filter UI Styling */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modern-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.modern-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.modern-select:hover {
+    border-color: #adb5bd;
+}
+</style>
+
+<script>
+// Test Suite Preparation Functions
+function toggleTestSuite() {
+    const content = document.getElementById('testSuiteContent');
+    const toggle = document.getElementById('testSuiteToggle');
+    const icon = toggle.querySelector('i');
+
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        content.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+
+function clearTestSuiteForm() {
+    document.getElementById('releaseDetailsForm').reset();
+    updateExportButton();
+}
+
+function updateExportButton() {
+    const releaseVersion = document.getElementById('releaseVersion').value.trim();
+    const exportBtn = document.getElementById('exportSuiteBtn');
+    
+    if (releaseVersion) {
+        exportBtn.disabled = false;
+        exportBtn.classList.remove('btn-outline-success');
+        exportBtn.classList.add('btn-success');
+    } else {
+        exportBtn.disabled = true;
+        exportBtn.classList.remove('btn-success');
+        exportBtn.classList.add('btn-outline-success');
+    }
+}
+
+function exportTestSuite() {
+    // Validate mandatory fields
+    const releaseVersion = document.getElementById('releaseVersion').value.trim();
+    
+    if (!releaseVersion) {
+        alert('Release Version is mandatory. Please enter a release version before exporting.');
+        document.getElementById('releaseVersion').focus();
+        return;
+    }
+    
+    // Get filtered test cases from localStorage
+    const filteredTestCases = JSON.parse(localStorage.getItem('filteredTestCases') || '[]');
+    
+    if (filteredTestCases.length === 0) {
+        alert('No test cases available to export. Go back to the test cases page and apply filters.');
+        return;
+    }
+    
+    // Get export options
+    const exportFormat = document.querySelector('input[name="exportFormat"]:checked').value;
+    const includeTestData = document.getElementById('includeTestData').checked;
+    const includeExecutionHistory = document.getElementById('includeExecutionHistory').checked;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.append('releaseVersion', releaseVersion);
+    params.append('sprint', document.getElementById('sprint').value);
+    params.append('buildNumber', document.getElementById('buildNumber').value);
+    params.append('environment', document.getElementById('environment').value);
+    params.append('testSuiteName', document.getElementById('testSuiteName').value);
+    params.append('testSuiteDescription', document.getElementById('testSuiteDescription').value);
+    params.append('exportFormat', exportFormat);
+    params.append('includeTestData', includeTestData);
+    params.append('includeExecutionHistory', includeExecutionHistory);
+    
+    // Add filtered test case IDs
+    const testCaseIds = filteredTestCases.map(tc => tc.id).join(',');
+    params.append('selectedTestCases', testCaseIds);
+    
+    // Show loading state
+    const exportBtn = document.getElementById('exportSuiteBtn');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
+    exportBtn.disabled = true;
+    
+    // Call export endpoint
+    fetch(`/export-test-suite-file?${params.toString()}`, {
+        method: 'GET'
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Export failed');
+    })
+    .then(blob => {
+        // Download the file
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const filename = `test_suite_${releaseVersion}_${new Date().toISOString().split('T')[0]}.${exportFormat === 'excel' ? 'xlsx' : 'csv'}`;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Reset button
+        exportBtn.innerHTML = originalText;
+        updateExportButton();
+        
+        // Show success message
+        alert(`Test suite exported successfully as ${filename}\n${filteredTestCases.length} test cases exported.`);
+        
+        // Note: Filtered test cases are kept in localStorage for future exports
+        // They will be refreshed when filters are reapplied on the test cases page
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        exportBtn.innerHTML = originalText;
+        updateExportButton();
+        alert('Failed to export test suite. Please try again.');
+    });
+}
+
+// Load filtered test cases from localStorage
+function loadSelectedTestCases() {
+    const filteredTestCases = JSON.parse(localStorage.getItem('filteredTestCases') || '[]');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectedList = document.getElementById('selectedTestCasesList');
+    
+    selectedCount.textContent = `${filteredTestCases.length} test cases to export`;
+    
+    if (filteredTestCases.length > 0) {
+        let html = '<div class="alert alert-info mb-3">';
+        html += '<i class="fas fa-info-circle me-2"></i>';
+        html += `<strong>${filteredTestCases.length}</strong> test cases from your filtered results will be exported.`;
+        html += '</div>';
+        html += '<div class="row">';
+        
+        // Show first 10 test cases as preview
+        const previewCount = Math.min(10, filteredTestCases.length);
+        for (let i = 0; i < previewCount; i++) {
+            const testCase = filteredTestCases[i];
+            html += `
+                <div class="col-md-6 mb-2">
+                    <div class="card border-primary">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">${testCase.id || `TC-${i + 1}`}</span>
+                            </div>
+                            <small class="text-muted">${testCase.summary || 'Test case summary'}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (filteredTestCases.length > 10) {
+            html += `
+                <div class="col-12 text-center text-muted">
+                    <small>... and ${filteredTestCases.length - 10} more test cases</small>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        selectedList.innerHTML = html;
+    } else {
+        selectedList.innerHTML = `
+            <p class="text-muted text-center py-4">
+                <i class="fas fa-info-circle me-2"></i>
+                No filtered test cases available. Go back to the test cases page and apply filters.
+            </p>
+        `;
+    }
+}
+
+function removeTestCase(testCaseId) {
+    const selectedTestCases = JSON.parse(localStorage.getItem('selectedTestCases') || '[]');
+    const updatedTestCases = selectedTestCases.filter(tc => tc.id !== testCaseId);
+    localStorage.setItem('selectedTestCases', JSON.stringify(updatedTestCases));
+    loadSelectedTestCases();
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadSelectedTestCases();
+    
+    // Add event listeners
+    document.getElementById('releaseVersion').addEventListener('input', updateExportButton);
+    
+    // Initialize export button state
+    updateExportButton();
+});
+
+// Make functions available globally
+window.toggleTestSuite = toggleTestSuite;
+window.clearTestSuiteForm = clearTestSuiteForm;
+window.exportTestSuite = exportTestSuite;
+window.removeTestCase = removeTestCase;
+</script>
+{% endblock %}

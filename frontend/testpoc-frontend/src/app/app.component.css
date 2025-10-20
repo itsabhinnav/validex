@@ -1,0 +1,60 @@
+/* App Component Styles - Migrated from Flask */
+.spacer {
+  flex: 1 1 auto;
+}
+
+.role-badge {
+  font-size: 0.8rem;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.navbar-nav .nav-link {
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #007bff !important;
+}
+
+/* Hero section styles */
+.hero-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-top: -1rem;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+}
+
+.hero-content .lead {
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+/* Card styles */
+.content-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.content-card:hover {
+  transform: translateY(-2px);
+}
+
+.disabled-feature {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled-feature .card-body {
+  pointer-events: none;
+}

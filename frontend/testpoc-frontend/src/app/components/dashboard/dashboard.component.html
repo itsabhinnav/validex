@@ -1,0 +1,57 @@
+<!-- Dashboard Component - Migrated from Flask dashboard.html -->
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ totalCases }}</h3>
+                <p class="card-text">Total Test Cases</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ fileCount }}</h3>
+                <p class="card-text">Test Files</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.apps.length || 0 }}</h3>
+                <p class="card-text">Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ stats.testTypes.length || 0 }}</h3>
+                <p class="card-text">Test Types</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Welcome to Validex</h5>
+                <p class="card-text">Your quality assurance management system is ready to use.</p>
+                <div class="mt-3">
+                    <button class="btn btn-primary" routerLink="/test-cases">
+                        <i class="fas fa-list me-1"></i>View Test Cases
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

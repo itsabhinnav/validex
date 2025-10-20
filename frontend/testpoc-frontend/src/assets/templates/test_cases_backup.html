@@ -1,0 +1,839 @@
+{% extends "validex/base.html" %}
+
+{% block title %}Test Suite - Validex{% endblock %}
+
+{% block content %}
+<style>
+.filter-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #17a2b8 !important;
+}
+
+.filter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.filter-card .btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.alert-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+#filterStatus {
+    transition: all 0.3s ease;
+}
+</style>
+
+<div class="container mt-3">
+    
+
+    <div class="advanced-search-container mb-4">
+        
+    </div>
+
+    <div class="card content-card mb-4 shadow-sm">
+        <div class="card-header" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border-radius: 15px 15px 0 0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-search me-2"></i>
+                    Advanced Filters & Search
+                </h5>
+            </div>
+        </div>
+        <div class="card-body bg-light" id="filterContent">
+            <form method="GET" action="{{ url_for('main.test_cases') }}" id="filterForm">
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="search" name="search" value="{{ current_search or '' }}" placeholder="Search across all test cases, summaries, features, and more...">
+                            <button class="btn" type="submit" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #2c3e50;">
+                                <h6 class="mb-0" style="color: #2c3e50;">
+                                    <i class="fas fa-star me-2"></i>Feature
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="feature">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search features..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for feature in features %}
+                                                <div class="multiselect-option" data-value="{{ feature }}">
+                                                    <input type="checkbox" id="feature_{{ loop.index }}" value="{{ feature }}" {% if feature in current_feature_filter %}checked{% endif %}>
+                                                    <label for="feature_{{ loop.index }}">{{ feature }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="feature" multiple style="display: none;">
+                                        {% for feature in features %}
+                                            <option value="{{ feature }}" {% if feature in current_feature_filter %}selected{% endif %}>{{ feature }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Select one or more features</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #28a745;">
+                                <h6 class="mb-0" style="color: #28a745;">
+                                    <i class="fas fa-desktop me-2"></i>Screen ID
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="screen_id">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search screen IDs..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for screen_id in screen_ids %}
+                                                <div class="multiselect-option" data-value="{{ screen_id }}">
+                                                    <input type="checkbox" id="screen_id_{{ loop.index }}" value="{{ screen_id }}" {% if screen_id in current_screen_id_filter %}checked{% endif %}>
+                                                    <label for="screen_id_{{ loop.index }}">{{ screen_id }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="screen_id" multiple style="display: none;">
+                                        {% for screen_id in screen_ids %}
+                                            <option value="{{ screen_id }}" {% if screen_id in current_screen_id_filter %}selected{% endif %}>{{ screen_id }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Choose screen identifiers</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #f39c12;">
+                                <h6 class="mb-0" style="color: #f39c12;">
+                                    <i class="fas fa-vial me-2"></i>Test Type
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="test_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search test types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for test_type in test_types %}
+                                                <div class="multiselect-option" data-value="{{ test_type }}">
+                                                    <input type="checkbox" id="test_type_{{ loop.index }}" value="{{ test_type }}" {% if test_type in current_test_type_filter %}checked{% endif %}>
+                                                    <label for="test_type_{{ loop.index }}">{{ test_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="test_type" multiple style="display: none;">
+                                        {% for test_type in test_types %}
+                                            <option value="{{ test_type }}" {% if test_type in current_test_type_filter %}selected{% endif %}>{{ test_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Filter by test type</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #17a2b8;">
+                                <h6 class="mb-0" style="color: #17a2b8;">
+                                    <i class="fas fa-layer-group me-2"></i>Test Suite Type
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="test_suite_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search test suite types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for test_suite_type in test_suite_types %}
+                                                <div class="multiselect-option" data-value="{{ test_suite_type }}">
+                                                    <input type="checkbox" id="test_suite_type_{{ loop.index }}" value="{{ test_suite_type }}" {% if test_suite_type in current_test_suite_type_filter %}checked{% endif %}>
+                                                    <label for="test_suite_type_{{ loop.index }}">{{ test_suite_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="test_suite_type" multiple style="display: none;">
+                                        {% for test_suite_type in test_suite_types %}
+                                            <option value="{{ test_suite_type }}" {% if test_suite_type in current_test_suite_type_filter %}selected{% endif %}>{{ test_suite_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Choose test suite categories</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #2c3e50;">
+                                <h6 class="mb-0" style="color: #2c3e50;">
+                                    <i class="fas fa-clipboard-list me-2"></i>Requirement Type
+                                </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="multiselect-container" data-field="requirement_type">
+                                    <div class="multiselect-input" tabindex="0">
+                                        <div class="selected-chips">
+                                            <!-- Selected chips will be inserted here -->
+                                        </div>
+                                        <input type="text" class="multiselect-search" placeholder="Search requirement types..." autocomplete="off">
+                                        <div class="multiselect-arrow">▼</div>
+                                    </div>
+                                    <div class="multiselect-dropdown">
+                                        <div class="multiselect-options">
+                                            {% for requirement_type in requirement_types %}
+                                                <div class="multiselect-option" data-value="{{ requirement_type }}">
+                                                    <input type="checkbox" id="requirement_type_{{ loop.index }}" value="{{ requirement_type }}" {% if requirement_type in current_requirement_type_filter %}checked{% endif %}>
+                                                    <label for="requirement_type_{{ loop.index }}">{{ requirement_type }}</label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <select name="requirement_type" multiple style="display: none;">
+                                        {% for requirement_type in requirement_types %}
+                                            <option value="{{ requirement_type }}" {% if requirement_type in current_requirement_type_filter %}selected{% endif %}>{{ requirement_type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <small class="text-muted">Select one or more requirement types</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #6c757d;">
+                                <h6 class="mb-0" style="color: #6c757d;">
+                                    <i class="fas fa-sort me-2"></i>Sort & Options
+                                    </h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <select class="form-select mb-2" id="sort" name="sort">
+                                    <option value="Test Case ID" {% if current_sort == 'Test Case ID' %}selected{% endif %}>Test Case ID</option>
+                                    <option value="Summary" {% if current_sort == 'Summary' %}selected{% endif %}>Summary</option>
+                                    <option value="Feature" {% if current_sort == 'Feature' %}selected{% endif %}>Feature</option>
+                                    <option value="Screen ID" {% if current_sort == 'Screen ID' %}selected{% endif %}>Screen ID</option>
+                                    <option value="Test Type" {% if current_sort == 'Test Type' %}selected{% endif %}>Test Type</option>
+                                    <option value="Test Suite Type" {% if current_sort == 'Test Suite Type' %}selected{% endif %}>Test Suite Type</option>
+                                    <option value="Requirement Type" {% if current_sort == 'Requirement Type' %}selected{% endif %}>Requirement Type</option>
+                                    <option value="Status" {% if current_sort == 'Status' %}selected{% endif %}>Status</option>
+                                    <option value="Priority" {% if current_sort == 'Priority' %}selected{% endif %}>Priority</option>
+                                </select>
+                                <select class="form-select" id="order" name="order">
+                                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Filters Section -->
+                <div class="row mt-4" id="dynamicFiltersSection">
+                    <div class="col-12">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-filter me-2"></i>Additional Column Filters
+                                </h6>
+                                <small class="text-light">Filter by any column from your test case data</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="dynamicFiltersContainer">
+                                    <!-- Dynamic filters will be added here -->
+                                </div>
+                                <div class="mt-3">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-5">
+                                            <label class="form-label small">Add Filter by Column:</label>
+                                            <div class="input-group">
+                                                <select class="form-select form-select-sm" id="columnSelector" onchange="addFilterForColumn(this.value)">
+                                                    <option value="">Select a column to filter...</option>
+                                                </select>
+                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshColumnList()" title="Refresh available columns">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllDynamicFilters()">
+                                                <i class="fas fa-trash me-1"></i>Clear All
+                                            </button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Select a column to add a filter
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2" id="filterStatus" style="display: none;">
+                                        <div class="col-12">
+                                            <div class="alert alert-info alert-sm py-2" role="alert">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                <span id="filterStatusText"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                                <i class="fas fa-search me-1"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('main.test_cases') }}" class="btn btn-lg" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none; color: white;">
+                                <i class="fas fa-times me-1"></i>Clear All
+                            </a>
+                            <a href="/export-test-suite" class="btn btn-lg" id="exportBtn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; color: white;">
+                                <i class="fas fa-download me-1"></i>Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3" id="activeFilters" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6 class="mb-2"><i class="fas fa-filter me-1"></i>Active Filters:</h6>
+                            <div id="activeFiltersList"></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if request.args.get('message') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ request.args.get('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="card content-card">
+        <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px 15px 0 0; border-bottom: 2px solid #2c3e50;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Test Suite</h5>
+                    <small class="text-muted">Visualize, filter, and execute your test cases</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white;">{{ test_cases|length }} of {{ total_cases }} results</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn" id="viewGrid" title="Grid View" style="background: #f8f9fa; border: 1px solid #dee2e6; color: #6c757d;">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn active" id="viewTable" title="Table View" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: 1px solid #2c3e50; color: white;">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if test_cases %}
+            
+            <div id="tableView" class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th data-column="select" class="column-select">
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th data-column="feature" class="column-feature">Feature</th>
+                            <th data-column="tc_id" class="column-tc_id">TC ID</th>
+                            <th data-column="screen_id" class="column-screen_id">Screen ID</th>
+                            <th data-column="test_objective" class="column-test_objective">Test Objective</th>
+                            <th data-column="test_type" class="column-test_type">Test Type</th>
+                            <th data-column="priority" class="column-priority">Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test_case in test_cases %}
+                        <tr class="test-case-row" data-id="{{ loop.index }}">
+                            <td data-column="select" class="column-select">
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </td>
+                            <td data-column="feature" class="column-feature">
+                                {% set feature_value = test_case.get('Feature', 'N/A') %}
+                                {% if feature_value and feature_value != 'N/A' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">{{ feature_value }}</span>
+                                {% else %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">No Feature</span>
+                                {% endif %}
+                            </td>
+                            <td data-column="tc_id" class="column-tc_id">
+                                {% set test_id = test_case.get('TC ID', test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A')))) %}
+                                {% if test_id == 'N/A' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">Auto-Generated</span>
+                                {% else %}
+                                    <a href="{{ url_for('main.test_case_details', test_id=test_id) }}" 
+                                       class="text-primary text-decoration-none fw-bold test-case-link">
+                                        {{ test_id }}
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td data-column="screen_id" class="column-screen_id">
+                                <span class="badge" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">{{ test_case.get('Screen ID', 'N/A') }}</span>
+                            </td>
+                            <td data-column="test_objective" class="column-test_objective">
+                                <div class="compact-text" style="max-width: 250px;" title="{{ test_case.get('Test Objective', 'N/A') }}">
+                                    {{ test_case.get('Test Objective', 'N/A') }}
+                                </div>
+                            </td>
+                            <td data-column="test_type" class="column-test_type">
+                                <span class="badge" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">{{ test_case.get('Test Type', 'N/A') }}</span>
+                            </td>
+                            <td data-column="priority" class="column-priority">
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">Low</span>
+                                {% else %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">Medium</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="gridView" class="row" style="display: none;">
+                {% for test_case in test_cases %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card test-case-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            {% set test_id = test_case.get('TC ID', test_case.get('Test Case ID', test_case.get('ID', test_case.get('Case ID', 'N/A')))) %}
+                            {% if test_id == 'N/A' %}
+                                <span class="badge bg-warning">Auto-Generated</span>
+                            {% else %}
+                                <strong class="text-primary">{{ test_id }}</strong>
+                            {% endif %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input test-case-checkbox" value="{{ loop.index }}">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title compact-text">{{ test_case.get('Test Objective', 'N/A') }}</h6>
+                            <div class="mb-2">
+                                {% set feature_value = test_case.get('Feature', 'N/A') %}
+                                {% if feature_value and feature_value != 'N/A' %}
+                                    <span class="badge me-1" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">{{ feature_value }}</span>
+                                {% else %}
+                                    <span class="badge me-1" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">No Feature</span>
+                                {% endif %}
+                                <span class="badge me-1" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">{{ test_case.get('Screen ID', 'N/A') }}</span>
+                                <span class="badge me-1" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">{{ test_case.get('Test Type', 'N/A') }}</span>
+                            </div>
+                            <div class="mb-2">
+                                {% set priority = test_case.get('Priority', 'Medium').lower() %}
+                                {% if priority == 'high' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">High</span>
+                                {% elif priority == 'low' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">Low</span>
+                                {% else %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">Medium</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="bulk-actions mt-3" style="display: none;">
+                <div class="alert alert-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-info-circle me-2"></i><span id="selectedCount">0</span> test cases selected</span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm" id="bulkExecute" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                                <i class="fas fa-play"></i> Execute Selected
+                            </button>
+                            <button type="button" class="btn btn-sm" id="clearSelection" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none; color: white;">
+                                <i class="fas fa-times"></i> Clear Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if total_pages > 1 %}
+            <nav aria-label="Test cases pagination" class="mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="pagination-info">
+                        <span class="text-muted">
+                            Showing {{ ((page - 1) * per_page) + 1 }} to {{ min(page * per_page, total_cases) }} of {{ total_cases }} results
+                        </span>
+                    </div>
+                    
+                    <ul class="pagination mb-0">
+                        {% if has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page-1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ p }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.test_cases') }}?page={{ page+1 }}{% for key, value in request.args.items() %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="pagination-controls">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white;">
+                                {{ per_page }} per page
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=10{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">10 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=25{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">25 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=50{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">50 per page</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.test_cases') }}?per_page=100{% for key, value in request.args.items() %}{% if key != 'per_page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">100 per page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No test cases found</h5>
+                <p class="text-muted">Try adjusting your filters or search criteria.</p>
+                <a href="{{ url_for('main.test_cases') }}" class="btn" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                    <i class="fas fa-refresh"></i> Show All
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.dashboard') }}" class="btn" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="testCaseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Case Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="testCaseDetails">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none; color: white;">Close</button>
+                <button type="button" class="btn" id="executeFromModal" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border: none; color: white;">
+                    <i class="fas fa-play"></i> Execute Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="executeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Execute Test Case</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="executeForm">
+                    <div class="mb-3">
+                        <label for="testEnvironment" class="form-label">Test Environment</label>
+                        <select class="form-select" id="testEnvironment" required>
+                            <option value="">Select Environment</option>
+                            <option value="dev">Development</option>
+                            <option value="staging">Staging</option>
+                            <option value="production">Production</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="testData" class="form-label">Test Data</label>
+                        <textarea class="form-control" id="testData" rows="3" placeholder="Enter test data (optional)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="runInBackground">
+                            <label class="form-check-label" for="runInBackground">
+                                Run in background
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none; color: white;">Cancel</button>
+                <button type="button" class="btn" id="confirmExecute" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white;">
+                    <i class="fas fa-play"></i> Execute
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/multiselect.css') }}" rel="stylesheet">
+<style>
+/* Smart multi-select system will handle all multiselect elements */
+/* No need to hide any elements - let the JavaScript decide which UI to use */
+
+/* Ensure checkbox multiselect containers are properly styled */
+.checkbox-multiselect-container {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+    background: white !important;
+    min-height: 100px;
+}
+
+.checkbox-multiselect-container .form-check {
+    margin-bottom: 8px !important;
+}
+
+.checkbox-multiselect-container .form-check-input {
+    margin-right: 8px !important;
+    cursor: pointer !important;
+}
+
+.checkbox-multiselect-container .form-check-label {
+    cursor: pointer !important;
+    font-size: 14px !important;
+}
+
+.checkbox-multiselect-container input[type="text"] {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 6px 12px !important;
+    font-size: 14px !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/test-cases.js') }}?v={{ range(10000, 99999) | random }}"></script>
+<script>
+// Template-specific JavaScript that needs Flask context
+function clearAllFilters() {
+    const containers = document.querySelectorAll('.multiselect-container');
+    containers.forEach(container => {
+        const multiselect = container.modernMultiSelect;
+        if (multiselect) {
+            multiselect.selectedValues.clear();
+            multiselect.updateDisplay();
+            multiselect.updateHiddenSelect();
+            
+            // Clear checkboxes
+            container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+    });
+    
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    window.location.href = "{{ url_for('main.test_cases') }}";
+}
+
+window.clearAllFilters = clearAllFilters;
+
+// Override getUniqueValuesForColumn with template data
+function getUniqueValuesForColumn(column) {
+    const columnValues = {
+        'Feature': {{ (features or []) | tojson }},
+        'Screen ID': {{ (screen_ids or []) | tojson }},
+        'Test Type': {{ (test_types or []) | tojson }},
+        'TestSuite Type': {{ (test_suite_types or []) | tojson }},
+        'Requirement Type': {{ (requirement_types or []) | tojson }},
+        'Summary': ['Login Test', 'Data Validation', 'API Test', 'UI Test', 'Performance Test', 'Security Test'], 
+        'Test Case ID': ['TC-001', 'TC-002', 'TC-003', 'TC-004', 'Auto-Generated'] 
+    };
+    
+    return columnValues[column] || [];
+}
+
+// Override initializeSmartMultiSelect - force chip-based UI for all filters
+function initializeSmartMultiSelect() {
+    console.log('Initializing smart multi-select...');
+    
+    if (typeof $ !== 'undefined') {
+    $('select[multiple]').each(function() {
+        const $select = $(this);
+        const options = $select.find('option').length - 1; 
+        console.log('Select element found with', options, 'options');
+        
+        // Always use tag UI (chip-based) for all filters
+        console.log('Using tag UI (chip-based) for all filters');
+        initializeTagMultiSelect($select);
+    });
+}
+}
+
+// Override export functions with proper Flask URLs
+function exportToCSV() {
+    window.location.href = "{{ url_for('main.export_test_cases_csv', **request.args) }}";
+}
+
+function exportSelected() {
+    const selectedCheckboxes = document.querySelectorAll('.test-case-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select test cases to export');
+        return;
+    }
+
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+    const currentUrl = new URL(window.location.href);
+    const exportUrl = "{{ url_for('main.export_test_cases') }}" + 
+                     "?" + currentUrl.searchParams.toString() + 
+                     "&selected_ids=" + selectedIds.join(',');
+    
+    window.location.href = exportUrl;
+}
+
+function exportTestSuite() {
+    const releaseVersion = document.getElementById('releaseVersion').value.trim();
+    const selectedCases = document.querySelectorAll('.test-case-checkbox:checked');
+    
+    if (!releaseVersion) {
+        alert('Please enter a release version');
+        return;
+    }
+    
+    if (selectedCases.length === 0) {
+        alert('Please select at least one test case');
+        return;
+    }
+    
+    // Collect form data
+    const formData = new FormData();
+    formData.append('releaseVersion', releaseVersion);
+    formData.append('sprint', document.getElementById('sprint').value);
+    formData.append('buildNumber', document.getElementById('buildNumber').value);
+    formData.append('environment', document.getElementById('environment').value);
+    formData.append('testSuiteName', document.getElementById('testSuiteName').value);
+    formData.append('testSuiteDescription', document.getElementById('testSuiteDescription').value);
+    
+    // Collect selected test case IDs
+    const selectedIds = Array.from(selectedCases).map(cb => cb.value);
+    formData.append('selectedTestCases', selectedIds.join(','));
+    
+    // Submit form
+    fetch('{{ url_for("main.export_test_suite_page") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Export failed');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `test_suite_${releaseVersion}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        alert('Failed to export test suite. Please try again.');
+    });
+}
+
+function showExecuteModal(testId) {
+    const testRow = document.querySelector(`tr[data-id="${testId}"]`);
+    if (testRow) {
+        const testCaseId = testRow.querySelector('td:nth-child(2) strong').textContent.trim();
+        const sourceFile = testRow.querySelector('td:nth-child(9) small').textContent.trim() + '.xlsx';
+        window.location.href = `{{ url_for('main.execute_test') }}?test_id=${encodeURIComponent(testCaseId)}&source_file=${encodeURIComponent(sourceFile)}`;
+    } else {
+        const executeModal = new bootstrap.Modal(document.getElementById('executeModal'));
+        executeModal.show();
+        document.getElementById('confirmExecute').setAttribute('data-test-id', testId);
+    }
+}
+</script>
+{% endblock %}

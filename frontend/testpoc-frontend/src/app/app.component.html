@@ -1,0 +1,22 @@
+<!-- Main App Component - Simplified without role-based navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+        <a class="navbar-brand text-dark" routerLink="/dashboard">
+            <i class="fas fa-clipboard-check"></i>
+            Validex
+        </a>
+        
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-dark" routerLink="/dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a class="nav-link text-dark" routerLink="/test-cases">
+                <i class="fas fa-list"></i> Test Cases
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container mt-4">
+    <router-outlet></router-outlet>
+</main>
