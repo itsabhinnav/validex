@@ -128,19 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Validex specific files
-# Configuration files (may contain sensitive data)
-config.json
-*.config
-config/validex_config.json
-config/team_config.json
-config/production/
-
-# Excel files directory (managed by JFrog)
-excel_files/
-data/excel_files/
-*.xlsx
-*.xls
 
 # Reports directory
 reports/
