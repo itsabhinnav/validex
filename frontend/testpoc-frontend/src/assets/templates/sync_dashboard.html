@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">🔄 Sync Dashboard</h1>
+            <h1 class="mb-4">Sync Dashboard</h1>
         </div>
     </div>
 
@@ -262,14 +262,14 @@ function startSync() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                addLogMessage('✅ Background sync started');
+                addLogMessage('[OK] Background sync started');
                 loadSyncStatus();
             } else {
-                addLogMessage('❌ Failed to start sync: ' + (data.error || 'Unknown error'));
+                addLogMessage('[ERROR] Failed to start sync: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
-            addLogMessage('❌ Error starting sync: ' + error.message);
+            addLogMessage('[ERROR] Error starting sync: ' + error.message);
         });
 }
 
@@ -278,32 +278,32 @@ function stopSync() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                addLogMessage('⏹️ Background sync stopped');
+                addLogMessage('[INFO] Background sync stopped');
                 loadSyncStatus();
             } else {
-                addLogMessage('❌ Failed to stop sync: ' + (data.error || 'Unknown error'));
+                addLogMessage('[ERROR] Failed to stop sync: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
-            addLogMessage('❌ Error stopping sync: ' + error.message);
+            addLogMessage('[ERROR] Error stopping sync: ' + error.message);
         });
 }
 
 function forceSync() {
-    addLogMessage('🔄 Forcing immediate sync...');
+    addLogMessage('[INFO] Forcing immediate sync...');
     fetch('/api/sync/force', { method: 'POST' })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                addLogMessage('✅ Force sync completed');
+                addLogMessage('[OK] Force sync completed');
                 loadSyncStatus();
                 loadSyncStatistics();
             } else {
-                addLogMessage('❌ Force sync failed: ' + (data.error || 'Unknown error'));
+                addLogMessage('[ERROR] Force sync failed: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
-            addLogMessage('❌ Error during force sync: ' + error.message);
+            addLogMessage('[ERROR] Error during force sync: ' + error.message);
         });
 }
 
@@ -326,14 +326,14 @@ function saveConfiguration() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            addLogMessage('✅ Configuration saved');
+            addLogMessage('[OK] Configuration saved');
             loadSyncStatus();
         } else {
-            addLogMessage('❌ Failed to save configuration: ' + (data.error || 'Unknown error'));
+            addLogMessage('[ERROR] Failed to save configuration: ' + (data.error || 'Unknown error'));
         }
     })
     .catch(error => {
-        addLogMessage('❌ Error saving configuration: ' + error.message);
+        addLogMessage('[ERROR] Error saving configuration: ' + error.message);
     });
 }
 

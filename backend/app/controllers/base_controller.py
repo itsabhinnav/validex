@@ -33,7 +33,7 @@ class BaseController:
     
     def redirect_to_role_selection(self):
         """Redirect to role selection if no role is set"""
-        return redirect(url_for('main.role_selection'))
+        return redirect('/')
     
     def get_database_status(self) -> Dict[str, Any]:
         """Get database availability status"""
@@ -110,13 +110,7 @@ class BaseController:
                                 else:
                                     df['Test Case ID'] = [f"TC-{i+1:03d}" for i in range(len(df))]
                             
-                            if 'App' not in df.columns:
-                                app_columns = [col for col in df.columns if 'app' in col.lower()]
-                                if app_columns:
-                                    df['App'] = df[app_columns[0]]
-                                else:
-                                    app_name = file.replace('.xlsx', '').replace('.xls', '').split('_')[0].title()
-                                    df['App'] = app_name
+                            # App column removed - no longer needed with standardized schema
                             
                             if 'Test Type' not in df.columns:
                                 type_columns = [col for col in df.columns if 'type' in col.lower()]

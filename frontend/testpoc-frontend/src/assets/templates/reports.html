@@ -153,13 +153,13 @@
                                 </td>
                                 <td>
                                     {% if report.result == 'passed' %}
-                                        <span class="badge bg-success">✅ Passed</span>
+                                        <span class="badge bg-success">[OK] Passed</span>
                                     {% elif report.result == 'failed' %}
-                                        <span class="badge bg-danger">❌ Failed</span>
+                                        <span class="badge bg-danger">[ERROR] Failed</span>
                                     {% elif report.result == 'blocked' %}
                                         <span class="badge bg-warning">🚫 Blocked</span>
                                     {% elif report.result == 'skipped' %}
-                                        <span class="badge bg-info">⏭️ Skipped</span>
+                                        <span class="badge bg-info">[SKIP] Skipped</span>
                                     {% else %}
                                         <span class="badge bg-secondary">{{ report.result }}</span>
                                     {% endif %}

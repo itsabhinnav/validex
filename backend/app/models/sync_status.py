@@ -154,10 +154,10 @@ class SyncStatus:
         """Get sync summary"""
         if self.is_completed():
             if self.is_successful():
-                return f"✅ Sync completed: {self.processed_files}/{self.total_files} files, {self.processed_test_cases} test cases"
+                return f"[OK] Sync completed: {self.processed_files}/{self.total_files} files, {self.processed_test_cases} test cases"
             else:
-                return f"❌ Sync failed: {self.error_message}"
+                return f"[ERROR] Sync failed: {self.error_message}"
         else:
             progress = self.get_progress_percentage()
-            return f"🔄 Sync in progress: {progress:.1f}% ({self.processed_files}/{self.total_files} files)"
+            return f"[INFO] Sync in progress: {progress:.1f}% ({self.processed_files}/{self.total_files} files)"
 

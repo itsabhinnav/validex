@@ -22,10 +22,10 @@ class AdminController(BaseController):
         
         from config.settings import config
         if not config.is_admin_enabled():
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         if role != 'admin':
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         
@@ -44,10 +44,10 @@ class AdminController(BaseController):
         
         from config.settings import config
         if not config.is_admin_enabled():
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         if role != 'admin':
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         jfrog_config = {
             'base_url': '',
@@ -65,9 +65,9 @@ class AdminController(BaseController):
         
         from config.settings import config
         if not config.is_admin_enabled():
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         if role != 'admin':
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         return render_template('validex/sync_dashboard.html', current_role=role)

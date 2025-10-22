@@ -25,7 +25,7 @@ class DashboardController(BaseController):
         """Handle dashboard page logic"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         db_status = self.get_database_status()
         

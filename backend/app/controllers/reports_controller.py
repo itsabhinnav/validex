@@ -21,7 +21,7 @@ class ReportsController(BaseController):
         role = session.get('current_role')
         
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         

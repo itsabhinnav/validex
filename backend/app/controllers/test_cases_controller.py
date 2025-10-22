@@ -28,13 +28,13 @@ class TestCasesController(BaseController):
         """Handle test cases page logic"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         
         
         # Get filter parameters (multi-select again)
-        app_filter = request.args.get('app', '')
+        # App filter removed - no longer needed with standardized schema
         test_type_filter = request.args.getlist('test_type') if request.args.getlist('test_type') else [request.args.get('test_type', '')]
         priority_filter = request.args.getlist('priority') if request.args.getlist('priority') else [request.args.get('priority', '')]
         # New filters
@@ -99,7 +99,7 @@ class TestCasesController(BaseController):
         selected_id_list = selected_ids.split(',') if selected_ids else []
         
         filtered_cases = self._filter_test_cases(
-            test_cases_data, app_filter, test_type_filter, 
+            test_cases_data, test_type_filter, 
             priority_filter, feature_filter, screen_id_filter, 
             testsuite_type_filter, requirement_type_filter, 
             search_query, dynamic_filters, selected_id_list
@@ -157,7 +157,7 @@ class TestCasesController(BaseController):
                              has_next=has_next,
 )
     
-    def _filter_test_cases(self, test_cases_data, app_filter, test_type_filter, 
+    def _filter_test_cases(self, test_cases_data, test_type_filter, 
                           priority_filter, feature_filter, screen_id_filter, 
                           testsuite_type_filter, requirement_type_filter, 
                           search_query, dynamic_filters, selected_id_list):
@@ -167,8 +167,7 @@ class TestCasesController(BaseController):
             for case in file_data:
                 case['source_file'] = file_name
                 
-                if app_filter and case.get('App', '') != app_filter:
-                    continue
+                # App filter removed - no longer needed with standardized schema
                 if test_type_filter and case.get('Test Type', '') not in test_type_filter:
                     continue
                 if priority_filter and case.get('Priority', '').lower() not in [p.lower() for p in priority_filter]:
@@ -281,7 +280,7 @@ class TestCasesController(BaseController):
         """Handle execute test page"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_id = request.args.get('test_id')
         source_file = request.args.get('source_file')
@@ -321,7 +320,7 @@ class TestCasesController(BaseController):
         """Handle test execution submission"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_id = request.form.get('test_id')
         source_file = request.form.get('source_file')
@@ -337,7 +336,7 @@ class TestCasesController(BaseController):
         """Handle test case details page"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         
@@ -411,7 +410,7 @@ class TestCasesController(BaseController):
         """Handle test cases export"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         
@@ -436,7 +435,7 @@ class TestCasesController(BaseController):
         selected_id_list = selected_ids.split(',') if selected_ids else []
         
         filtered_cases = self._filter_test_cases(
-            test_cases_data, app_filter, test_type_filter, 
+            test_cases_data, test_type_filter, 
             priority_filter, feature_filter, screen_id_filter, 
             testsuite_type_filter, requirement_type_filter, 
             search_query, dynamic_filters, selected_id_list
@@ -489,7 +488,7 @@ class TestCasesController(BaseController):
         """Handle CSV export"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         return redirect(url_for('main.test_cases', message='CSV export not implemented yet'))
     
@@ -504,7 +503,7 @@ class TestCasesController(BaseController):
         
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         # Get form data
         release_version = request.form.get('releaseVersion', '')
@@ -616,7 +615,7 @@ class TestCasesController(BaseController):
         """Handle CSV export"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         return redirect(url_for('main.test_cases', message='CSV export not implemented yet'))
 
@@ -624,7 +623,7 @@ class TestCasesController(BaseController):
         """Handle split-view test cases page"""
         role = session.get('current_role')
         if not role:
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
         
         test_cases_data = self.load_test_files()
         
@@ -693,7 +692,7 @@ class TestCasesController(BaseController):
         selected_id_list = []  # For split view, we don't need selected IDs
         
         filtered_cases = self._filter_test_cases(
-            test_cases_data, app_filter, test_type_filter, 
+            test_cases_data, test_type_filter, 
             priority_filter, feature_filter, screen_id_filter, 
             testsuite_type_filter, requirement_type_filter, 
             search_query, dynamic_filters, selected_id_list

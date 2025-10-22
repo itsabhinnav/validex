@@ -24,31 +24,171 @@ class ColumnManager:
             return self.get_default_config()
     
     def get_default_config(self) -> Dict[str, Any]:
-        """Get default column configuration"""
+        """Get default column configuration with standardized 21 columns"""
         return {
             "primary_key": "TC ID",
-            "required_columns": ["TC ID", "Summary"],
+            "required_columns": ["TC ID", "Test Objective", "Expected Behavior"],
             "column_definitions": {
+                "Reference_Document": {
+                    "display_name": "Reference Document",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Reference document for the test case"
+                },
                 "TC ID": {
                     "display_name": "Test Case ID",
                     "type": "string",
                     "required": True,
-                    "unique": True
+                    "unique": True,
+                    "description": "Unique test case identifier (format: XX_FEATURE_XXX1)",
+                    "pattern": "^[A-Z]{2}_[A-Z]+_[A-Z0-9]+$"
                 },
-                "Summary": {
-                    "display_name": "Test Summary",
-                    "type": "text",
+                "Associated Requirements": {
+                    "display_name": "Associated Requirements",
+                    "type": "multiline_text",
+                    "required": False,
+                    "unique": False,
+                    "description": "Associated requirements for the test case"
+                },
+                "Screen ID": {
+                    "display_name": "Screen ID",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Screen identifier"
+                },
+                "Feature": {
+                    "display_name": "Feature",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Feature being tested"
+                },
+                "DR Applicable Screens": {
+                    "display_name": "DR Applicable Screens",
+                    "type": "multiline_text",
+                    "required": False,
+                    "unique": False,
+                    "description": "Design Review applicable screens"
+                },
+                "DR ID": {
+                    "display_name": "DR ID",
+                    "type": "multiline_text",
+                    "required": False,
+                    "unique": False,
+                    "description": "Design Review identifier"
+                },
+                "Test Objective": {
+                    "display_name": "Test Objective",
+                    "type": "string",
                     "required": True,
-                    "unique": False
+                    "unique": False,
+                    "description": "Objective of the test case"
+                },
+                "Preconditions": {
+                    "display_name": "Preconditions",
+                    "type": "multiline_text",
+                    "required": False,
+                    "unique": False,
+                    "description": "Preconditions for the test case"
+                },
+                "Procedure": {
+                    "display_name": "Procedure",
+                    "type": "multiline_text",
+                    "required": False,
+                    "unique": False,
+                    "description": "Test procedure steps"
+                },
+                "Expected Behavior": {
+                    "display_name": "Expected Behavior",
+                    "type": "multiline_text",
+                    "required": True,
+                    "unique": False,
+                    "description": "Expected behavior or result"
+                },
+                "Test Type": {
+                    "display_name": "Test Type",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Type of test",
+                    "allowed_values": ["Positive", "Negative", "Boundary", "Performance", "Security", "Usability"]
+                },
+                "Region": {
+                    "display_name": "Region",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Geographic region"
+                },
+                "Brand": {
+                    "display_name": "Brand",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Brand name"
+                },
+                "Vehicle Variant": {
+                    "display_name": "Vehicle Variant",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Vehicle variant"
+                },
+                "Vehicle Specification": {
+                    "display_name": "Vehicle Specification",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Vehicle specification"
+                },
+                "Env Dependancy": {
+                    "display_name": "Environment Dependency",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Environment dependency"
+                },
+                "Requirement Type": {
+                    "display_name": "Requirement Type",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Type of requirement",
+                    "allowed_values": ["Functional", "HMI", "Safety", "Performance", "Security", "Usability"]
+                },
+                "Regulation": {
+                    "display_name": "Regulation",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Applicable regulation"
+                },
+                "Priority": {
+                    "display_name": "Priority",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Test case priority",
+                    "allowed_values": ["P1", "P2", "P3", "P4", "P5"]
+                },
+                "TestSuite Type": {
+                    "display_name": "Test Suite Type",
+                    "type": "string",
+                    "required": False,
+                    "unique": False,
+                    "description": "Type of test suite",
+                    "allowed_values": ["Sanity", "Smoke", "Regression", "Functional", "Integration", "System"]
                 }
             },
             "column_mapping": {
                 "legacy_mappings": {}
             },
             "display_settings": {
-                "default_columns": ["TC ID", "Summary"],
-                "filterable_columns": ["Feature", "Priority", "Status"],
-                "searchable_columns": ["TC ID", "Summary", "Feature"]
+                "default_columns": ["TC ID", "Test Objective", "Feature", "Priority", "TestSuite Type"],
+                "filterable_columns": ["Feature", "Priority", "TestSuite Type", "Test Type", "Requirement Type", "Region", "Brand"],
+                "searchable_columns": ["TC ID", "Test Objective", "Feature", "Expected Behavior", "Procedure"]
             }
         }
     
@@ -58,7 +198,7 @@ class ColumnManager:
     
     def get_required_columns(self) -> List[str]:
         """Get list of required columns"""
-        return self.config.get("required_columns", ["TC ID", "Summary"])
+        return self.config.get("required_columns", ["TC ID", "Test Objective", "Expected Behavior"])
     
     def get_column_definition(self, column_name: str) -> Optional[Dict[str, Any]]:
         """Get definition for a specific column"""
@@ -118,7 +258,7 @@ class ColumnManager:
     
     def get_default_display_columns(self) -> List[str]:
         """Get default columns to display in tables"""
-        return self.config.get("display_settings", {}).get("default_columns", ["TC ID", "Summary"])
+        return self.config.get("display_settings", {}).get("default_columns", ["TC ID", "Test Objective", "Feature", "Priority", "TestSuite Type"])
     
     def get_filterable_columns(self) -> List[str]:
         """Get columns that can be used for filtering"""
@@ -183,4 +323,3 @@ class ColumnManager:
         }
 
 column_manager = ColumnManager()
-

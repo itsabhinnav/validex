@@ -45,7 +45,7 @@ class BackgroundSyncService:
         self.running = True
         self.sync_thread = threading.Thread(target=self._background_sync_loop, daemon=True)
         self.sync_thread.start()
-        self.logger.info("🔄 Background sync started")
+        self.logger.info("[INFO] Background sync started")
         
         self.sync_status = SyncStatus(
             sync_id=f"bg_sync_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -65,33 +65,33 @@ class BackgroundSyncService:
         if self.sync_status:
             self.sync_status.complete_sync(success=True)
         
-        self.logger.info("⏹️ Background sync stopped")
+        self.logger.info("[INFO] Background sync stopped")
     
     def _background_sync_loop(self):
         """Main background sync loop"""
-        self.logger.info("🔄 Background sync loop started")
+        self.logger.info("[INFO] Background sync loop started")
         
         while self.running:
             try:
                 self._perform_sync_cycle()
                 
             except Exception as e:
-                self.logger.error(f"❌ Background sync error: {e}")
+                self.logger.error(f"[ERROR] Background sync error: {e}")
                 
             time.sleep(self.sync_interval)
         
-        self.logger.info("🔄 Background sync loop ended")
+        self.logger.info("[INFO] Background sync loop ended")
     
     def _perform_sync_cycle(self):
         """Perform a single sync cycle"""
         cycle_start = datetime.now()
-        self.logger.info(f"🔄 Starting sync cycle at {cycle_start}")
+        self.logger.info(f"[INFO] Starting sync cycle at {cycle_start}")
         
         try:
             if self.enable_change_detection:
                 changes_detected = self._detect_file_changes()
                 if not changes_detected:
-                    self.logger.info("📊 No changes detected, skipping sync")
+                    self.logger.info("[INFO] No changes detected, skipping sync")
                     return
             
             sync_result = self.sync_service.incremental_sync()
@@ -108,12 +108,12 @@ class BackgroundSyncService:
             test_cases_updated = sync_result.get('test_cases_updated', 0)
             
             if changes_processed > 0:
-                self.logger.info(f"✅ Sync cycle completed: {changes_processed} changes, {test_cases_updated} test cases updated")
+                self.logger.info(f"[OK] Sync cycle completed: {changes_processed} changes, {test_cases_updated} test cases updated")
             else:
-                self.logger.info("✅ Sync cycle completed: No changes found")
+                self.logger.info("[OK] Sync cycle completed: No changes found")
                 
         except Exception as e:
-            self.logger.error(f"❌ Sync cycle failed: {e}")
+            self.logger.error(f"[ERROR] Sync cycle failed: {e}")
             if self.sync_status:
                 self.sync_status.complete_sync(success=False, error_message=str(e))
     
@@ -139,12 +139,12 @@ class BackgroundSyncService:
             
             new_files = set(current_hashes.keys()) - set(self.file_hash_cache.keys())
             if new_files:
-                self.logger.info(f"📁 New files detected: {len(new_files)} files")
+                self.logger.info(f"[INFO] New files detected: {len(new_files)} files")
                 changes_detected = True
             
             deleted_files = set(self.file_hash_cache.keys()) - set(current_hashes.keys())
             if deleted_files:
-                self.logger.info(f"🗑️ Deleted files detected: {len(deleted_files)} files")
+                self.logger.info(f"[INFO] Deleted files detected: {len(deleted_files)} files")
                 changes_detected = True
                 for file_path in deleted_files:
                     self.file_hash_cache.pop(file_path, None)
@@ -152,12 +152,12 @@ class BackgroundSyncService:
             return changes_detected
             
         except Exception as e:
-            self.logger.error(f"❌ Error detecting file changes: {e}")
+            self.logger.error(f"[ERROR] Error detecting file changes: {e}")
             return True
     
     def force_sync(self) -> Dict[str, Any]:
         """Force immediate sync"""
-        self.logger.info("🔄 Forcing immediate sync")
+        self.logger.info("[INFO] Forcing immediate sync")
         
         try:
             result = self.sync_service.start_sync(
@@ -170,11 +170,11 @@ class BackgroundSyncService:
             
             self._update_file_hash_cache()
             
-            self.logger.info(f"✅ Force sync completed: {result}")
+            self.logger.info(f"[OK] Force sync completed: {result}")
             return result
             
         except Exception as e:
-            self.logger.error(f"❌ Force sync failed: {e}")
+            self.logger.error(f"[ERROR] Force sync failed: {e}")
             return {'success': False, 'error': str(e)}
     
     def _update_file_hash_cache(self):
@@ -186,7 +186,7 @@ class BackgroundSyncService:
                 if file_hash:
                     self.file_hash_cache[file_path] = file_hash
         except Exception as e:
-            self.logger.error(f"❌ Error updating file hash cache: {e}")
+            self.logger.error(f"[ERROR] Error updating file hash cache: {e}")
     
     def get_sync_status(self) -> Dict[str, Any]:
         """Get current sync status"""
@@ -229,7 +229,7 @@ class BackgroundSyncService:
             return stats
             
         except Exception as e:
-            self.logger.error(f"❌ Error getting sync statistics: {e}")
+            self.logger.error(f"[ERROR] Error getting sync statistics: {e}")
             return {'error': str(e)}
 
 background_sync_service = None

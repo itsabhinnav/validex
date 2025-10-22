@@ -85,7 +85,7 @@ def set_role():
         session['current_role'] = role
         return redirect(url_for('main.dashboard'))
     else:
-        return redirect(url_for('main.role_selection'))
+            return redirect('/')
     
 # API Routes for Angular frontend
 @main_bp.route('/api/test-cases', methods=['GET'])

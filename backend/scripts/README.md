@@ -2,7 +2,7 @@
 
 A comprehensive command-line tool that combines all Validex operations into a single, easy-to-use script.
 
-## 🚀 Quick Start
+## [QUICK] Quick Start
 
 ### Windows
 ```batch
@@ -61,7 +61,7 @@ python scripts/validex.py sample
 python scripts/validex.py build --all
 ```
 
-## 📋 Commands
+## [COMMANDS] Commands
 
 ### `config` - Dynamic Configuration Analysis
 Analyzes Excel files in Validex directories and updates configuration files automatically.
@@ -135,37 +135,37 @@ python scripts/validex.py clean
 - Cleans up temporary files
 - Frees up disk space
 
-## 🔧 Features
+## [FEATURES] Features
 
-### ✅ **Unified Interface**
+### [OK] **Unified Interface**
 - Single script for all operations
 - Consistent command-line interface
 - Cross-platform support (Windows, Linux, macOS)
 
-### ✅ **Dynamic Configuration**
+### [OK] **Dynamic Configuration**
 - Automatic Excel file analysis
 - Column structure detection
 - Data type inference
 - Configuration file updates
 
-### ✅ **Multiple Build Types**
+### [OK] **Multiple Build Types**
 - Portable distributions
 - Executable files
 - Desktop applications
 - All-in-one builds
 
-### ✅ **Comprehensive Logging**
+### [OK] **Comprehensive Logging**
 - Timestamped log messages
 - File logging to `logs/validex_manager.log`
 - Console output with status indicators
 - Error handling and reporting
 
-### ✅ **Sample Data Generation**
+### [OK] **Sample Data Generation**
 - Pre-configured sample files
 - Realistic test data
 - Proper column structures
 
-## 📁 File Structure
+## [STRUCTURE] File Structure
 
 ```
 scripts/
@@ -194,7 +194,7 @@ scripts/
     └── README.md
 ```
 
-## 🎯 Use Cases
+## [USAGE] Use Cases
 
 ### **Development Workflow**
 1. **Setup**: `python scripts/validex.py sample`
@@ -212,7 +212,7 @@ scripts/
 2. **Update Config**: `python scripts/validex.py config`
 3. **Clean Builds**: `python scripts/validex.py clean`
 
-## 🔍 Troubleshooting
+## [TROUBLESHOOT] Troubleshooting
 
 ### **Common Issues**
 
@@ -246,7 +246,7 @@ python scripts/validex.py build --portable
 - **Log File**: `logs/validex_manager.log` (detailed logging)
 - **Build Logs**: Individual build scripts may create their own logs
 
-## 🚀 Advanced Usage
+## [ADVANCED] Advanced Usage
 
 ### **Custom Build Options**
 ```bash
@@ -275,7 +275,7 @@ echo "Deployment package ready!"
     python scripts/validex.py build --all
 ```
 
-## 📊 Output Examples
+## [EXAMPLES] Output Examples
 
 ### **Status Command Output**
 ```
@@ -301,14 +301,14 @@ echo "Deployment package ready!"
 [01:21:01]   Optional: 0 columns
 ```
 
-## 🎉 Benefits
+## [BENEFITS] Benefits
 
-- **🔄 Unified Workflow**: One script for all operations
+- **[UNIFIED] Unified Workflow**: One script for all operations
 - **⚡ Fast Execution**: Optimized for speed and efficiency
-- **🛡️ Error Handling**: Comprehensive error checking and reporting
+- **[SECURE] Error Handling**: Comprehensive error checking and reporting
 - **📝 Detailed Logging**: Full audit trail of all operations
-- **🌐 Cross-Platform**: Works on Windows, Linux, and macOS
-- **🔧 Easy Maintenance**: Simple command-line interface
+- **[CROSS-PLATFORM] Cross-Platform**: Works on Windows, Linux, and macOS
+- **[MAINTENANCE] Easy Maintenance**: Simple command-line interface
 - **📦 All-in-One**: Replaces multiple individual scripts
 
 ---

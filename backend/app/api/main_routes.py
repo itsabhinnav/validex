@@ -108,7 +108,7 @@ def set_role():
     if role == 'admin':
         from config.settings import config
         if not config.is_admin_enabled():
-            return redirect(url_for('main.role_selection'))
+            return redirect('/')
     
     session['current_role'] = role
     
@@ -131,7 +131,7 @@ def get_test_cases():
     test_cases_data = controller.load_test_files()
     
     # Get filter parameters from request
-    app_filter = request.args.get('app', '')
+    # App filter removed - no longer needed with standardized schema
     test_types = request.args.getlist('test_type')
     priorities = request.args.getlist('priority')
     features = request.args.getlist('feature')
@@ -144,7 +144,7 @@ def get_test_cases():
     
     # Create filter object
     filters = {
-        'app_filter': app_filter,
+        'app_filter': '',
         'test_type_filter': test_types,
         'priority_filter': priorities,
         'feature_filter': features,
@@ -321,62 +321,22 @@ def get_filter_options():
     controller = TestCasesController()
     test_cases_data = controller.load_test_files()
     
-    selected_apps = request.args.getlist('apps')
-    if not selected_apps or selected_apps == ['']:
-        # Return all options if no app is selected
-        filter_options_result = controller._get_filter_options(test_cases_data)
-        if len(filter_options_result) == 3:
-            apps, test_types, priorities = filter_options_result
-        else:
-            apps, test_types = filter_options_result
-            priorities = []
-        enhanced_data = controller.get_enhanced_filter_data(test_cases_data)
-        
-        # Get proper filter options from service
-        from app.services.test_cases_service import TestCasesService
-        service = TestCasesService()
-        all_filter_options = service.get_filter_options(test_cases_data)
-        
-        return jsonify({
-            'apps': sorted(apps),
-            'test_types': sorted(test_types),
-            'priorities': sorted(priorities),
-            'features': sorted(all_filter_options.get('Feature', [])),
-            'screen_ids': sorted(all_filter_options.get('Screen ID', [])),
-            'test_suite_types': sorted(all_filter_options.get('TestSuite Type', [])),
-            'requirement_types': sorted(all_filter_options.get('Requirement Type', [])),
-            'regions': sorted(all_filter_options.get('Region', [])),
-            'brands': sorted(all_filter_options.get('Brand', [])),
-            'available_columns': enhanced_data.get('available_columns', []),
-            'column_mappings': enhanced_data.get('column_mappings', {}),
-            'column_statistics': enhanced_data.get('column_statistics', {})
-        })
-    
-    # Filter data based on selected apps
-    filtered_data = {}
-    for file_name, file_data in test_cases_data.items():
-        for case in file_data:
-            if case.get('App', '') in selected_apps:
-                if file_name not in filtered_data:
-                    filtered_data[file_name] = []
-                filtered_data[file_name].append(case)
-    
-    # Get options from filtered data
-    filter_options_result = controller._get_filter_options(filtered_data)
+    # App filter removed - return all options without app filtering
+    filter_options_result = controller._get_filter_options(test_cases_data)
     if len(filter_options_result) == 3:
         apps, test_types, priorities = filter_options_result
     else:
         apps, test_types = filter_options_result
         priorities = []
-    enhanced_data = controller.get_enhanced_filter_data(filtered_data)
+    enhanced_data = controller.get_enhanced_filter_data(test_cases_data)
     
     # Get proper filter options from service
     from app.services.test_cases_service import TestCasesService
     service = TestCasesService()
-    all_filter_options = service.get_filter_options(filtered_data)
+    all_filter_options = service.get_filter_options(test_cases_data)
     
     return jsonify({
-        'apps': sorted(apps),
+        'apps': [],  # Empty apps array since app filter is removed
         'test_types': sorted(test_types),
         'priorities': sorted(priorities),
         'features': sorted(all_filter_options.get('Feature', [])),

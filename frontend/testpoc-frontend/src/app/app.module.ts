@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TestCasesComponent } from './components/test-cases/test-cases.component';
+import { TestCaseDetailsComponent } from './components/test-case-details/test-case-details.component';
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -24,6 +25,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LandingComponent } from './components/landing/landing.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ViewToggleComponent } from './components/view-toggle/view-toggle.component';
@@ -32,6 +34,7 @@ import { ViewToggleComponent } from './components/view-toggle/view-toggle.compon
   declarations: [
     AppComponent,
     TestCasesComponent,
+    TestCaseDetailsComponent,
     LandingComponent,
     DashboardComponent,
     ViewToggleComponent
@@ -58,7 +61,8 @@ import { ViewToggleComponent } from './components/view-toggle/view-toggle.compon
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatTabsModule
+    MatTabsModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]

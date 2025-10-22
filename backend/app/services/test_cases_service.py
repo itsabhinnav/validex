@@ -49,8 +49,7 @@ class TestCasesService:
         """Check if case should be included based on dynamic filters"""
         
         # Handle legacy filters for backward compatibility
-        if filters.get('app_filter') and case.get('App', '') not in filters['app_filter']:
-            return False
+        # App filter removed - no longer needed with standardized schema
         
         if filters.get('test_type_filter') and case.get('Test Type', '') not in filters['test_type_filter']:
             return False

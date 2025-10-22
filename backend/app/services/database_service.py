@@ -246,14 +246,14 @@ class DatabaseService:
             columns = [column[1] for column in cursor.fetchall()]
             
             if 'file_id' not in columns:
-                print("🔄 Adding file_id column to test_cases table...")
+                print("[INFO] Adding file_id column to test_cases table...")
                 cursor.execute("ALTER TABLE test_cases ADD COLUMN file_id TEXT")
-                print("✅ file_id column added")
+                print("[OK] file_id column added")
             
             if 'local_version' not in columns:
-                print("🔄 Adding local_version column to test_cases table...")
+                print("[INFO] Adding local_version column to test_cases table...")
                 cursor.execute("ALTER TABLE test_cases ADD COLUMN local_version TEXT")
-                print("✅ local_version column added")
+                print("[OK] local_version column added")
             
             missing_columns = [
                 ('screen_id', 'TEXT'),
@@ -265,15 +265,15 @@ class DatabaseService:
             
             for column_name, column_type in missing_columns:
                 if column_name not in columns:
-                    print(f"🔄 Adding {column_name} column to test_cases table...")
+                    print(f"[INFO] Adding {column_name} column to test_cases table...")
                     cursor.execute(f"ALTER TABLE test_cases ADD COLUMN {column_name} {column_type}")
-                    print(f"✅ {column_name} column added")
+                    print(f"[OK] {column_name} column added")
             
             connection.commit()
-            print("✅ Database schema migration completed")
+            print("[OK] Database schema migration completed")
             
         except Exception as e:
-            print(f"⚠️ Schema migration warning: {e}")
+            print(f"[WARN] Schema migration warning: {e}")
             pass
     
     def create_indexes(self):
@@ -295,7 +295,7 @@ class DatabaseService:
             if 'file_id' in columns:
                 cursor.execute('CREATE INDEX IF NOT EXISTS idx_file_id ON test_cases(file_id)')
             else:
-                print("ℹ️ file_id column not found, skipping index creation")
+                print("[INFO] file_id column not found, skipping index creation")
         except Exception as e:
             print(f"Warning: Could not create file_id index: {e}")
         

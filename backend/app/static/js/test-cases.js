@@ -1,7 +1,7 @@
 // Modern Multi-Select Implementation with Search and Chips
 class ModernMultiSelect {
     constructor(container) {
-        console.log(`🎯 ModernMultiSelect constructor called for:`, container.dataset.field);
+        console.log(`[INFO] ModernMultiSelect constructor called for:`, container.dataset.field);
         console.log(`📍 Container element:`, container);
         
         this.container = container;
@@ -13,9 +13,9 @@ class ModernMultiSelect {
         this.selectedValues = new Set();
         this.fieldName = container.dataset.field;
         
-        console.log(`📋 Found ${this.options.length} options for ${this.fieldName}`);
-        console.log(`🔍 Input element:`, this.input);
-        console.log(`🔍 Dropdown element:`, this.dropdown);
+        console.log(`[INFO] Found ${this.options.length} options for ${this.fieldName}`);
+        console.log(`[INFO] Input element:`, this.input);
+        console.log(`[INFO] Dropdown element:`, this.dropdown);
         
         this.init();
     }
@@ -465,11 +465,11 @@ function clearExistingMultiselects() {
 // Initialize all multi-select containers
 document.addEventListener('DOMContentLoaded', function() {
     if (window.multiselectInitialized) {
-        console.log('⚠️ Multiselect already initialized, skipping...');
+        console.log('[WARN] Multiselect already initialized, skipping...');
         return;
     }
     
-    console.log('🚀 DOMContentLoaded: Starting initialization...');
+    console.log('[INFO] DOMContentLoaded: Starting initialization...');
     
     // Clear any existing instances first
     clearExistingMultiselects();
@@ -500,15 +500,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Double-check for any duplicate containers
     setTimeout(() => {
         const duplicateContainers = document.querySelectorAll('.multiselect-container[data-initialized="true"]');
-        console.log(`🔍 Final check: ${duplicateContainers.length} initialized containers found`);
+        console.log(`[INFO] Final check: ${duplicateContainers.length} initialized containers found`);
         
         // Check for duplicate elements
         const allMultiselectInputs = document.querySelectorAll('.multiselect-input');
         const allMultiselectDropdowns = document.querySelectorAll('.multiselect-dropdown');
-        console.log(`🔍 Found ${allMultiselectInputs.length} multiselect inputs and ${allMultiselectDropdowns.length} dropdowns`);
+        console.log(`[INFO] Found ${allMultiselectInputs.length} multiselect inputs and ${allMultiselectDropdowns.length} dropdowns`);
         
         if (allMultiselectInputs.length > 0) {
-            console.error('❌ DUPLICATE ELEMENTS DETECTED!');
+            console.error('[ERROR] DUPLICATE ELEMENTS DETECTED!');
             console.log('Expected: 0 Found:', allMultiselectInputs.length);
         }
     }, 1000);
