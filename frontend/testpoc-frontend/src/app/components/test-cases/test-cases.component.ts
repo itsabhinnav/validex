@@ -34,7 +34,7 @@ export class TestCasesComponent implements OnInit {
     brands: [],
     statuses: []
   };
-
+  
   filterState: FilterState = {
     app_filter: [],  // Empty since app filter is removed
     test_type_filter: [],
@@ -50,7 +50,7 @@ export class TestCasesComponent implements OnInit {
     sort_by: 'tc_id',
     sort_order: 'asc'
   };
-
+  
   paginationState: PaginationState = {
     current_page: 1,
     per_page: 20,
@@ -91,8 +91,14 @@ export class TestCasesComponent implements OnInit {
   selectedTestCaseIndex: number = -1;
 
   loading = false;
+  totalTestCases: number = 0;
   error: string | null = null;
   private searchTimeout: any;
+  
+  // Filter dropdown state
+  activeDropdown: string | null = null;
+  filterSearchQuery: string = '';
+  columnSearchQuery: string = '';
 
   constructor(
     private testCasesService: TestCasesService,
@@ -456,6 +462,7 @@ export class TestCasesComponent implements OnInit {
         this.testCases = response.test_cases;
         this.filterOptions = response.filter_options;
         this.paginationState = response.pagination;
+        this.totalTestCases = response.pagination.total_cases;
         this.loading = false;
         
         // Update dynamic filters with new data
@@ -482,7 +489,7 @@ export class TestCasesComponent implements OnInit {
             }
           } else {
             // No selected test case, select first one
-            this.selectTestCase(0);
+          this.selectTestCase(0);
             console.log('No selected test case, selected first test case');
           }
         }
@@ -740,6 +747,76 @@ export class TestCasesComponent implements OnInit {
 
   hasActiveFilters(): boolean {
     return this.activeFilters.some(f => f.selectedValues.length > 0);
+  }
+
+  // Filter dropdown methods
+  isFilterActive(filter: string): boolean {
+    return this.activeFilters.some(f => f.columnName === filter && f.selectedValues.length > 0);
+  }
+
+  closeFilterDropdown(): void {
+    this.activeDropdown = null;
+  }
+
+  onFilterSearchChange(): void {
+    // Filter search logic can be implemented here
+  }
+
+  getFilterOptions(filter: string): string[] {
+    const filterObj = this.filterOptions as any;
+    return filterObj[filter] || [];
+  }
+
+  isOptionSelected(filter: string, option: string): boolean {
+    const activeFilter = this.activeFilters.find(f => f.columnName === filter);
+    return activeFilter ? activeFilter.selectedValues.includes(option) : false;
+  }
+
+  toggleFilterOption(filter: string, option: string): void {
+    const activeFilter = this.activeFilters.find(f => f.columnName === filter);
+    if (activeFilter) {
+      const index = activeFilter.selectedValues.indexOf(option);
+      if (index > -1) {
+        activeFilter.selectedValues.splice(index, 1);
+      } else {
+        activeFilter.selectedValues.push(option);
+      }
+    }
+    this.applyDynamicFilters();
+  }
+
+  closeMoreFiltersDropdown(): void {
+    this.moreFiltersDropdownOpen = false;
+  }
+
+  onColumnSearchChange(): void {
+    // Column search logic can be implemented here
+  }
+
+  getAvailableColumns(): string[] {
+    return this.availableColumns;
+  }
+
+  isColumnActive(column: string): boolean {
+    return this.activeFilters.some(f => f.columnName === column);
+  }
+
+  toggleColumnFilter(column: string): void {
+    const existingFilter = this.activeFilters.find(f => f.columnName === column);
+    if (existingFilter) {
+      // Remove filter
+      const index = this.activeFilters.indexOf(existingFilter);
+      this.activeFilters.splice(index, 1);
+    } else {
+      // Add filter
+      this.activeFilters.push({
+        columnName: column,
+        displayName: this.getDisplayName(column),
+        selectedValues: [],
+        values: []
+      });
+    }
+    this.applyDynamicFilters();
   }
 
   getPriorityBadgeClass(priority: string): string {

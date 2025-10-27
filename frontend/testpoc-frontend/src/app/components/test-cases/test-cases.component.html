@@ -1,422 +1,307 @@
-<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h2 class="mb-0">Test Cases</h2>
-    </div>
-  </div>
-
+<div class="test-cases-container">
   <!-- Filter Bar -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <!-- Search and Active Filters Row -->
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <div class="input-group">
-                <span class="input-group-text">
-                  <i class="fas fa-search"></i>
-                </span>
-                <input type="text" 
-                       class="form-control" 
-                       placeholder="Search test cases..."
-                       [(ngModel)]="searchQuery"
-                       (ngModelChange)="onSearchChange($event)">
+  <div class="filter-section">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="input-group" style="width: 300px;">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="Search test cases..."
+                 [(ngModel)]="searchQuery"
+                 (ngModelChange)="onSearchChange($event)">
+        </div>
+        
+        <!-- Active Filters -->
+        <div class="d-flex flex-wrap gap-2">
+          <!-- Default Filters -->
+          <div *ngFor="let filter of activeFilters" class="position-relative">
+            <button type="button" 
+                    class="btn btn-sm"
+                    [class]="isDefaultFilter(filter.columnName) ? 'btn-primary' : 'btn-success'"
+                    (click)="toggleFilterDropdown(filter.columnName, $event)">
+              {{ filter.displayName }}
+              <span *ngIf="filter.selectedValues.length > 0" class="badge bg-light text-dark ms-1">
+                {{ filter.selectedValues.length }}
+              </span>
+              <i class="fas fa-chevron-down ms-1"></i>
+            </button>
+
+            <!-- Filter Dropdown -->
+            <div class="filter-dropdown" 
+                 *ngIf="filter.dropdownOpen"
+                 (click)="$event.stopPropagation()">
+              <div class="filter-condition">
+                <div class="condition-selector">
+                  <label class="condition-label">Condition:</label>
+                  <select class="condition-dropdown">
+                    <option>Equals</option>
+                    <option>Contains</option>
+                  </select>
+                </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="d-flex justify-content-end gap-2">
-                <!-- Clear Filters Button -->
+              
+              <div class="filter-search">
+                <div class="search-input-group">
+                  <span class="search-icon">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input type="text" 
+                         class="search-input"
+                         placeholder="Search..."
+                         [(ngModel)]="filter.searchQuery"
+                         (ngModelChange)="filterFilterValues(filter)">
+                </div>
+              </div>
+              
+              <div class="filter-options-list">
+                <div class="filter-option" 
+                     *ngFor="let value of getFilteredValues(filter)">
+                  <label class="option-checkbox">
+                    <input type="checkbox" 
+                           [checked]="isDynamicFilterValueSelected(filter.columnName, value)"
+                           (change)="toggleDynamicFilterValue(filter.columnName, value, $any($event.target).checked)">
+                    <span class="option-content">
+                      <span [class]="getStatusTagClass(value)">{{ value }}</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="filter-footer">
                 <button type="button" 
-                        class="btn btn-outline-danger btn-sm"
-                        (click)="clearFilters()">
-                  <i class="fas fa-times me-1"></i>Clear Filters
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="clearDynamicFilter(filter.columnName)">
+                  Clear
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Active Filters -->
-          <div class="row mb-3" *ngIf="hasActiveFilters()">
-            <div class="col-12">
-              <div class="active-filters">
-                <div class="filter-chip" *ngFor="let filter of activeFilters">
-                  <div *ngIf="filter.selectedValues.length > 0" class="d-flex align-items-center gap-2 mb-2">
-                    <span class="fw-bold">{{ filter.displayName }}:</span>
-                    <span *ngFor="let value of filter.selectedValues" 
-                          class="badge me-1"
-                          [class]="isDefaultFilter(filter.columnName) ? 'bg-primary' : 'bg-success'">
-                      {{ value }}
-                    </span>
-                    <button type="button" 
-                            class="btn btn-sm btn-outline-secondary"
-                            *ngIf="!isDefaultFilter(filter.columnName)"
-                            (click)="removeFilterFromActive(filter.columnName)">
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </div>
+          <!-- More Filters Dropdown -->
+          <div class="position-relative">
+            <button type="button" 
+                    class="btn btn-outline-secondary btn-sm"
+                    (click)="toggleMoreFiltersDropdown($event)">
+              More filters
+              <i class="fas fa-chevron-down ms-1"></i>
+            </button>
+
+            <!-- More Filters Dropdown -->
+            <div class="more-filters-dropdown" 
+                 *ngIf="moreFiltersDropdownOpen"
+                 (click)="$event.stopPropagation()">
+              <div class="filter-search">
+                <div class="search-input-group">
+                  <span class="search-icon">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input type="text" 
+                         class="search-input"
+                         placeholder="Search filters..."
+                         [(ngModel)]="moreFiltersSearchQuery">
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Filter Controls Row -->
-          <div class="row">
-            <div class="col-md-8">
-              <div class="d-flex flex-wrap gap-2">
-                <!-- Default Filters -->
-                <div *ngFor="let filter of activeFilters" class="position-relative">
+              
+              <div class="filter-options-list">
+                <div class="filter-option" 
+                     *ngFor="let filter of getFilteredAvailableFilters()">
                   <button type="button" 
-                          class="btn btn-sm"
-                          [class]="isDefaultFilter(filter.columnName) ? 'btn-primary' : 'btn-success'"
-                          (click)="toggleFilterDropdown(filter.columnName, $event)">
+                          class="btn btn-sm btn-outline-primary w-100 text-start"
+                          (click)="addFilterToActive(filter.columnName)">
                     {{ filter.displayName }}
-                    <span *ngIf="filter.selectedValues.length > 0" class="badge bg-light text-dark ms-1">
-                      {{ filter.selectedValues.length }}
-                    </span>
-                    <i class="fas fa-chevron-down ms-1"></i>
                   </button>
-
-                  <!-- Filter Dropdown -->
-                  <div class="filter-dropdown" 
-                       *ngIf="filter.dropdownOpen"
-                       (click)="$event.stopPropagation()">
-                    <div class="filter-condition">
-                      <div class="condition-selector">
-                        <label class="condition-label">Condition:</label>
-                        <select class="condition-dropdown">
-                          <option>Equals</option>
-                          <option>Contains</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div class="filter-search">
-                      <div class="search-input-group">
-                        <span class="search-icon">
-                          <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" 
-                               class="search-input"
-                               placeholder="Search..."
-                               [(ngModel)]="filter.searchQuery"
-                               (ngModelChange)="filterFilterValues(filter)">
-                      </div>
-                    </div>
-                    
-                    <div class="filter-options-list">
-                      <div class="filter-option" 
-                           *ngFor="let value of getFilteredValues(filter)">
-                        <label class="option-checkbox">
-                          <input type="checkbox" 
-                                 [checked]="isDynamicFilterValueSelected(filter.columnName, value)"
-                                 (change)="toggleDynamicFilterValue(filter.columnName, value, $any($event.target).checked)">
-                          <span class="option-content">
-                            <span [class]="getStatusTagClass(value)">{{ value }}</span>
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                    
-                    <div class="filter-footer">
-                      <button type="button" 
-                              class="btn btn-sm btn-outline-secondary"
-                              (click)="clearDynamicFilter(filter.columnName)">
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- More Filters Dropdown -->
-                <div class="position-relative">
-                  <button type="button" 
-                          class="btn btn-outline-secondary btn-sm"
-                          (click)="toggleMoreFiltersDropdown($event)">
-                    More filters
-                    <i class="fas fa-chevron-down ms-1"></i>
-                  </button>
-
-                  <!-- More Filters Dropdown -->
-                  <div class="more-filters-dropdown" 
-                       *ngIf="moreFiltersDropdownOpen"
-                       (click)="$event.stopPropagation()">
-                    <div class="filter-search">
-                      <div class="search-input-group">
-                        <span class="search-icon">
-                          <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" 
-                               class="search-input"
-                               placeholder="Search filters..."
-                               [(ngModel)]="moreFiltersSearchQuery">
-                      </div>
-                    </div>
-                    
-                    <div class="filter-options-list">
-                      <div class="filter-option" 
-                           *ngFor="let filter of getFilteredAvailableFilters()">
-                        <button type="button" 
-                                class="btn btn-sm btn-outline-primary w-100 text-start"
-                                (click)="addFilterToActive(filter.columnName)">
-                          {{ filter.displayName }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="clearFilters()">
+          Clear filters
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Results Summary -->
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <p class="text-muted mb-0">
-        <strong>{{ paginationState.total_cases }}</strong> test cases found
-        <span *ngIf="paginationState.total_pages > 1">
-          (Page {{ paginationState.current_page }} of {{ paginationState.total_pages }})
-        </span>
-      </p>
+  <div class="results-summary">
+    <div class="results-info">
+      {{ paginationState.total_cases }} test cases found
+      <span *ngIf="paginationState.total_pages > 1" class="text-muted">
+        (Page {{ paginationState.current_page }} of {{ paginationState.total_pages }})
+      </span>
     </div>
-    <div class="col-md-6">
-      <div class="d-flex align-items-center gap-2">
+    <div class="results-controls">
+      <div class="per-page-select">
         <label class="form-label mb-0">Per page:</label>
-        <select class="form-select form-select-sm" style="width: auto;" 
+        <select class="form-select" style="width: auto;" 
                 [(ngModel)]="paginationState.per_page" (ngModelChange)="onPerPageChange($event)">
           <option [value]="10">10</option>
           <option [value]="20">20</option>
           <option [value]="50">50</option>
           <option [value]="100">100</option>
         </select>
-        
-        <!-- View Toggle Buttons -->
-        <div class="btn-group" role="group" aria-label="View toggle">
-          <button type="button" 
-                  class="btn btn-outline-secondary btn-sm"
-                  [class.active]="currentView === 'list'"
-                  (click)="onViewChange('list')"
-                  title="List View">
-            <i class="fas fa-th-list"></i>
-          </button>
-          <button type="button" 
-                  class="btn btn-outline-secondary btn-sm"
-                  [class.active]="currentView === 'detail'"
-                  (click)="onViewChange('detail')"
-                  title="Detail View">
-            <i class="fas fa-columns"></i>
-          </button>
-        </div>
+      </div>
+      <div class="view-toggle">
+        <button type="button" 
+                class="btn"
+                [class.active]="currentView === 'list'"
+                (click)="onViewChange('list')"
+                title="List View">
+          <i class="fas fa-th-list"></i>
+        </button>
+        <button type="button" 
+                class="btn"
+                [class.active]="currentView === 'detail'"
+                (click)="onViewChange('detail')"
+                title="Detail View">
+          <i class="fas fa-columns"></i>
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Loading Indicator -->
-  <div *ngIf="loading" class="position-fixed top-50 start-50 translate-middle">
-    <div class="spinner-border text-primary" role="status">
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 
   <!-- Error Message -->
   <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
-    <i class="fas fa-exclamation-triangle me-2"></i>
     {{ error }}
   </div>
 
   <!-- Content Area -->
-  <div *ngIf="!loading && !error" class="row">
-    <!-- List View -->
-    <div *ngIf="currentView === 'list'" class="col-12">
-      <div class="card">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>
-                    <a href="#" (click)="sortColumn('tc_id'); $event.preventDefault()">
-                      Test Case ID
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('tc_id')"></i>
-                    </a>
-                  </th>
-                  <th>
-                    <a href="#" (click)="sortColumn('test_objective'); $event.preventDefault()">
-                      Test Objective
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('test_objective')"></i>
-                    </a>
-                  </th>
-                  <th>
-                    <a href="#" (click)="sortColumn('test_type'); $event.preventDefault()">
-                      Test Type
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('test_type')"></i>
-                    </a>
-                  </th>
-                  <th>
-                    <a href="#" (click)="sortColumn('priority'); $event.preventDefault()">
-                      Priority
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('priority')"></i>
-                    </a>
-                  </th>
-                  <th>
-                    <a href="#" (click)="sortColumn('feature'); $event.preventDefault()">
-                      Feature
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('feature')"></i>
-                    </a>
-                  </th>
-                  <th>
-                    <a href="#" (click)="sortColumn('screen_id'); $event.preventDefault()">
-                      Screen ID
-                      <i class="fas ms-1" 
-                         [class]="getSortIconClass('screen_id')"></i>
-                    </a>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let testCase of testCases; trackBy: trackByTestCaseId">
-                  <td>
-                    <a href="#" 
-                       class="text-decoration-none fw-bold text-primary"
-                       (click)="navigateToTestCaseDetails(testCase, $event)"
-                       title="View test case details">
-                      {{ testCase.tc_id }}
-                    </a>
-                  </td>
-                  <td>{{ testCase.test_objective || testCase.summary || 'N/A' }}</td>
-                  <td>{{ testCase.test_type || 'N/A' }}</td>
-                  <td>
-                    <span class="badge" 
-                          [class]="getPriorityBadgeClass(testCase.priority || '')">
-                      {{ testCase.priority || 'N/A' }}
-                    </span>
-                  </td>
-                  <td>{{ testCase.feature || 'N/A' }}</td>
-                  <td>{{ testCase.screen_id || 'N/A' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+  <div *ngIf="!loading && !error" class="main-content">
+    <!-- List View (Tabular Mode) - Full Width, No Details Panel -->
+    <div *ngIf="currentView === 'list'" class="content-full">
+      <div class="list-view">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="onSortChange('tc_id', 'asc')">
+                Test Case ID
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'tc_id'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('test_objective', 'asc')">
+                Objective
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'test_objective'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('test_type', 'asc')">
+                Type
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'test_type'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('priority', 'asc')">
+                Priority
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'priority'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('feature', 'asc')">
+                Feature
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'feature'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('screen_id', 'asc')">
+                Screen ID
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'screen_id'"></i>
+              </th>
+              <th class="sortable" (click)="onSortChange('status', 'asc')">
+                Status
+                <i class="fas fa-sort sort-icon" 
+                   [class.active]="filterState.sort_by === 'status'"></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let testCase of testCases; let i = index; trackBy: trackByTestCaseId"
+                (click)="navigateToTestCaseDetails(testCase)">
+              <td>
+                <a href="#" 
+                   class="test-case-id"
+                   (click)="navigateToTestCaseDetails(testCase); $event.preventDefault()">
+                  {{ testCase.tc_id }}
+                </a>
+              </td>
+              <td>{{ testCase.test_objective || testCase.summary || 'N/A' }}</td>
+              <td>{{ testCase.test_type || 'N/A' }}</td>
+              <td>
+                <span class="priority-badge" 
+                      [class]="getPriorityBadgeClass(testCase.priority || '')">
+                  {{ testCase.priority || 'N/A' }}
+                </span>
+              </td>
+              <td>{{ testCase.feature || 'N/A' }}</td>
+              <td>{{ testCase.screen_id || 'N/A' }}</td>
+              <td>
+                <span class="status-badge" 
+                      [class]="getStatusTagClass(testCase.status || '')">
+                  {{ testCase.status || 'N/A' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Detail View -->
-    <div *ngIf="currentView === 'detail'" class="col-12">
-      <div class="row">
-        <!-- Test Cases List -->
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="mb-0">Test Cases</h5>
+    <!-- Grid View (Card Mode) - Full Width, No Details Panel -->
+    <div *ngIf="currentView === 'detail'" class="content-full">
+      <div class="grid-view">
+        <div class="test-case-card" 
+             *ngFor="let testCase of testCases; let i = index; trackBy: trackByTestCaseId"
+             (click)="navigateToTestCaseDetails(testCase)">
+          <div class="test-case-card-header">
+            <div class="test-case-id-section">
+              <a href="#" 
+                 class="test-case-id"
+                 (click)="navigateToTestCaseDetails(testCase); $event.preventDefault()">
+                {{ testCase.tc_id }}
+              </a>
+              <span class="priority-badge" 
+                    [class]="getPriorityBadgeClass(testCase.priority || '')">
+                {{ testCase.priority || 'N/A' }}
+              </span>
             </div>
-            <div class="card-body p-0">
-              <div class="list-group list-group-flush">
-                <a href="#" 
-                   class="list-group-item list-group-item-action"
-                   *ngFor="let testCase of testCases; let i = index"
-                   [class.active]="selectedTestCaseIndex === i"
-                   (click)="selectTestCase(i)">
-                  <div class="d-flex w-100 justify-content-between">
-                    <div>
-                      <h6 class="mb-1 test-case-id">
-                        <a href="#" 
-                           class="text-decoration-none fw-bold text-primary"
-                           (click)="navigateToTestCaseDetails(testCase, $event)"
-                           title="View test case details">
-                          {{ testCase.tc_id }}
-                        </a>
-                      </h6>
-                      <p class="mb-0 test-case-objective">{{ testCase.test_objective || testCase.summary || 'No objective available' }}</p>
-                    </div>
-                  </div>
-                </a>
-              </div>
+            <div class="test-case-status">
+              <span class="status-badge" 
+                    [class]="getStatusTagClass(testCase.status || '')">
+                {{ testCase.status || 'N/A' }}
+              </span>
             </div>
           </div>
-        </div>
-
-        <!-- Test Case Details -->
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="mb-0">Test Case Details</h5>
-            </div>
-            <div class="card-body">
-              <div *ngIf="selectedTestCase; else noTestCaseSelected">
-                <div class="mb-3">
-                  <div>
-                    <h5 class="mb-1 text-primary">
-                      <i class="fas fa-file-alt me-2"></i>
-                      {{ selectedTestCase.tc_id }}
-                    </h5>
-                    <p class="text-muted mb-0">{{ selectedTestCase.test_objective || selectedTestCase.summary || 'No objective available' }}</p>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-sm-4"><strong>Test Type:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.test_type || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>Priority:</strong></div>
-                  <div class="col-sm-8">
-                    <span class="badge" 
-                          [class]="getPriorityBadgeClass(selectedTestCase.priority || '')">
-                      {{ selectedTestCase.priority || 'N/A' }}
-                    </span>
-                  </div>
-                  
-                  <div class="col-sm-4"><strong>Feature:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.feature || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>Screen ID:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.screen_id || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>TestSuite Type:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.test_suite_type || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>Requirement Type:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.requirement_type || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>Region:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.region || 'N/A' }}</div>
-                  
-                  <div class="col-sm-4"><strong>Brand:</strong></div>
-                  <div class="col-sm-8">{{ selectedTestCase.brand || 'N/A' }}</div>
-                </div>
-
-                <div class="mt-3" *ngIf="selectedTestCase.preconditions">
-                  <h6 class="text-primary">Preconditions:</h6>
-                  <p class="mb-0">{{ selectedTestCase.preconditions }}</p>
-                </div>
-
-                <div class="mt-3" *ngIf="selectedTestCase.procedure">
-                  <h6 class="text-primary">Procedure:</h6>
-                  <p class="mb-0" style="white-space: pre-line;">{{ selectedTestCase.procedure }}</p>
-                </div>
-
-                <div class="mt-3" *ngIf="selectedTestCase.expected_behavior">
-                  <h6 class="text-primary">Expected Behavior:</h6>
-                  <p class="mb-0" style="white-space: pre-line;">{{ selectedTestCase.expected_behavior }}</p>
-                </div>
+          <div class="test-case-card-body">
+            <h6 class="test-case-title">{{ testCase.test_objective || testCase.summary || 'No objective available' }}</h6>
+            <div class="test-case-meta">
+              <div class="meta-item">
+                <span class="meta-label">Type:</span>
+                <span class="meta-value">{{ testCase.test_type || 'N/A' }}</span>
               </div>
-              
-              <ng-template #noTestCaseSelected>
-                <div class="text-center text-muted py-4">
-                  <i class="fas fa-info-circle fa-2x mb-3"></i>
-                  <p>Select a test case to view details</p>
-                </div>
-              </ng-template>
+              <div class="meta-item">
+                <span class="meta-label">Feature:</span>
+                <span class="meta-value">{{ testCase.feature || 'N/A' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Screen:</span>
+                <span class="meta-value">{{ testCase.screen_id || 'N/A' }}</span>
+              </div>
+            </div>
+            <div class="test-case-tags">
+              <span class="test-case-tag" *ngIf="testCase.test_suite_type">{{ testCase.test_suite_type }}</span>
+              <span class="test-case-tag" *ngIf="testCase.requirement_type">{{ testCase.requirement_type }}</span>
+              <span class="test-case-tag" *ngIf="testCase.region">{{ testCase.region }}</span>
+              <span class="test-case-tag" *ngIf="testCase.brand">{{ testCase.brand }}</span>
             </div>
           </div>
         </div>
@@ -425,10 +310,10 @@
   </div>
 
   <!-- Pagination -->
-  <div class="row mt-4" *ngIf="paginationState.total_pages > 1">
-    <div class="col-12">
+  <div *ngIf="paginationState.total_pages > 1">
+    <div class="pagination-container">
       <nav aria-label="Test cases pagination">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination">
           <li class="page-item" [class.disabled]="!paginationState.has_prev">
             <a class="page-link" href="#" (click)="onPageChange(paginationState.current_page - 1); $event.preventDefault()">
               <i class="fas fa-chevron-left"></i>
@@ -454,4 +339,3 @@
       </nav>
     </div>
   </div>
-</div>

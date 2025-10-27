@@ -3,14 +3,27 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TestCase, FilterOptions, FilterState, PaginationState, SearchResponse, DatabaseStats, BulkImportResult } from '../models/high-performance-test-case.model';
+import { environment } from '../../environments/environment';
+import { MockDataService } from './mock-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TestCasesService {
-  private apiUrl = 'http://localhost:8000/api/legacy/api';
+  private apiUrl = environment.apiUrl;
+  private mockMode = environment.mockMode;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private mockDataService: MockDataService
+  ) { }
+
+  // Check if mock mode is enabled
+  private isMockModeEnabled(): boolean {
+    return this.mockMode || 
+           localStorage.getItem('mockMode') === 'true' || 
+           sessionStorage.getItem('mockMode') === 'true';
+  }
 
   // Get test cases with filtering and pagination - using working endpoints
   getTestCases(filterState: FilterState, paginationState: PaginationState): Observable<{
@@ -18,6 +31,12 @@ export class TestCasesService {
     filter_options: FilterOptions;
     pagination: PaginationState;
   }> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock data');
+      return this.mockDataService.getTestCases(filterState, paginationState);
+    }
+
     const params = new HttpParams()
       .set('page', paginationState.current_page.toString())
       .set('per_page', paginationState.per_page.toString())
@@ -87,6 +106,12 @@ export class TestCasesService {
 
   // Get filter options - using working endpoint
   getFilterOptions(): Observable<FilterOptions> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock filter options');
+      return this.mockDataService.getFilterOptions();
+    }
+
     return this.http.get<any>(`${this.apiUrl}/test-cases`)
       .pipe(
         map(response => response.filter_options || {
@@ -106,6 +131,12 @@ export class TestCasesService {
 
   // Get test case details - using search approach
   getTestCaseDetails(testCaseId: string): Observable<TestCase | null> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock test case details');
+      return this.mockDataService.getTestCaseDetails(testCaseId);
+    }
+
     const params = new HttpParams()
       .set('search', testCaseId)
       .set('per_page', '1');
@@ -121,6 +152,12 @@ export class TestCasesService {
 
   // Export test cases - now using high-performance endpoint
   exportTestCases(format: 'excel' | 'csv' | 'pdf', filterState: FilterState): Observable<Blob> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock export');
+      return this.mockDataService.exportTestCases(format, filterState);
+    }
+
     const exportRequest = {
       query: filterState.search_query || '',
       filters: this.sanitizeFilters(filterState),
@@ -144,6 +181,12 @@ export class TestCasesService {
 
   // Get database statistics - now using high-performance endpoint
   getDatabaseStatistics(): Observable<DatabaseStats> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock database statistics');
+      return this.mockDataService.getDatabaseStatistics();
+    }
+
     return this.http.get<{
       success: boolean;
       data: DatabaseStats;
@@ -159,6 +202,12 @@ export class TestCasesService {
     testCaseIds: string[],
     updateData: any = {}
   ): Observable<any> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock bulk operations');
+      return this.mockDataService.bulkOperations(operation, testCaseIds, updateData);
+    }
+
     return this.http.post<{
       success: boolean;
       data: any;
@@ -174,6 +223,12 @@ export class TestCasesService {
 
   // Bulk import Excel files - now using high-performance endpoint
   bulkImportExcelFiles(excelDirectory: string = 'data/excel_files/validex'): Observable<BulkImportResult> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock bulk import');
+      return this.mockDataService.bulkImportExcelFiles(excelDirectory);
+    }
+
     return this.http.post<{
       success: boolean;
       data: BulkImportResult;
@@ -187,6 +242,12 @@ export class TestCasesService {
 
   // Optimize database - now using high-performance endpoint
   optimizeDatabase(): Observable<{ success: boolean; message: string }> {
+    // Use mock data if mock mode is enabled
+    if (this.isMockModeEnabled()) {
+      console.log('[TestCasesService] Using mock database optimization');
+      return this.mockDataService.optimizeDatabase();
+    }
+
     return this.http.post<{
       success: boolean;
       data: { success: boolean; message: string };

@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TestCasesComponent } from './components/test-cases/test-cases.component';
 import { TestCaseDetailsComponent } from './components/test-case-details/test-case-details.component';
+import { MockHttpInterceptor } from './services/mock-http.interceptor';
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -29,6 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LandingComponent } from './components/landing/landing.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ViewToggleComponent } from './components/view-toggle/view-toggle.component';
+import { MockToggleComponent } from './components/mock-toggle/mock-toggle.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,8 @@ import { ViewToggleComponent } from './components/view-toggle/view-toggle.compon
     TestCaseDetailsComponent,
     LandingComponent,
     DashboardComponent,
-    ViewToggleComponent
+    ViewToggleComponent,
+    MockToggleComponent
   ],
   imports: [
     BrowserModule,
@@ -64,7 +67,13 @@ import { ViewToggleComponent } from './components/view-toggle/view-toggle.compon
     MatTabsModule,
     MatTooltipModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: MockHttpInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
